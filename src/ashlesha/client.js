@@ -97,8 +97,17 @@ YUI().add('ashlesha-base-models', function(Y) {
                     on: {
                         success: function(i, o, a) {
                             var data = Y.JSON.parse(o.responseText);
-                            cache.add(data.data._id, Y.JSON.stringify(data.data));
-                            callback(null, data.data);
+                            if(data.success)
+                            {
+                            	 cache.add(data.data._id, Y.JSON.stringify(data.data));
+                            	callback(null, data.data);
+                            }
+                            else
+                            {
+                            	 cache.add(data.data._id, "");
+                            	 callback(data.error);
+                            }
+                           
                         },
                         failure: function(i, o, a) {
                             var r = Y.JSON.parse(o.responseText);

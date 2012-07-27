@@ -6,6 +6,7 @@
 YUI({
     AppConfig: {
         baseURL: 'http://@SUBDOMAIN@.@DOMAIN@.@TLD@/',
+        port:'@PORT@',
         logoImage: 'static/images/logo.png',
         modelMapURL: 'model',
         apiURL:'api',

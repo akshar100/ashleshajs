@@ -88,6 +88,7 @@
 			<filelist dir="${build.dir}" >
 				<file name="ashlesha/client.js" />
 				<file name="ashlesha/common.js" />
+				<file name="ashlesha/models.js" />
 				<file name="ashlesha/appv2.js" />
 			</filelist>
 		</concat>
@@ -99,6 +100,7 @@
 			<filelist dir="${build.dir}" >
 				<file name="ashlesha/serverf.js" />
 				<file name="ashlesha/common.js" />
+				<file name="ashlesha/models.js" />
 				<file name="ashlesha/appv2.js" />
 			</filelist>
 		</concat>
@@ -152,7 +154,7 @@
 		<concat destfile="${build.static.js.dir}/build.min.js" fixlastline="yes">
 			<header>/* Build Time: ${build.time} */
 /*${license}*/</header>
-			<fileset dir="${build.static.js.dir}" includes="build.js"/>
+			<fileset dir="${build.static.js.dir}" includes="build-min.js"/>
 		</concat>
 		<delete file="${build.static.js.dir}/build-min.js"/>
 		
@@ -190,9 +192,6 @@
   	<target name="dev.js">
   		<antcall target="ashlesha.js"/>
   		<antcall target="minify"/>
-  	</target>
-  	<target name="dev.php">
-  		<antcall target="init"/>
   	</target>
   	
   	<target name="clean" >    

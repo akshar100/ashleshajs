@@ -87,11 +87,11 @@ YUI().add('ashlesha-base-models', function(Y) {
                 });
                 break;
             case "create":
-                Y.log(dburl);
+                
                 if (typeof data._id !== "undefined") {
                     delete data._id;
                 }
-                Y.log(data);
+                
                 Y.io(dburl, {
                     method: 'POST',
                     headers: {
@@ -130,7 +130,7 @@ YUI().add('ashlesha-base-models', function(Y) {
                         failure: function(i, response) {
                             var r = Y.JSON.parse(response.responseText);
                             callback(r.reason);
-                            Y.log(Y.JSON.stringify(response));
+                            
                         }
                     }
                 });
@@ -269,7 +269,7 @@ YUI().add('server-app', function(Y) {
         dispatch: function() {
         	
             var ex = this.get('express');
-            ex.listen(8888, function() {
+            ex.listen(Y.config.AppConfig.port, function() {
                 Y.log("server started");
             });
             var self = this;
