@@ -1,11 +1,11 @@
-Ashlesha
+AshleshaJS
 =============
 
-Ashlesha is an open source platform for building social web applications for a specific purpose. 
-If you are looking for a stating point to build a typical social networking app this might be a good choice. 
-It is written in PHP and used CouchDB as backend.
+NodeJS/Express based framework for modern web applications.
 
 Configuration
 --------------
 
-Please note that you will have to add config.php and database.php to application/config/ folder.
+- Install NodeJS
+- Install the dependent node modules using the command 'npm install -g yui3 express redis nodemailer' 
+- Modify the custom.properties file to configure your domain name and other server details
