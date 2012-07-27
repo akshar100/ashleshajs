@@ -10,9 +10,9 @@ YUI({
         modelMapURL: 'model',
         apiURL:'api',
         couch: {
-            host: 'www.forbash.com',
+            host: '@COUCHHOST@',
             port: 5984,
-            dbname: 'ashlesha'
+            dbname: '@COUCHDB_NAME@'
         }
         
     },
