@@ -1,3 +1,6 @@
 [submodule "src/ashlesha/public/static/bootstrap"]
 	path = src/ashlesha/public/static/bootstrap
 	url = git://github.com/twitter/bootstrap.git
+[submodule "extern/JSDev"]
+	path = extern/JSDev
+	url = git@github.com:akshar100/JSDev.git
