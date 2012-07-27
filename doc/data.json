@@ -1,0 +1,411 @@
+{
+    "project": {},
+    "files": {
+        "/var/hosts/devportal/src/js_mods/framework/js/framework.js": {
+            "name": "/var/hosts/devportal/src/js_mods/framework/js/framework.js",
+            "modules": {
+                "module-name": 1
+            },
+            "classes": {
+                "RequestServer": 1,
+                "AshleshaAuth": 1,
+                "AshleshaViewServer": 1,
+                "AshleshaBaseView": 1,
+                "HeroView": 1,
+                "AshleshaBaseModel": 1,
+                "TopBarView": 1,
+                "AshleshaSideBarModel": 1,
+                "SideBarView": 1,
+                "MainMessageView": 1,
+                "HomeView": 1,
+                "PostsView": 1,
+                "ToolBarView": 1,
+                "CreateItemView": 1,
+                "TextBoxView": 1,
+                "TextAreaView": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        }
+    },
+    "modules": {
+        "module-name": {
+            "name": "module-name",
+            "submodules": {},
+            "classes": {
+                "RequestServer": 1,
+                "AshleshaAuth": 1,
+                "AshleshaViewServer": 1,
+                "AshleshaBaseView": 1,
+                "HeroView": 1,
+                "AshleshaBaseModel": 1,
+                "TopBarView": 1,
+                "AshleshaSideBarModel": 1,
+                "SideBarView": 1,
+                "MainMessageView": 1,
+                "HomeView": 1,
+                "PostsView": 1,
+                "ToolBarView": 1,
+                "CreateItemView": 1,
+                "TextBoxView": 1,
+                "TextAreaView": 1
+            },
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "/var/hosts/devportal/src/js_mods/framework/js/framework.js",
+            "line": 1186,
+            "description": "The ashlesha-app is the module that loads all the neccessary infrastructure for the Ashlesha based web application"
+        }
+    },
+    "classes": {
+        "RequestServer": {
+            "name": "RequestServer",
+            "shortname": "RequestServer",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "module-name",
+            "namespace": "",
+            "file": "/var/hosts/devportal/src/js_mods/framework/js/framework.js",
+            "line": 14,
+            "description": "The RequestServer provides the basic functionality of accepting requests and sending responses asynchronously.\nThis is a a classic Facade Design pattern.\nTo use do \n\n \tY.mix(YourObj,Y.RequestServer);",
+            "extends": "Base",
+            "uses": [
+                ""
+            ],
+            "is_constructor": 1,
+            "cfg": "{object} configuration attributes"
+        },
+        "AshleshaAuth": {
+            "name": "AshleshaAuth",
+            "shortname": "AshleshaAuth",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "module-name",
+            "namespace": "",
+            "file": "/var/hosts/devportal/src/js_mods/framework/js/framework.js",
+            "line": 92,
+            "description": "The AshleshaAuth Class holds the Current User Information. Depending the user presence and his rights other modules do async calls via Y.fire and Y.on\nto perform their operations. This class must always be initialized synchronously before any other modules are initialized.",
+            "extends": "Y.Model",
+            "uses": [
+                "WidgetParent"
+            ],
+            "is_constructor": 1,
+            "cfg": "{object} configuration attributes"
+        },
+        "AshleshaViewServer": {
+            "name": "AshleshaViewServer",
+            "shortname": "AshleshaViewServer",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "module-name",
+            "namespace": "",
+            "file": "/var/hosts/devportal/src/js_mods/framework/js/framework.js",
+            "line": 201,
+            "description": "AshleshaViewServer creates Views that are commonly used and keeps them in the DOM and serves them whenever requested",
+            "extends": "Widget",
+            "uses": [
+                "WidgetParent"
+            ],
+            "is_constructor": 1,
+            "cfg": "{object} configuration attributes"
+        },
+        "AshleshaBaseView": {
+            "name": "AshleshaBaseView",
+            "shortname": "AshleshaBaseView",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "module-name",
+            "namespace": "",
+            "file": "/var/hosts/devportal/src/js_mods/framework/js/framework.js",
+            "line": 246,
+            "description": "The AshleshaBaseView class is the base class for all Views. It dynamically loads the templates, stores them in localstorage if available,\nit fetches the user if present and accordingly calls two functions. (authenticated or unauthenticated). If your view is agnostic to user\nthen please provide (\"useragnostic:true\") as initialization parameter. The method to be specified in that case is altInitializer (Alternate Initializer)\nAll the child Modules hence need not bother about theme loading and user detection.",
+            "extends": "View",
+            "uses": [
+                ""
+            ],
+            "is_constructor": 1,
+            "cfg": "{userAgnostic:false} configuration attributes"
+        },
+        "HeroView": {
+            "name": "HeroView",
+            "shortname": "HeroView",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "module-name",
+            "namespace": "",
+            "file": "/var/hosts/devportal/src/js_mods/framework/js/framework.js",
+            "line": 760,
+            "description": "The LoginView module renders a login box. Currently it does not support OpenID based logins",
+            "extends": "View",
+            "uses": [
+                ""
+            ],
+            "is_constructor": 1,
+            "cfg": "{object} configuration attributes"
+        },
+        "AshleshaBaseModel": {
+            "name": "AshleshaBaseModel",
+            "shortname": "AshleshaBaseModel",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "module-name",
+            "namespace": "",
+            "file": "/var/hosts/devportal/src/js_mods/framework/js/framework.js",
+            "line": 703,
+            "description": "AshleshaSignUpModel is created to let users signup or to create new users. It requires the config attributes for validation functions",
+            "extends": "Model",
+            "uses": [
+                ""
+            ],
+            "is_constructor": 1,
+            "cfg": "{object} configuration attributes"
+        },
+        "TopBarView": {
+            "name": "TopBarView",
+            "shortname": "TopBarView",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "module-name",
+            "namespace": "",
+            "file": "/var/hosts/devportal/src/js_mods/framework/js/framework.js",
+            "line": 833,
+            "description": "The TopBarView class represents the view of the main page. For an unauthenticatd user this would be a signup page.",
+            "extends": "View",
+            "uses": [
+                "WidgetParent"
+            ],
+            "is_constructor": 1,
+            "cfg": "{object} configuration attributes"
+        },
+        "AshleshaSideBarModel": {
+            "name": "AshleshaSideBarModel",
+            "shortname": "AshleshaSideBarModel",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "module-name",
+            "namespace": "",
+            "file": "/var/hosts/devportal/src/js_mods/framework/js/framework.js",
+            "line": 859,
+            "description": "The AshleshaSideBarModel model is responsible for Login",
+            "extends": "Model",
+            "uses": [
+                ""
+            ],
+            "is_constructor": 1,
+            "cfg": "{object} configuration attributes"
+        },
+        "SideBarView": {
+            "name": "SideBarView",
+            "shortname": "SideBarView",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "module-name",
+            "namespace": "",
+            "file": "/var/hosts/devportal/src/js_mods/framework/js/framework.js",
+            "line": 870,
+            "description": "The SideBarView is the sidebar of our application of course it will be present only for the signed in users.",
+            "extends": "View",
+            "uses": [
+                "View",
+                "Model"
+            ],
+            "is_constructor": 1,
+            "cfg": "{object} configuration attributes"
+        },
+        "MainMessageView": {
+            "name": "MainMessageView",
+            "shortname": "MainMessageView",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "module-name",
+            "namespace": "",
+            "file": "/var/hosts/devportal/src/js_mods/framework/js/framework.js",
+            "line": 911,
+            "description": "The MainMessageView is the place where you give messages to the users.",
+            "extends": "View",
+            "uses": [
+                "View",
+                "Model"
+            ],
+            "is_constructor": 1,
+            "cfg": "{object} configuration attributes"
+        },
+        "HomeView": {
+            "name": "HomeView",
+            "shortname": "HomeView",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "module-name",
+            "namespace": "",
+            "file": "/var/hosts/devportal/src/js_mods/framework/js/framework.js",
+            "line": 939,
+            "description": "The HomeView class represents the view of the main page. For an unauthenticatd user this would be a signup page.",
+            "extends": "View",
+            "uses": [
+                "WidgetParent"
+            ],
+            "is_constructor": 1,
+            "cfg": "{object} configuration attributes"
+        },
+        "PostsView": {
+            "name": "PostsView",
+            "shortname": "PostsView",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "module-name",
+            "namespace": "",
+            "file": "/var/hosts/devportal/src/js_mods/framework/js/framework.js",
+            "line": 998,
+            "description": "The this view shows the post cosole for a user. Use can create, update, delete his posts. Publish them as public or publish them to various streams.",
+            "extends": "View",
+            "uses": [
+                "WidgetParent"
+            ],
+            "is_constructor": 1,
+            "cfg": "{object} configuration attributes"
+        },
+        "ToolBarView": {
+            "name": "ToolBarView",
+            "shortname": "ToolBarView",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "module-name",
+            "namespace": "",
+            "file": "/var/hosts/devportal/src/js_mods/framework/js/framework.js",
+            "line": 1015,
+            "description": "The ToolBarView is used to render toolbars",
+            "extends": "View",
+            "uses": [
+                ""
+            ],
+            "is_constructor": 1,
+            "cfg": "{object} configuration attributes"
+        },
+        "CreateItemView": {
+            "name": "CreateItemView",
+            "shortname": "CreateItemView",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "module-name",
+            "namespace": "",
+            "file": "/var/hosts/devportal/src/js_mods/framework/js/framework.js",
+            "line": 1051,
+            "description": "The CreateItemView is a special view that renders forms based on the configuration properties provided.\nIt is also responsible for validation and submission",
+            "extends": "View",
+            "uses": [
+                ""
+            ],
+            "is_constructor": 1,
+            "cfg": "{object} configuration attributes"
+        },
+        "TextBoxView": {
+            "name": "TextBoxView",
+            "shortname": "TextBoxView",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "module-name",
+            "namespace": "",
+            "file": "/var/hosts/devportal/src/js_mods/framework/js/framework.js",
+            "line": 1140,
+            "description": "The TextBoxView is a simple textbox form control :)",
+            "extends": "View",
+            "uses": [
+                ""
+            ],
+            "is_constructor": 1,
+            "cfg": "{object} configuration attributes"
+        },
+        "TextAreaView": {
+            "name": "TextAreaView",
+            "shortname": "TextAreaView",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "module-name",
+            "namespace": "",
+            "file": "/var/hosts/devportal/src/js_mods/framework/js/framework.js",
+            "line": 1186,
+            "description": "The TextAreaView is a simple textbox form control :)",
+            "extends": "View",
+            "uses": [
+                ""
+            ],
+            "is_constructor": 1,
+            "cfg": "{object} configuration attributes"
+        }
+    },
+    "classitems": [
+        {
+            "file": "/var/hosts/devportal/src/js_mods/framework/js/framework.js",
+            "line": 33,
+            "description": "This method is to be used if your object acts as a server if you call\n\n\tmyobj.registerListener(\"pincode\",function(e){\n\t\tif(e.pincode && e.pincode.length===6){\n\t\t\tthis.sendResponse(e,\"valid\");\n  \t}\n\t\telse{\n\t\t\tthis.sendResponse(e,\"invalid\");\n\t\t}\n\t},this);",
+            "itemtype": "method",
+            "name": "registerListener",
+            "params": [
+                {
+                    "name": "token_name",
+                    "description": "is a string using which clients will send requests.",
+                    "type": "String"
+                },
+                {
+                    "name": "callback",
+                    "description": "Will be called everytime a request is received. You might want to call this.sendResponse() to send response inside the callback",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": ""
+            },
+            "class": "RequestServer",
+            "module": "module-name"
+        }
+    ]
+}

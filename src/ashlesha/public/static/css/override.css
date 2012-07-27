@@ -1,0 +1,31 @@
+.logo
+{
+	float:left;
+}
+.logo img
+{
+	height:45px;
+}
+li.username a 
+{
+	color:white !important;
+}
+.logout-link
+{
+	cursor:pointer;
+}
+.container-area
+{
+	padding-top:60px;
+}
+footer
+{
+	text-align:center;
+}
+.wait-backdrop
+{
+	opacity:0.3;
+	background: #000000;
+	position:absolute;
+	text-align:center;
+}

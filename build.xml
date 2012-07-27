@@ -1,0 +1,202 @@
+<project name="ashlesha" default="init">
+	<loadproperties srcfile="build.properties" />
+	
+	<target name="init">
+	    <!-- Create the time stamp -->
+	    <tstamp/>
+	    <!-- Create the build directory structure used by compile -->
+	    <mkdir dir="${build.dir}"/>
+	    <copy todir="${build.dir}">
+		    <fileset dir="${src.dir}" includes="**/*.js,**/*.php,.htaccess,**/*.txt,**/*.tpl"/>
+		     <filterchain>
+		  
+			    <filterreader classname="org.apache.tools.ant.filters.ReplaceTokens">
+			            <param type="propertiesfile" value="${custom.config.file}"/>
+			    </filterreader>
+		    </filterchain>
+		</copy>
+		<copy todir="${build.dir}">
+		    <fileset dir="${src.dir}" excludes="**/*.js,**/*.php,.htaccess,**/*.txt,**/*.tpl"/>
+		</copy>
+		<exec executable="gcc">
+			<arg line="${jsdev.dir}/jsdev.c" ></arg>
+		</exec>
+		<exec executable="mv">
+			<arg line="a.out ${jsdev.dir}" ></arg>
+		</exec>
+  	</target>
+  	
+  	<target name="bootstrap">
+	    
+	    <exec executable="make">
+			<arg line="-C ${bootstrap.make.dir} bootstrap" ></arg>
+		</exec>
+	    <copy todir="${build.static.dir}">
+		    <fileset dir="${bootstrap.make.dir}/bootstrap"/>
+		</copy>
+		<delete dir="${bootstrap.make.dir}"/>
+		<delete dir="./bootstrap"/>
+		<tstamp>
+			<format property="build.time"
+			pattern="MMMM d, yyyy hh:mm:ss"
+			locale="en,US"/>
+		</tstamp>
+		<loadfile property="license" srcfile="license.txt" />
+		<concat destfile="${build.static.css.dir}/build.css" fixlastline="yes">
+			<header>
+				/* Build Time: ${build.time} */
+				/*${license}*/
+			</header>
+			<fileset dir="${build.static.css.dir}" includes="*.css" excludes="build.min.css,build.css,bootstrap.css,bootstrap-response.css"/>
+		</concat>
+  	</target>
+  	
+  	<target name="nonyui.js.concatenate">
+		<concat destfile="${build.static.js.dir}/externalcomponents.js">
+			<filelist dir="${build.static.js.dir}" files="parserRules.js,editor.js,bootstrap.min.js"/>
+		</concat>
+		<fixcrlf srcdir="${build.static.js.dir}" includes="*.js" eol="lf" eof="remove" />
+		<delete>
+			<filelist dir="${build.static.js.dir}" files="parserRules.js,editor.js,bootstrap.js,bootstrap.min.js"/>
+		</delete>
+	</target>
+  	
+  	
+  	<target name="ashlesha.js" depends="nonyui.js.concatenate" >
+  		<fixcrlf srcdir="${src.js_mod.dir}" includes="**/*.js" eol="lf" eof="remove" />
+  		<copy todir="${build.js_mod.dir}" filtering="true">
+  			<filterchain>
+			    <filterreader classname="org.apache.tools.ant.filters.ReplaceTokens">
+			            <param type="propertiesfile" value="${custom.jsconfig.file}"/>
+			    </filterreader>
+		    </filterchain>
+		    <fileset dir="${src.js_mod.dir}"/>
+		</copy>
+		
+
+		<tstamp>
+			<format property="build.time"
+			pattern="MMMM d, yyyy hh:mm:ss"
+			locale="en,US"/>
+		</tstamp>
+		<loadfile property="license" srcfile="license.txt" />
+		<concat destfile="${build.static.js.dir}/build.js" fixlastline="yes">
+			<header>
+				/* Build Time: ${build.time} */
+				/*${license}*/
+			</header>
+			<filelist dir="${build.dir}" >
+				<file name="ashlesha/client.js" />
+				<file name="ashlesha/common.js" />
+				<file name="ashlesha/appv2.js" />
+			</filelist>
+		</concat>
+		<concat destfile="${build.dir}/ashlesha/server.js" fixlastline="yes">
+			<header>
+				/* Build Time: ${build.time} */
+				/*${license}*/
+			</header>
+			<filelist dir="${build.dir}" >
+				<file name="ashlesha/serverf.js" />
+				<file name="ashlesha/common.js" />
+				<file name="ashlesha/appv2.js" />
+			</filelist>
+		</concat>
+		<fixcrlf srcdir="${build.dir}" includes="*.js" eol="lf" eof="remove" />
+		
+  	</target>
+  	<target name="jsdev">
+	  	<apply executable="${jsdev}" resolveexecutable="true" vmlauncher="false" addsourcefile="false" parallel="false">
+			    <!-- Collect the JS-files -->
+			    <fileset dir="${src.js_mod.dir}" includes="**/*.js"/>
+			   
+			    <arg line="${jsdev.params}"/>
+			    <redirector>
+			        <!-- redirect STDIN; fileset collects relative to its dir, but we need -->
+			        <!-- relative to basedir -->
+			        <inputmapper type="glob" from="*" to="${src.js_mod.dir}/*"/>
+			        <!-- redirect STDOUT to file in dest-dir -->
+			        <outputmapper id="out" type="glob" from="*" to="${build.js_mod.dir}/*"/>
+			    </redirector>
+			</apply>
+	</target>
+  	
+  	
+  	<target name="validate">
+		<apply executable="java" parallel="true">
+			<arg line="-jar"/>
+			<arg path="${extern.dir}js.jar"/>
+			<arg path="${extern.dir}jshint.js" />
+			<arg
+			line="curly=true,forin=true,latedef=true,noempty=true,undef=true,rhino=false"/>
+			<fileset dir="${build.static.js.dir}" includes="build.js"/>
+		</apply>
+	</target>
+  	<target name="minify">
+		<apply executable="java" failonerror="true">
+			<fileset dir="${build.static.js.dir}" includes="build.js"/>
+			<mapper type="glob" from="*.js" to="${build.static.js.dir}/*-min.js"/>
+			<arg line="-jar"/>
+			<arg path="${yuicompressor}"/>
+			<arg line="${yuicompressor.options}"/>
+			<srcfile/>
+			<arg line="-o"/>
+			<targetfile/>
+		</apply>
+		<loadfile property="license" srcfile="license.txt" />
+		<tstamp>
+			<format property="build.time"
+			pattern="MMMM d, yyyy hh:mm:ss"
+			locale="en,US"/>
+		</tstamp>
+		<concat destfile="${build.static.js.dir}/build.min.js" fixlastline="yes">
+			<header>/* Build Time: ${build.time} */
+/*${license}*/</header>
+			<fileset dir="${build.static.js.dir}" includes="build.js"/>
+		</concat>
+		<delete file="${build.static.js.dir}/build-min.js"/>
+		
+	</target>
+  	
+  	<target name="document">
+		<exec executable="yuidoc" failonerror="true">
+		<arg path="${src.js_mod.dir}"/>
+		<arg line="-o" />
+		<arg path="${yuidoc.output}"/>
+		</exec>
+		<copy todir="${build.dir}/doc" filtering="true">
+		    <fileset dir="${yuidoc.output}"/>
+		</copy>
+		
+	</target>
+  	
+  	
+  	<target name="short">
+  		<antcall target="init"/>
+  		<!--<antcall target="bootstrap"/>
+  		<antcall target="ashlesha.js"/>
+  		<antcall target="validate"/>
+  		<antcall target="minify"/>-->
+  	</target>
+  	<target name="all">
+  		<antcall target="init"/>
+  		<antcall target="bootstrap"/>
+  		<antcall target="ashlesha.js"/>
+  		<antcall target="validate"/>
+  		<antcall target="minify"/>
+  	</target>
+  	
+  	
+  	<target name="dev.js">
+  		<antcall target="ashlesha.js"/>
+  		<antcall target="minify"/>
+  	</target>
+  	<target name="dev.php">
+  		<antcall target="init"/>
+  	</target>
+  	
+  	<target name="clean" >    
+	   <delete dir="${build.dir}"/>
+  	</target>
+	
+</project>
