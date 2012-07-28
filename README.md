@@ -26,6 +26,149 @@ Configuration
 - Go to the build directory using command  ```cd build/ashlesha/``` and run ```node server.js```
 - This will start the server on specified domain name at port 8888 (You can change the port number in custom.properties file)
 
+Example:
+----------------
+
+Code to create a signup form:
+
+```Javscript
+app.route("/signup",function(req,res){
+    	this.showView('page', {
+            req: req,
+            res: res,
+            user:currentUser,
+            modules: {
+                ".topbar": {
+                    view: "TopBarView"
+                },
+                ".page-content": {
+                	view:"SignUpView",
+                	config:{
+                		modules:{
+                			'div.date_field':{
+                				view:"DateField",
+                				config:{
+                					label:'Date of Birth',
+                					field_name:'dob'
+                				}
+                			},
+                			'div.first_name':{
+                				view:'FormItem',
+                				config:{
+                					label:'First Name',
+                					field_name:'firstname'
+                				}
+                			},
+                			'div.last_name':{
+                				view:'FormItem',
+                				config:{
+                					label:'Last Name',
+                					field_name:'lastname'
+                				}
+                			},
+                			'div.password':{
+                				view:'FormItem',
+                				config:{
+                					label:'Password',
+                					field_name:'password',
+                					field_type:'password'
+                				}
+                			},
+                			'div.password2':{
+                				view:'FormItem',
+                				config:{
+                					label:'Repeat Password',
+                					field_name:'password2',
+                					field_type:'password'
+                				}
+                			},
+                			'div.email':{
+                				view:'FormItem',
+                				config:{
+                					label:'Email',
+                					field_name:'email'
+                				}
+                			},
+                			'div.gender':{
+                				view:'SelectField',
+                				config:{
+                					label:'You are',
+                					field_name:'gender',
+                					options:{
+                						m:"Male",
+                						f:"Female"
+                					}
+                				}
+                			}
+                		}
+                	}
+                }
+
+            }
+        });
+    });
+    
+   Y.SignUpView = Y.Base.create("SignUpView", Y.FormView, [], {
+        altInitializer: function(auth) {
+            var c, t;
+            Y.SignUpView.superclass.altInitializer.apply(this, arguments);
+            c = this.get('container');
+            t = this.get('template');
+            c.setHTML(t.one("#SignUpView-main-unsigned").getHTML());
+            this.loadModules();
+        },
+        onSubmit:function(e){
+        	
+        	var item = this.getFormItems(), model = new Y.CommonModel({
+        		attrs:{
+        			
+        			firstname:{
+        				value:'',
+        				validation_rules:"trim|required"
+        			},
+        			lastname:{
+        				value:'',
+        				validation_rules:"trim|required"
+        			},
+        			email:{
+        				value:'',
+        				validation_rules:"trim|required"
+        			},
+        			dob:{
+        				value:'',
+        				validation_rules:"required"
+        			},
+        			password:{
+        				value:'',
+        				validation_rules:'required'
+        			},
+        			password2:{
+        				value:'',
+        				validation_rules:'required'
+        			},
+        			type:{
+        				value:'user'
+        			},
+        			gender:{
+        				value:'',
+        				validation_rules:'required'
+        			}
+        		}
+        	});
+        	e.halt();
+        	this.startWait(e.target);
+        	model = this.plugModel(model); //Method used to map the Form to the Model
+        	
+        	
+        	model.save();
+        }
+    });
+```
+A HTML template needs to be placed on the server and our framework generates all the other code. The Server starts listening to */signup*, the client starts listening for */signup* 
+URL change. The model is plugged into the the View is is also responsible for validating the form inputs and save it on the server. The input values are validated on client and also 
+on the server. 
+
+
 Common Problems
 -----------------
 
