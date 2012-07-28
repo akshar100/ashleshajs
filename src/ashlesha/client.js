@@ -18,16 +18,15 @@ YUI().add('ashlesha-api', function(Y) {
                 on: {
                     complete: function(i, o, a) {
                         var r = Y.JSON.parse(o.responseText);
-                        if(Y.Lang.isFunction(callback))
-                        {
-	                        if (r.success) {
-	                            callback.call(ctx || this, null, r.data);
-	                        }
-	                        else {
-	                            callback.call(ctx || this, r.error);
-	                        }
+                        if (Y.Lang.isFunction(callback)) {
+                            if (r.success) {
+                                callback.call(ctx || this, null, r.data);
+                            }
+                            else {
+                                callback.call(ctx || this, r.error);
+                            }
                         }
-                        
+
                     }
                 }
             });
@@ -99,17 +98,15 @@ YUI().add('ashlesha-base-models', function(Y) {
                     on: {
                         success: function(i, o, a) {
                             var data = Y.JSON.parse(o.responseText);
-                            if(data.success)
-                            {
-                            	 cache.add(data.data._id, Y.JSON.stringify(data.data));
-                            	callback(null, data.data);
+                            if (data.success) {
+                                cache.add(data.data._id, Y.JSON.stringify(data.data));
+                                callback(null, data.data);
                             }
-                            else
-                            {
-                            	 cache.add(data.data._id, "");
-                            	 callback(data.error);
+                            else {
+                                cache.add(data.data._id, "");
+                                callback(data.error);
                             }
-                           
+
                         },
                         failure: function(i, o, a) {
                             var r = Y.JSON.parse(o.responseText);
@@ -162,7 +159,7 @@ YUI().add('ashlesha-base-models', function(Y) {
 YUI().add('ashlesha-base-view', function(Y) {
 
     var Lang = Y.Lang;
-    var ImageLoader = Y.Node.create('<img src="'+Y.config.AppConfig.loaderImage+'"/>');
+    var ImageLoader = Y.Node.create('<img src="' + Y.config.AppConfig.loaderImage + '"/>');
     /**
      * The AshleshaBaseView class is the base class for all Views. It dynamically loads the templates, stores them in localstorage if available,
      * it fetches the user if present and accordingly calls two functions. (authenticated or unauthenticated). If your view is agnostic to user
@@ -174,7 +171,7 @@ YUI().add('ashlesha-base-view', function(Y) {
      * @constructor
      * @cfg {userAgnostic:false} configuration attributes
      */
-    
+
     Y.AshleshaBaseView = Y.Base.create('AshleshaBaseView', Y.View, [Y.View.NodeMap], {
         containerTemplate: '<div/>',
         initializer: function(config) {
@@ -188,10 +185,10 @@ YUI().add('ashlesha-base-view', function(Y) {
             if (config) {
                 this.set("user", config.user);
             }
-           
+
             this.loadTemplate(this.get('templateID') || this.name);
 
-           
+
 
 
         },
@@ -211,11 +208,11 @@ YUI().add('ashlesha-base-view', function(Y) {
                     context: this,
                     on: {
                         success: function(i, o, a) {
-							var r = Y.JSON.parse(o.responseText),i;
-							Y.Object.each(r,function(item,key){
-								cache.add(key,item+"<script type='text/x-template'></script>");
-							});
-							
+                            var r = Y.JSON.parse(o.responseText);
+                            Y.Object.each(r, function(item, key) {
+                                cache.add(key, item + "<script type='text/x-template'></script>");
+                            });
+
                             cached = cache.retrieve(this.get('templateID') || this.name);
                             this.set("template", Y.Node.create(cached.response));
                             this.fire("template_loaded");
@@ -299,51 +296,52 @@ YUI().add('ashlesha-base-view', function(Y) {
                 e.halt();
             }
         },
-        startWait:function(node){
-        	var loader = Y.Node.create('<img src="'+Y.config.AppConfig.loaderImage+'"/>');
-        	if(node){
-        		node.addClass('hide');
-        		node.insert(loader,"after");
-        		this.on("endWait",function(){
-        			loader.remove();
-        			node.removeClass('hide');
-        		},this)
-        	}
+        startWait: function(node) {
+            var loader = Y.Node.create('<img src="' + Y.config.AppConfig.loaderImage + '"/>');
+            if (node) {
+                node.addClass('hide');
+                node.insert(loader, "after");
+                this.on("endWait", function() {
+                    loader.remove();
+                    node.removeClass('hide');
+                }, this);
+            }
         },
-        endWait:function(){
-        	this.fire("endWait");
+        endWait: function() {
+            this.fire("endWait");
         }
     });
 
 
 
 }, '0.99', {
-    requires: ['io', 'app', 'cache', 'ashlesha-base-models', 'event', 'event-delegate', 'json','view-node-map']
+    requires: ['io', 'app', 'cache', 'ashlesha-base-models', 'event', 'event-delegate', 'json', 'view-node-map']
 });
 
 
 
 YUI().add('client-app', function(Y) {
-    Y.AshleshaApp = Y.Base.create("AshleshaApp",Y.App,[],{
-    	dispatch:function(){
-			var socket;
-			Y.AshleshaApp.superclass.dispatch.apply(this,arguments);
-			
-			try{
-				socket = io.connect(Y.config.AppConfig.baseURL);
-			    socket.on('test', function (data) {
-			    console.log(data);
-			    socket.emit('other', { my: 'data' });
-			 });
-			}catch(ex)
-			{
-				Y.log("Socket.IO not loaded"+ex);
-			}
-			    		
-    		    
-			
-    	}
-    });;
+    Y.AshleshaApp = Y.Base.create("AshleshaApp", Y.App, [], {
+        dispatch: function() {
+            var socket;
+            Y.AshleshaApp.superclass.dispatch.apply(this, arguments);
+
+            try {
+                socket = io.connect(Y.config.AppConfig.baseURL);
+                socket.on('test', function(data) {
+                    console.log(data);
+                    socket.emit('other', {
+                        my: 'data'
+                    });
+                });
+            } catch (ex) {
+                Y.log("Socket.IO not loaded" + ex);
+            }
+
+
+
+        }
+    });
 }, '0.99', {
     requires: ['app', 'ashlesha-base-view'],
     skinnable: false
