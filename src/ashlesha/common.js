@@ -308,11 +308,23 @@ YUI().add('ashlesha-common', function(Y) {
         getFormItems: function() {
             var items = [],
                 nodes = this.get('container').all('.yui3-input-container');
-            Y.log(nodes);
+            
             nodes.each(function(item) {
-                items.push(Y.AshleshaBaseView.getByNode(item).get('value'));
+                items.push(Y.AshleshaBaseView.getByNode(item));
             });
             return items;
+        },
+        plugErrors:function(errors){
+        	var items = this.getFormItems();
+        	Y.Array.each(items,function(item){
+        		
+        		Y.Array.each(errors,function(error){
+        			if(error.field===item.get("field_name"))
+        			{
+        				item.setErrorText(error.error.message);
+        			}
+        		});
+        	});
         }
 
     });
@@ -326,6 +338,23 @@ YUI().add('ashlesha-common', function(Y) {
             t = this.get('template');
             c.setHTML(t.one("#SignUpView-main-unsigned").getHTML());
             this.loadModules();
+        },
+        onSubmit:function(e){
+        	e.halt();
+        	var item = this.getFormItems(), model = new Y.CommonModel({
+        		attrs:{
+        			email:{
+        				value:'',
+        				validation_rules:"trim|required"
+        			}
+        		}
+        	});
+        	
+        	model.set("email","");
+        	model.on("error",function(e){
+        		this.plugErrors(e.error);
+        	},this);
+        	model.save();
         }
     });
 
@@ -346,5 +375,5 @@ YUI().add('ashlesha-common', function(Y) {
             return 'client-app';
         } else {
             return 'server-app';
-        }}(), 'ashlesha-api']
+        }}(), 'ashlesha-api','common-models-store']
 });

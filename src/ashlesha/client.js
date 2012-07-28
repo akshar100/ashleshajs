@@ -76,7 +76,9 @@ YUI().add('ashlesha-base-models', function(Y) {
     Y.AshleshaBaseModel = Y.Base.create('AshleshaBaseModel', Y.Model, [], {
         idAttribute: "_id",
         sync: function(action, options, callback) {
-            var cache, cached, data = {
+            var cache, cached, data;
+            this.removeAttr("attrs");
+            data = {
                 data: Y.JSON.stringify(this.toJSON()),
                 action: action,
                 name: this.name
@@ -293,6 +295,14 @@ YUI().add('ashlesha-base-view', function(Y) {
             if (e && Lang.isFunction(e.halt)) {
                 e.halt();
             }
+        },
+        startWait:function(node){
+        	if(node){
+        		
+        	}
+        },
+        endWait:function(){
+        	
         }
     });
 

@@ -4,13 +4,16 @@
 /*global YUI*/
 /*global __dirname*/
 "use strict";
-YUI().add('common-models',function(Y){
+YUI().add('common-models-store',function(Y){
 	
 	 /**
 	  * Validations Facade. All the validation rules go here.
 	  */
-	 Y.ValidationFacade = { validations: {
+	 Y.ValidationFacade = Y.Base.create("ValidationFacade",Y.Base,[],{
+	 
+	  validations: {
 	 	trim:function(key,val,attrs){
+	 		if(!val){val="";}
 	 		return val.trim();
 	 	},
 	 	required:function(key,val,attrs){
@@ -19,14 +22,22 @@ YUI().add('common-models',function(Y){
 	 			throw {
 	 				target:key,
 	 				val:val,
-	 				mesaage:Y.Lang.sub("{s} can not be empty",{ s:key })
+	 				message:Y.Lang.sub("<strong>{s}</strong> can not be empty",{ s:this.titlize(key) })
 	 			};
 	 			
 	 		}
 	 		return val;
 	 	}
 	 	
-	 }};
+	 	
+	 },
+	 titlize:function(str){
+	 	str = str.replace(/_/g," ") ;
+	 	return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+	 	
+	 }
+	 
+	 });
 	 
 	/*
      * The CommonModel class represents the base Model for our application which supports our customized validation framework as well
@@ -42,21 +53,26 @@ YUI().add('common-models',function(Y){
      * }} configuration attributes
      * 
      */
-	Y.CommonModel = Y.Base.create("CommonModel",Y.AshleshaBaseModel,[],{
+	Y.CommonModel = Y.Base.create("CommonModel",Y.AshleshaBaseModel,[Y.ValidationFacade],{
 		initializer:function(config){
-			if(config && config.attrs) //We supply attributes as initialization parameters along with
+			var attrs = this.get("attrs");
+			
+			if(attrs) //We supply attributes as initialization parameters along with
 			{
-				this.set("attrConfig",config.attrs);
-				this.setAttrs(config.attrs);
+				this.set("attrs",Y.clone(attrs));
+				this.addAttrs(attrs);
+				
 			}
 		},
 		validate:function(attrs){
-			var attrConfig= this.get("attrConfig"),errors=[];
+			
+			var attrConfig = this.get("attrs"),errors=[];
 			if(attrConfig)
 			{
+				
 				Y.Object.each(attrConfig,function(val,key){
 					var v = val.validation_rules,rules;
-				
+					
 					 //If the validation rule chain is specified
 					if(v){
 						rules = v.split("|");
@@ -64,7 +80,8 @@ YUI().add('common-models',function(Y){
 						try{
 							
 							Y.Array.each(rules,function(item,index){
-								val = this.validations[item].apply(this,[key,val,attrs]);
+								
+								val = this.validations[item].apply(this,[key,attrs[key],attrs]);
 							},this);
 							
 						}catch(ex){
@@ -77,9 +94,13 @@ YUI().add('common-models',function(Y){
 					}
 				},this);
 			}
+			if(errors.length>0)
+			{
+				return errors;
+			}
 		}
 	});
 	 
 },'0.0.9',{
-	requires:['ashlesha-base-models','ashlesha-api']
+	requires:['ashlesha-base-models']
 });

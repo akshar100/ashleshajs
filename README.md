@@ -37,6 +37,8 @@ Documentation
 
 You can generate the documentation bu running ```ant docs```. This will run YUIDocs on the Javascript code and generate the documentation.
 
+A file documentation.pdf is provided which gives the basic overview of the architecture and the philosophy behind design in an academic perspective.
+
 Credits and Bugs
 ------------------
 This framework is authored by Akshar Prabhu Desai. Many people helped conceptualize this framework and many people provided the neccessary resources. 
