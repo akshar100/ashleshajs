@@ -31,7 +31,7 @@ Example:
 
 Code to create a signup form:
 
-```Javscript
+```Javascript
 app.route("/signup",function(req,res){
     	this.showView('page', {
             req: req,
