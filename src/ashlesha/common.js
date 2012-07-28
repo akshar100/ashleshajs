@@ -325,6 +325,21 @@ YUI().add('ashlesha-common', function(Y) {
         			}
         		});
         	});
+        	
+        },
+        plugModel:function(model){
+        	var items = this.getFormItems();
+        	Y.Array.each(items,function(item){
+        		model.set(item.get("field_name"),item.get("value"));
+        	});
+        	model.on("error",function(e){
+        		this.plugErrors(e.error);
+        		this.endWait();
+        	},this);
+        	model.on("save",function(){
+        		this.endWait();
+        	},this);
+        	return model;
         }
 
     });
@@ -343,23 +358,45 @@ YUI().add('ashlesha-common', function(Y) {
         	
         	var item = this.getFormItems(), model = new Y.CommonModel({
         		attrs:{
+        			
+        			firstname:{
+        				value:'',
+        				validation_rules:"trim|required"
+        			},
+        			lastname:{
+        				value:'',
+        				validation_rules:"trim|required"
+        			},
         			email:{
         				value:'',
         				validation_rules:"trim|required"
+        			},
+        			dob:{
+        				value:'',
+        				validation_rules:"required"
+        			},
+        			password:{
+        				value:'',
+        				validation_rules:'required'
+        			},
+        			password2:{
+        				value:'',
+        				validation_rules:'required'
+        			},
+        			type:{
+        				value:'user'
+        			},
+        			gender:{
+        				value:'',
+        				validation_rules:'required'
         			}
         		}
         	});
         	e.halt();
         	this.startWait(e.target);
+        	model = this.plugModel(model); //Method used to map the Form to the Model
         	
-        	model.set("email","akshar");
-        	model.on("error",function(e){
-        		this.plugErrors(e.error);
-        		this.endWait();
-        	},this);
-        	model.on("save",function(){
-        		this.endWait();
-        	},this);
+        	
         	model.save();
         }
     });
