@@ -11,12 +11,6 @@ YUI({
         loaderImage:'static/loader.gif',
         modelMapURL: 'model',
         apiURL:'api',
-        couch: {
-            host: '@COUCHHOST@',
-            port: 5984,
-            dbname: '@COUCHDB_NAME@'
-        }
-        
     },
     modules: {
 

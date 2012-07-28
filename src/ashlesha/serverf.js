@@ -61,7 +61,7 @@ YUI().add('ashlesha-base-models', function(Y) {
     Y.AshleshaBaseModel = Y.Base.create('AshleshaBaseModel', Y.Model, [], {
         idAttribute: "_id",
         sync: function(action, options, callback) {
-            var dburl = "http://" + Y.config.AppConfig.couch.host + ':' + (Y.config.AppConfig.couch.port || 5984) + "/" + Y.config.AppConfig.couch.dbname + "",
+            var dburl = "http://@COUCHHOST@:@COUCHPORT@/@COUCHDB_NAME@",
                 data = this.toJSON();
 
             switch (action) {

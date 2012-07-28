@@ -7,7 +7,7 @@
 	            <span class="icon-bar"></span>
 	            <span class="icon-bar"></span>
 	          </a>
-	          <a class="brand" href="/">@DOMAIN@</a>
+	          <a class="brand" href="/"><img src="/static/images/logo.png" height="20" alt="@SITENAME@" title="@SITENAME@"/></a>
 	          <div class="pull-right">
 	          	<a href="/signin" class="btn">Sign In</a>
 	          	<a href="/signup" class="btn btn-success">Sign Up</a>  
