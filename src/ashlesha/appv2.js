@@ -8,6 +8,7 @@ YUI({
         baseURL: 'http://@SUBDOMAIN@.@DOMAIN@.@TLD@/',
         port:'@PORT@',
         logoImage: 'static/images/logo.png',
+        loaderImage:'static/loader.gif',
         modelMapURL: 'model',
         apiURL:'api',
         couch: {

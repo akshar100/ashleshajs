@@ -162,6 +162,7 @@ YUI().add('ashlesha-base-models', function(Y) {
 YUI().add('ashlesha-base-view', function(Y) {
 
     var Lang = Y.Lang;
+    var ImageLoader = Y.Node.create('<img src="'+Y.config.AppConfig.loaderImage+'"/>');
     /**
      * The AshleshaBaseView class is the base class for all Views. It dynamically loads the templates, stores them in localstorage if available,
      * it fetches the user if present and accordingly calls two functions. (authenticated or unauthenticated). If your view is agnostic to user
@@ -173,6 +174,7 @@ YUI().add('ashlesha-base-view', function(Y) {
      * @constructor
      * @cfg {userAgnostic:false} configuration attributes
      */
+    
     Y.AshleshaBaseView = Y.Base.create('AshleshaBaseView', Y.View, [Y.View.NodeMap], {
         containerTemplate: '<div/>',
         initializer: function(config) {
@@ -180,6 +182,7 @@ YUI().add('ashlesha-base-view', function(Y) {
                 cache = new Y.CacheOffline({
                     sandbox: 'views'
                 });
+            c.setHTML(ImageLoader);
             this.set('cache', cache);
             this.on("template_loaded", this.initTemplate, this);
             if (config) {
@@ -297,12 +300,18 @@ YUI().add('ashlesha-base-view', function(Y) {
             }
         },
         startWait:function(node){
+        	var loader = Y.Node.create('<img src="'+Y.config.AppConfig.loaderImage+'"/>');
         	if(node){
-        		
+        		node.addClass('hide');
+        		node.insert(loader,"after");
+        		this.on("endWait",function(){
+        			loader.remove();
+        			node.removeClass('hide');
+        		},this)
         	}
         },
         endWait:function(){
-        	
+        	this.fire("endWait");
         }
     });
 

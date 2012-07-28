@@ -340,7 +340,7 @@ YUI().add('ashlesha-common', function(Y) {
             this.loadModules();
         },
         onSubmit:function(e){
-        	e.halt();
+        	
         	var item = this.getFormItems(), model = new Y.CommonModel({
         		attrs:{
         			email:{
@@ -349,10 +349,16 @@ YUI().add('ashlesha-common', function(Y) {
         			}
         		}
         	});
+        	e.halt();
+        	this.startWait(e.target);
         	
-        	model.set("email","");
+        	model.set("email","akshar");
         	model.on("error",function(e){
         		this.plugErrors(e.error);
+        		this.endWait();
+        	},this);
+        	model.on("save",function(){
+        		this.endWait();
         	},this);
         	model.save();
         }
