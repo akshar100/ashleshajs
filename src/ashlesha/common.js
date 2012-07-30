@@ -728,9 +728,22 @@ YUI().add('ashlesha-common', function(Y) {
 			c.setHTML(t.one("#"+this.name+"-main").getHTML());
 			this.loadModules();
 		},
-		onSubmit:function(e){
-			e.halt();
-		}
+		onSubmit: function(e) {
+            var model = new Y.PostModel();
+            e.halt();
+
+            this.startWait(e.target);
+
+            model = this.plugModel(model); //Method used to map the Form to the Model
+            model.on("save", function() { // User Rgisters successfully.
+            	this.postSuccess();
+            },this);
+            model.save();
+        },
+        postSuccess:function(){
+        	var c = this.get("container");
+        	c.one(".message-box").setHTML(this.get("template").one("#"+this.name+"-messagebox").getHTML());
+        }
 	});
 	
 	Y.PostListView = Y.Base.create("PostListView",Y.AshleshaBaseView, [], {
