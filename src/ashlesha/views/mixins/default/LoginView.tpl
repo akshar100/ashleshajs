@@ -1,7 +1,11 @@
 <script type="text/x-template" id="LoginView-main-unsigned">
-		<div class="row-fluid">
+		<div class="row">
 			<div class="span12 span-centered">
-				<form id="login">
+				<div class="alert alert-block alert-warning hide">
+					<h4>Failed!</h4>
+					Please make sure you have entered a valid username and password. If you have forgotten user password you can click on Forgot Password button.
+				</div>
+				<form>
 			        <fieldset>
 			          <legend>SIGN IN</legend>
 			          <div class="control-group">
@@ -19,7 +23,7 @@
 			            </div>
 			          </div>
 			          <div class="form-actions">
-			            <button class="btn btn-primary" type="submit">Sign In</button>
+			            <button class="btn btn-primary" type="submit" id="login">Sign In</button>
 			            <a href="#" class="btn forgot_password">Forgot Password</a>
 			          </div>
 			        </fieldset>

@@ -11,20 +11,11 @@ var YUI = require('yui').YUI,
 
 YUI().add('ashlesha-api', function(Y) {
     Y.APIEndpoint = {
-        invoke: function(path, config, callback) {
+        invoke: function(path, config) {
             var response;
-            response = API.api(path, config, function(err, data) {
-                if (err) {
-                    callback(err);
-                }
-                else {
-                    callback(null, {
-                        success: true,
-                        data: data
-                    });
-                }
-            });
-
+            API.setYInstance(Y);
+            response = API.api(path, config); //The Real API will never have callbacks into it
+			return response;
         }
     };
 
@@ -34,9 +25,12 @@ YUI().add('ashlesha-api', function(Y) {
         },
         invoke: function(path, config, callback) {
             var ep = Y.APIEndpoint,
-                cfg = config || {};
+                cfg = config || {},
+                output;
             config.user = this.get("user"); // We need to send the current user with the API call as well.
-            ep.invoke(path, cfg, callback);
+            output = ep.invoke(path, cfg);
+            return output;
+            
         }
     });
 
@@ -178,7 +172,13 @@ YUI().add('ashlesha-base-models', function(Y) {
         idAttribute: "_id",
         sync: function(action, options, callback) {
             if (action === "read") {
-
+				if(options.req)
+				{
+					
+					this.setAttrs(options.req.session.user);
+					callback(null, options.req.session.user);
+					return;
+				}
                 callback(null, {
 
                 });
@@ -206,6 +206,8 @@ YUI().add('server-app', function(Y) {
         oneYear = 31557600000;;
 
     Y.Express = express;
+    var RedisStore = require('connect-redis')(express);
+    
     Y.AshleshaApp = function() {
         Y.AshleshaApp.superclass.constructor.apply(this, arguments);
     };
@@ -218,11 +220,16 @@ YUI().add('server-app', function(Y) {
                 var oneYear = 0; //31557600000; //We are setting Expirty to none for development version.
                 app.set('views', __dirname + '/views');
                 app.set('view engine', 'haml');
-                app.use(express.bodyParser());
+                app.use(express.bodyParser({
+			      uploadDir: __dirname + '/public/static/uploads',
+			      keepExtensions: true
+			    }));
+			    app.use(express.limit('5mb'));
                 app.use(express.methodOverride());
                 app.use(express.cookieParser());
                 app.use(express.session({
-                    secret: "SessionKey"
+                    secret: "SessionKey",
+                    store: new express.session.MemoryStore
                 }));
                 app.use(express.compress());
                 app.use(app.router);
@@ -243,15 +250,16 @@ YUI().add('server-app', function(Y) {
 
         },
         showView: function(view, config) {
-            var appConfig = this.get('config'),
+            var appConfig = this.get('config') || {},
                 view, xhr = false;
             if (config.req.header("X-Requested-With") === "XMLHttpRequest") {
                 xhr = true;
             }
             view = new Y[appConfig.views[view].type]({
                 xhr: xhr,
-                modules: config.modules
+                modules: config.modules || {}
             });
+            Y.log("requested to render:"+view.name);
             view.on("render", function(e) {
             	if(Lang.isString(e.data))
             	{
@@ -263,6 +271,7 @@ YUI().add('server-app', function(Y) {
             	}
                 
             });
+            Y.log(view.name);
             view.render();
 
         },
@@ -274,15 +283,17 @@ YUI().add('server-app', function(Y) {
             });
             var self = this;
             
-            io.sockets.on('connection', function(socket) {
-				 setInterval(function(){socket.emit("Test");},2000);
+           /* io.sockets.on('connection', function(socket) {
+				
 			});
+			*/
 
             ex.post("/" + Y.config.AppConfig.modelMapURL, function(req, res) { //model mappers
                 var data = Y.JSON.parse(req.body.data),
                     action = req.body.action,
                     name = req.body.name,
                     model = new Y[name]();
+                    
                 if (model) {
                     model.setAttrs(data);
                     model.on(['save', 'load'], function() {
@@ -292,6 +303,7 @@ YUI().add('server-app', function(Y) {
                         }));
                     });
                     model.on('error', function(e) {
+                    	Y.log(e);
                         res.send(Y.JSON.stringify({
                             success: false,
                             src: e.src,
@@ -299,10 +311,14 @@ YUI().add('server-app', function(Y) {
                         }));
                     });
                     if (action === "create" || action === "update") {
+                    	if(action ==="create") { model.set("created_at",Date.now()); }
+                    	if(action ==="update") { model.set("updated_at",Date.now()); }
                         model.save();
                     }
                     else if (action === "read") {
-                        model.load();
+                        model.load({
+                        	req:req
+                        });
                     }
                     else if (action === "delete") {
                         model.destroy({
@@ -324,14 +340,51 @@ YUI().add('server-app', function(Y) {
                 var path = req.body.path,
                     data = Y.JSON.parse(req.body.data),
                     user = req.session.user,
-                    api = self.get("config").api;
-                api.set("user", user);
-                api.invoke(path, data, function(err, data) {
-                    res.send(Y.JSON.stringify(data));
-                });
+                    output;
+                Y.api = self.get("config").api;
+                Y.api.set("user", user);
+                Y.on("api:/login",function(e){
+                	
+	        		if(e.user)
+	        		{
+	        			user = req.session.user = e.user;
+	        		}
+	           	});
+                try
+                {
+                	output = Y.JSON.stringify(Y.api.invoke(path, data));
+                }
+                catch(ex)
+                {
+                	output = Y.JSON.stringify({error:true});
+                }
+               
+                
+                res.send(output);
 
             });
+			ex.get("/"+Y.config.AppConfig.templateURL+"/:template",function(req,res){
+				new Y[req.params.template]().render();
+			});
+			
+			ex.post("/upload",function(req,res){
+				var file = req.files.fileupload.path,
+				filename = file.split("/").pop();
+            	res.send({
+            		success:true,
+            		url:"/static/uploads/"+filename
+            	});
 
+            });
+			
+			
+            ex.get("/test-suite",function(req,res){
+            	res.log(req.session.user);
+            	
+            });
+            
+            
+             
             
         },
         route: function(path, callback) {
@@ -353,9 +406,17 @@ YUI().add('server-app', function(Y) {
 
     Y.extend(Y.AshleshaBaseView, Y.Base, {
         initializer: function(config) {
+        	var m;
             if (config) {
                 this.set("xhr", config.xhr || false);
-                this.set("modules", config.modules);
+                this.set("modules", config.modules || {} );
+                if(Y.Lang.isFunction(this.preModules)) //Sometimes you may want to define modeules within the view instead of passing them to the constructor
+                {
+                	m = this.get("modules");
+                	m = Y.mix(m,this.preModules());
+                	
+                	this.set("modules",m);
+                }
             }
             else {
                 this.set("xhr", false);
@@ -372,11 +433,12 @@ YUI().add('server-app', function(Y) {
                 response = {};
             if (this.get("xhr")) //if requested through AJAX
             {
-                if (modules) {
-
+                if (modules && !Y.Object.isEmpty(modules)) {
+					
                     Y.Object.each(modules, function(value, key) {
                         var config = (value && value.config) || {};
                         config.xhr = true;
+                       
                         var v = new Y[value.view](config);
                         if (v) {
 

@@ -19,11 +19,11 @@ YUI().add('ashlesha-api', function(Y) {
                     complete: function(i, o, a) {
                         var r = Y.JSON.parse(o.responseText);
                         if (Y.Lang.isFunction(callback)) {
-                            if (r.success) {
-                                callback.call(ctx || this, null, r.data);
+                            if (r.error) {
+                                callback.call(ctx || this, r);
                             }
                             else {
-                                callback.call(ctx || this, r.error);
+                                callback.call(ctx || this, null, r);
                             }
                         }
 
@@ -44,8 +44,12 @@ YUI().add('ashlesha-api', function(Y) {
         invoke: function(path, config, callback) {
             var ep = Y.APIEndpoint,
                 cfg = config || {};
-
+            
+            if (typeof callback === "undefined" || !Y.Lang.isFunction(callback)) { //Never execute a client API call if the callback is not provided. Simply ignore it.
+                return false;
+            }
             ep.invoke(path, config, callback, this);
+
         },
         use: function(f) {
             var m = this.get("m");
@@ -76,7 +80,7 @@ YUI().add('ashlesha-base-models', function(Y) {
         idAttribute: "_id",
         sync: function(action, options, callback) {
             var cache, cached, data;
-            this.removeAttr("attrs");
+            this.removeAttr("attrs", "");
             data = {
                 data: Y.JSON.stringify(this.toJSON()),
                 action: action,
@@ -103,7 +107,7 @@ YUI().add('ashlesha-base-models', function(Y) {
                                 callback(null, data.data);
                             }
                             else {
-                                cache.add(data.data._id, "");
+
                                 callback(data.error);
                             }
 
@@ -195,15 +199,17 @@ YUI().add('ashlesha-base-view', function(Y) {
         loadTemplate: function(name) {
             var cache = this.get('cache'),
                 cached = cache.retrieve(name),
-                path = this.get("req").path;
+                path ;
+             
             if (cached && cached.response) {
                 this.set("template", Y.Node.create(cached.response));
                 this.fire("template_loaded");
                 return;
             }
             else {
-
-                Y.io(Y.config.AppConfig.baseURL + path.substr(1), {
+				if( this.get("req")) { path = this.get("req").path.substr(1); } //IF the view is instantiated separately feth the template via AJAX.
+				else { path = Y.config.AppConfig.templateURL+"/"+name; }
+                Y.io(Y.config.AppConfig.baseURL + path, {
                     method: 'GET',
                     context: this,
                     on: {
@@ -212,7 +218,6 @@ YUI().add('ashlesha-base-view', function(Y) {
                             Y.Object.each(r, function(item, key) {
                                 cache.add(key, item + "<script type='text/x-template'></script>");
                             });
-
                             cached = cache.retrieve(this.get('templateID') || this.name);
                             this.set("template", Y.Node.create(cached.response));
                             this.fire("template_loaded");
@@ -233,6 +238,8 @@ YUI().add('ashlesha-base-view', function(Y) {
                 self.altInitializer.apply(self, [{
                     user: false}]);
             }
+           // Y.log("REceived USer change event by :"+this.name);
+           
         },
         initTemplate: function() {
             var user = this.get("user"),
@@ -245,7 +252,11 @@ YUI().add('ashlesha-base-view', function(Y) {
             else {
 
 
-                user.on(['load', 'change', 'destroy'], self.userLoaded, self);
+                user.on(['load', 'change', 'destroy'], function(){ 
+                	setTimeout(function() {
+	                    self.userLoaded.call(self);
+	                }, 10);
+                }, self);
                 setTimeout(function() {
                     self.userLoaded.call(self);
                 }, 10);
@@ -270,26 +281,40 @@ YUI().add('ashlesha-base-view', function(Y) {
         render: function() {
             return this;
         },
+        addModules:function(modules){
+        	var m = this.get("modules") || {};
+        	if(Y.Lang.isObject(modules)){
+        		m = Y.mix(m,modules);
+        		this.set("modules",m);
+        	}
+        },
         loadModules: function() {
-            var modules = this.get("modules"),
+            var modules = this.get("modules") || {},
                 res = this.get("res"),
                 req = this.get("req"),
                 c = this.get('container'),
                 t = this.get("template"),
-                user = this.get("user");
-
+                user = this.get("user"),
+                addedModules = [];
+			if(Y.Lang.isFunction(this.preModules)){
+				modules = Y.mix(modules,this.preModules());
+			}
             Y.Object.each(modules, function(value, key) {
                 var moduleContainer = c.one(key),
                     View = Y[value && value.view],
-                    config;
+                    config, view;
                 if (moduleContainer && View) {
                     config = (value && value.config) || {};
                     config.res = res;
                     config.req = req;
                     config.user = user;
-                    moduleContainer.setHTML(new View(config).render().get('container')); // replace the
+                    view = new View(config);
+                    moduleContainer.setHTML(view.render().get('container')); // replace the
+                    addedModules.push(view);
                 }
+
             });
+
         },
         halt: function(e) { //Halt an Event
             if (e && Lang.isFunction(e.halt)) {
@@ -315,7 +340,7 @@ YUI().add('ashlesha-base-view', function(Y) {
 
 
 }, '0.99', {
-    requires: ['io', 'app', 'cache', 'ashlesha-base-models', 'event', 'event-delegate', 'json', 'view-node-map']
+    requires: ['io', 'app', 'cache', 'ashlesha-base-models', 'event', 'event-delegate', 'json', 'view-node-map','io-upload-iframe']
 });
 
 
@@ -325,20 +350,24 @@ YUI().add('client-app', function(Y) {
         dispatch: function() {
             var socket;
             Y.AshleshaApp.superclass.dispatch.apply(this, arguments);
-
-            try {
+            Y.on("navigate",function(e){
+            	if(e.action)
+            	{
+            		this.navigate(e.action);
+            	}
+            },this);
+            
+           /* try {
                 socket = io.connect(Y.config.AppConfig.baseURL);
-                socket.on('test', function(data) {
-                    console.log(data);
-                    socket.emit('other', {
-                        my: 'data'
-                    });
+                socket.on('user', function(data) {
+                    
+                    
                 });
             } catch (ex) {
                 Y.log("Socket.IO not loaded" + ex);
             }
-
-
+			
+			*/
 
         }
     });

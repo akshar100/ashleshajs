@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>@DOMAIN@</title>
+    <title>@SITENAME@</title>
     <meta name="description" content="">
     <meta name="author" content="Akshar">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">

@@ -29,3 +29,21 @@ footer
 	position:absolute;
 	text-align:center;
 }
+.mainarea
+{
+	
+}
+.tiny-label
+{
+	font-size:10px;
+	font-weight:bold;
+}
+.sidebar .nav
+{
+	border-left:1px solid #aaa;
+	
+}
+.sidebar .nav a
+{
+	font-size:11px;
+}

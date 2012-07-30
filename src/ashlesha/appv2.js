@@ -6,11 +6,13 @@
 YUI({
     AppConfig: {
         baseURL: 'http://@SUBDOMAIN@.@DOMAIN@.@TLD@/',
-        port:'@PORT@',
+        port: '@PORT@',
         logoImage: 'static/images/logo.png',
-        loaderImage:'static/loader.gif',
+        loaderImage: 'static/loader.gif',
         modelMapURL: 'model',
-        apiURL:'api',
+        templateURL:'template',
+        uploadURL:'upload',
+        apiURL: 'api'
     },
     modules: {
 
@@ -31,19 +33,22 @@ YUI({
         model;
     vcache.flush();
     mcache.flush();
-	var currentUser = new Y.AshleshaCurrentUserModel();
+    var currentUser = new Y.AshleshaCurrentUserModel();
+	Y.currentUser = currentUser;
+	Y.on("updateUser",function(){
 		currentUser.load();
-		
+	});
     Y.HomeView = Y.Base.create("HomeView", Y.AshleshaBaseView, [], {
         altInitializer: function(auth) {
             var c = this.get('container'),
                 t = this.get('template');
             if (!auth.user) { //if the user is not signed in
-            	
                 c.setHTML(t.one('#HomeView-main-unsigned').getHTML());
-               
+
             } else { //if the user is signed in
-            	Y.log("signed in");
+                c.setHTML(Y.Lang.sub(t.one('#HomeView-main-signed').getHTML(),{
+                	EMAIL:auth.user.email
+                }));
             }
             this.loadModules();
         }
@@ -56,8 +61,8 @@ YUI({
                 type: "HomeView"
             },
             page: {
-            	type:"PageView",
-            	preserve:false
+                type: "PageView",
+                preserve: false
             }
         },
         transitions: {
@@ -65,105 +70,45 @@ YUI({
             toChild: 'fade',
             toParent: 'fade'
         },
-        api:Y.api
+        api: Y.api
     });
 
     app.route("/", function(req, res) {
         this.showView('home', {
             req: req,
             res: res,
-            user:currentUser,
-            modules: {
-                ".topbar": {
-                    view: "TopBarView"
-                }
-
-            }
-        });
-    });
-    
-    app.route("/signin",function(req,res){
-    	this.showView('page', {
-            req: req,
-            res: res,
-            user:currentUser,
+            user: currentUser,
             modules: {
                 ".topbar": {
                     view: "TopBarView"
                 },
-                ".page-content": {
-                	view:"LoginView"
-                }
-
-            }
-        });
-    });
-    
-    app.route("/signup",function(req,res){
-    	this.showView('page', {
-            req: req,
-            res: res,
-            user:currentUser,
-            modules: {
-                ".topbar": {
-                    view: "TopBarView"
-                },
-                ".page-content": {
-                	view:"SignUpView",
+                ".homepage": {
+                	view: "HomePageView",
                 	config:{
+                		
                 		modules:{
-                			'div.date_field':{
-                				view:"DateField",
-                				config:{
-                					label:'Date of Birth',
-                					field_name:'dob'
-                				}
+                			".sidebar":{
+                				view:"SideBarView"
                 			},
-                			'div.first_name':{
-                				view:'FormItem',
-                				config:{
-                					label:'First Name',
-                					field_name:'firstname'
-                				}
-                			},
-                			'div.last_name':{
-                				view:'FormItem',
-                				config:{
-                					label:'Last Name',
-                					field_name:'lastname'
-                				}
-                			},
-                			'div.password':{
-                				view:'FormItem',
-                				config:{
-                					label:'Password',
-                					field_name:'password',
-                					field_type:'password'
-                				}
-                			},
-                			'div.password2':{
-                				view:'FormItem',
-                				config:{
-                					label:'Repeat Password',
-                					field_name:'password2',
-                					field_type:'password'
-                				}
-                			},
-                			'div.email':{
-                				view:'FormItem',
-                				config:{
-                					label:'Email',
-                					field_name:'email'
-                				}
-                			},
-                			'div.gender':{
-                				view:'SelectField',
-                				config:{
-                					label:'You are',
-                					field_name:'gender',
-                					options:{
-                						m:"Male",
-                						f:"Female"
+                			".mainarea":{
+                				view:"MainAreaView",
+                				config: {
+                					modules:{
+	                					".wall":{
+	                						view:"TimeLineView",
+	                						config:{
+	                							timelineType:'timeline',
+	                							modules:{
+	                								".create-post":{
+	                									view:"CreatePostView"
+	                								},
+	                								".post-list":{
+	                									view:"PostListView"
+	                								}
+	                							}
+	                						}
+	                						
+	                					}
                 					}
                 				}
                 			}
@@ -174,6 +119,100 @@ YUI({
             }
         });
     });
-   
+
+    app.route("/signin", function(req, res) {
+        this.showView('page', {
+            req: req,
+            res: res,
+            user: currentUser,
+            modules: {
+                ".topbar": {
+                    view: "TopBarView"
+                },
+                ".page-content": {
+                    view: "LoginView"
+                }
+
+            }
+        });
+    });
+
+    app.route("/signup", function(req, res) {
+        this.showView('page', {
+            req: req,
+            res: res,
+            user: currentUser,
+            modules: {
+                ".topbar": {
+                    view: "TopBarView"
+                },
+                ".page-content": {
+                    view: "SignUpView",
+                    config: {
+                        modules: {
+                            'div.date_field': {
+                                view: "DateField",
+                                config: {
+                                    label: 'Date of Birth',
+                                    field_name: 'dob'
+                                }
+                            },
+                            'div.first_name': {
+                                view: 'FormItem',
+                                config: {
+                                    label: 'First Name',
+                                    field_name: 'firstname'
+                                }
+                            },
+                            'div.last_name': {
+                                view: 'FormItem',
+                                config: {
+                                    label: 'Last Name',
+                                    field_name: 'lastname'
+                                }
+                            },
+                            'div.password': {
+                                view: 'FormItem',
+                                config: {
+                                    label: 'Password',
+                                    field_name: 'password',
+                                    input_type: 'password'
+                                }
+                            },
+                            'div.password2': {
+                                view: 'FormItem',
+                                config: {
+                                    label: 'Repeat Password',
+                                    field_name: 'password2',
+                                    input_type: 'password'
+                                }
+                            },
+                            'div.email': {
+                                view: 'FormItem',
+                                config: {
+                                    label: 'Email',
+                                    field_name: 'email'
+                                }
+                            },
+                            'div.gender': {
+                                view: 'SelectField',
+                                config: {
+                                    label: 'You are',
+                                    field_name: 'gender',
+                                    options: {
+                                        m: "Male",
+                                        f: "Female"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+        });
+    });
+
     app.render().dispatch();
+    Y.fire("updateUser");
 });

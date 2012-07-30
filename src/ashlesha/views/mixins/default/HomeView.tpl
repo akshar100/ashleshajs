@@ -3,7 +3,7 @@
 		
 	</div>
 
-	<div id="maincontainer" class="container-fluid">
+	<div id="maincontainer" class="container">
 		 <div class="content">
 	      	<div class="page-header hide">
 	          <h1></h1>
@@ -33,7 +33,7 @@
 	<div class="topbar">
 		 
 	</div>
-    <div class="container-fluid container-area">
+    <div class="container container-area">
 
       <!-- Main hero unit for a primary marketing message or call to action -->
       <div class="hero-unit">
@@ -69,4 +69,21 @@
 
     </div> <!-- /container -->
 </script>
+<script type="text/x-template" id="HomeView-main-signed">
+	<div class="topbar">
+		 
+	</div>
+    <div class="container container-area">
+		<div class="homepage">
+			
+		</div>
+     
 
+      <hr>
+
+      <footer>
+        <p>&copy; @SITENAME@ @YEAR@</p>
+      </footer>
+
+    </div> <!-- /container -->
+</script>
