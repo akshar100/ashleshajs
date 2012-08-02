@@ -6,6 +6,7 @@
       		<div class="sidebar"></div>
       	</div>
       	<div class="span9">
+      		<div class="top-nav"></div>
       		<div class="mainarea"></div>
       	</div>
       </div>

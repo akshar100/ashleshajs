@@ -10,11 +10,18 @@
 					<h6>{HELPTEXT}</h6>
 				</div>
 			</div>
-		</div>
-		<div class="row">
+			<div class="row">
 			<div class="span9 hide create-post">
 			
 			</div>
 		</div>
+		<div class="row">
+			<hr/>
+			<div class="span9 timeline-container">
+			
+			</div>
+		</div>
+		</div>
+		
 	</div>
 </script>

@@ -1,6 +1,7 @@
 <script type="text/x-template" id="CreatePostView-main">
 	<div class="row">
 		<div class="span9">
+			<legend class="title"></legend>
 			<div class="message-box"></div>
 			<div class="form-item"></div>
 			<div class="file-upload"></div>

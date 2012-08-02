@@ -24,7 +24,7 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" ></script>
 <script src="{baseURL}/static/js/externalcomponents.js" ></script>
-<script src="http://yui.yahooapis.com/3.5.1/build/yui/yui-min.js"></script>
+<script src="http://yui.yahooapis.com/3.6.0/build/yui/yui-min.js"></script>
 <script src="{baseURL}/static/js/build.min.js"></script>
 
 </body>

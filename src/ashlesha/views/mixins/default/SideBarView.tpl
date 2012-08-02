@@ -8,10 +8,10 @@
 				<div class="span2">
 					<div class="nav nav-list">
 						<li class="nav-header">Create</li>
-						<li> <a href=""><i class="icon-bullhorn"></i> Post</a></li>
-						<li> <a href=""><i class="icon-bullhorn"></i> Fan Page</a></li>
-						<li> <a href=""><i class="icon-bullhorn"></i> Wardrobe Entry</a></li>
-						<li> <a href=""><i class="icon-bullhorn"></i> Wishlist</a></li>
+						<li> <a href="/publish"><i class="icon-bullhorn"></i> Post</a></li>
+						<li> <a href="/fanpage/new"><i class="icon-bullhorn"></i> Fan Page</a></li>
+						<li> <a href="/wardrobe/new"><i class="icon-bullhorn"></i> Wardrobe Entry</a></li>
+						<li> <a href="/wishlist"><i class="icon-bullhorn"></i> Wishlist</a></li>
 					</div>
 				</div>
 			</div>
@@ -29,7 +29,7 @@
 				<div class="span2">
 					<div class="nav nav-list">
 						<li class="nav-header">People</li>
-						<li> <a href=""><i class="icon-asterisk"></i>My Profile</a></li>
+						<li> <a href="/me"><i class="icon-asterisk"></i>My Profile</a></li>
 						<li> <a href=""><i class="icon-user"></i>My Friends</a></li>
 						<li> <a href=""><i class="icon-shopping-cart"></i>My Wardrobe</a></li>
 					</div>

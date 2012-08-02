@@ -44,7 +44,7 @@ YUI().add('ashlesha-api', function(Y) {
         invoke: function(path, config, callback) {
             var ep = Y.APIEndpoint,
                 cfg = config || {};
-            
+
             if (typeof callback === "undefined" || !Y.Lang.isFunction(callback)) { //Never execute a client API call if the callback is not provided. Simply ignore it.
                 return false;
             }
@@ -89,7 +89,7 @@ YUI().add('ashlesha-base-models', function(Y) {
             cache = new Y.CacheOffline({
                 sandbox: "models"
             });
-            if (action == "read" && this.get("_id")) {
+            if (action === "read" && this.get("_id")) {
                 cached = cache.retrieve(this.get("_id"));
                 if (cached && cached.response) {
                     callback(null, Y.JSON.parse(cached.response));
@@ -155,9 +155,40 @@ YUI().add('ashlesha-base-models', function(Y) {
 
     });
 
+    Y.AshleshaBaseList = Y.Base.create('AshleshaBaseList', Y.ModelList, [], {
+        model: Y.AshleshaBaseModel,
+        sync: function(action, options, callback) {
+            if (action === "read") {
+                Y.io(Y.config.AppConfig.baseURL + Y.config.AppConfig.listURL, {
+                    method: 'POST',
+                    context: this,
+                    data: {
+                        name: this.name,
+                        size: this.get("size") || 10,
+                        page: this.get("page") || 1,
+                        query: ''
+                    },
+                    on: {
+                        complete: function(i, o, a) {
+                            var r;
+                            try {
+                                r = Y.JSON.parse(o.responseText);
+                                callback(null, r);
+                            } catch (ex) {
+                                callback(r);
+                            }
+                        },
+                        failure: function() {
+                            callback("Error");
+                        }
+                    }
+                });
+            }
+        }
+    });
 
 }, '0.9.9', {
-    requires: ['model', 'app', 'cache', 'json', 'io', 'querystring-stringify-simple']
+    requires: ['model', 'app', 'cache', 'json', 'io', 'querystring-stringify-simple', 'model-list']
 });
 
 YUI().add('ashlesha-base-view', function(Y) {
@@ -199,16 +230,20 @@ YUI().add('ashlesha-base-view', function(Y) {
         loadTemplate: function(name) {
             var cache = this.get('cache'),
                 cached = cache.retrieve(name),
-                path ;
-             
+                path;
+
             if (cached && cached.response) {
                 this.set("template", Y.Node.create(cached.response));
                 this.fire("template_loaded");
                 return;
             }
             else {
-				if( this.get("req")) { path = this.get("req").path.substr(1); } //IF the view is instantiated separately feth the template via AJAX.
-				else { path = Y.config.AppConfig.templateURL+"/"+name; }
+                if (this.get("req")) {
+                    path = this.get("req").path.substr(1);
+                } //IF the view is instantiated separately feth the template via AJAX.
+                else {
+                    path = Y.config.AppConfig.templateURL + "/" + name;
+                }
                 Y.io(Y.config.AppConfig.baseURL + path, {
                     method: 'GET',
                     context: this,
@@ -238,8 +273,7 @@ YUI().add('ashlesha-base-view', function(Y) {
                 self.altInitializer.apply(self, [{
                     user: false}]);
             }
-           // Y.log("REceived USer change event by :"+this.name);
-           
+            // Y.log("REceived USer change event by :"+this.name);
         },
         initTemplate: function() {
             var user = this.get("user"),
@@ -252,10 +286,10 @@ YUI().add('ashlesha-base-view', function(Y) {
             else {
 
 
-                user.on(['load', 'change', 'destroy'], function(){ 
-                	setTimeout(function() {
-	                    self.userLoaded.call(self);
-	                }, 10);
+                user.on(['load', 'change', 'destroy'], function() {
+                    setTimeout(function() {
+                        self.userLoaded.call(self);
+                    }, 10);
                 }, self);
                 setTimeout(function() {
                     self.userLoaded.call(self);
@@ -281,12 +315,12 @@ YUI().add('ashlesha-base-view', function(Y) {
         render: function() {
             return this;
         },
-        addModules:function(modules){
-        	var m = this.get("modules") || {};
-        	if(Y.Lang.isObject(modules)){
-        		m = Y.mix(m,modules);
-        		this.set("modules",m);
-        	}
+        addModules: function(modules) {
+            var m = this.get("modules") || {};
+            if (Y.Lang.isObject(modules)) {
+                m = Y.mix(m, modules);
+                this.set("modules", m);
+            }
         },
         loadModules: function() {
             var modules = this.get("modules") || {},
@@ -296,9 +330,9 @@ YUI().add('ashlesha-base-view', function(Y) {
                 t = this.get("template"),
                 user = this.get("user"),
                 addedModules = [];
-			if(Y.Lang.isFunction(this.preModules)){
-				modules = Y.mix(modules,this.preModules());
-			}
+            if (Y.Lang.isFunction(this.preModules)) {
+                modules = Y.mix(modules, this.preModules());
+            }
             Y.Object.each(modules, function(value, key) {
                 var moduleContainer = c.one(key),
                     View = Y[value && value.view],
@@ -340,7 +374,7 @@ YUI().add('ashlesha-base-view', function(Y) {
 
 
 }, '0.99', {
-    requires: ['io', 'app', 'cache', 'ashlesha-base-models', 'event', 'event-delegate', 'json', 'view-node-map','io-upload-iframe']
+    requires: ['io', 'app', 'cache', 'ashlesha-base-models', 'event', 'event-delegate', 'json', 'view-node-map', 'io-upload-iframe']
 });
 
 
@@ -350,14 +384,13 @@ YUI().add('client-app', function(Y) {
         dispatch: function() {
             var socket;
             Y.AshleshaApp.superclass.dispatch.apply(this, arguments);
-            Y.on("navigate",function(e){
-            	if(e.action)
-            	{
-            		this.navigate(e.action);
-            	}
-            },this);
-            
-           /* try {
+            Y.on("navigate", function(e) {
+                if (e.action) {
+                    this.navigate(e.action);
+                }
+            }, this);
+
+/* try {
                 socket = io.connect(Y.config.AppConfig.baseURL);
                 socket.on('user', function(data) {
                     
@@ -366,12 +399,12 @@ YUI().add('client-app', function(Y) {
             } catch (ex) {
                 Y.log("Socket.IO not loaded" + ex);
             }
-			
-			*/
+            
+            */
 
         }
     });
 }, '0.99', {
-    requires: ['app', 'ashlesha-base-view'],
+    requires: ['app', 'ashlesha-base-view', '"selector-css3"'],
     skinnable: false
 });

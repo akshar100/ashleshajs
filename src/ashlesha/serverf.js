@@ -7,7 +7,8 @@
 var YUI = require('yui').YUI,
     API = require('api'),
     redis = require('redis'),
-    io = require("socket.io");
+    io = require("socket.io"),
+    crypto = require('crypto');;
 
 YUI().add('ashlesha-api', function(Y) {
     Y.APIEndpoint = {
@@ -27,7 +28,7 @@ YUI().add('ashlesha-api', function(Y) {
             var ep = Y.APIEndpoint,
                 cfg = config || {},
                 output;
-            config.user = this.get("user"); // We need to send the current user with the API call as well.
+            cfg.user = this.get("user"); // We need to send the current user with the API call as well.
             output = ep.invoke(path, cfg);
             return output;
             
@@ -56,8 +57,25 @@ YUI().add('ashlesha-base-models', function(Y) {
         idAttribute: "_id",
         sync: function(action, options, callback) {
             var dburl = "http://@COUCHHOST@:@COUCHPORT@/@COUCHDB_NAME@",
+                data,
+                api = this.get("api");
                 data = this.toJSON();
-
+                
+			if(data.attrs){ //no need to save Attribute Metadata
+				Y.Object.each(data.attrs,function(val,key){
+					
+					if(val.hash){
+						data[key] = api.invoke("/user/hash_password",{val:val});
+					}
+					if(typeof val.save!== "undefined" && val.save===false){
+						delete data[key];
+					}
+					
+				});
+				this.removeAttr("api");
+				delete data.attrs;
+			}
+			try { delete data.api;} catch(ex) { Y.log("API NOT PRESENT IN MODEL");}
             switch (action) {
             case "read":
                 Y.io(dburl + "/" + data._id, {
@@ -75,7 +93,7 @@ YUI().add('ashlesha-base-models', function(Y) {
                         failure: function(i, response) {
                             var r = Y.JSON.parse(response.responseText);
                             callback(r.reason);
-                            Y.log(Y.JSON.stringify(response));
+                           
                         }
                     }
                 });
@@ -102,7 +120,7 @@ YUI().add('ashlesha-base-models', function(Y) {
                         failure: function(i, response) {
                             var r = Y.JSON.parse(response.responseText);
                             callback(r.reason);
-                            Y.log(Y.JSON.stringify(response));
+                            
                         }
                     }
                 });
@@ -231,6 +249,14 @@ YUI().add('server-app', function(Y) {
                     secret: "SessionKey",
                     store: new express.session.MemoryStore
                 }));
+                
+                app.use(function(req,res,next){
+                	var api = new Y.BaseAPI(),user = req.session.user || {};
+                	req.api = api;
+                	req.api.set("user",user);
+                	next();
+                });
+                
                 app.use(express.compress());
                 app.use(app.router);
                 app.use(express.favicon(__dirname + '/public/favicon.ico', {
@@ -259,7 +285,7 @@ YUI().add('server-app', function(Y) {
                 xhr: xhr,
                 modules: config.modules || {}
             });
-            Y.log("requested to render:"+view.name);
+            
             view.on("render", function(e) {
             	if(Lang.isString(e.data))
             	{
@@ -271,7 +297,7 @@ YUI().add('server-app', function(Y) {
             	}
                 
             });
-            Y.log(view.name);
+            
             view.render();
 
         },
@@ -292,8 +318,10 @@ YUI().add('server-app', function(Y) {
                 var data = Y.JSON.parse(req.body.data),
                     action = req.body.action,
                     name = req.body.name,
-                    model = new Y[name]();
-                    
+                    model = new Y[name](),
+                    attrs = model.get("attrs") || {};
+                   
+                	model.set("api",req.api);
                 if (model) {
                     model.setAttrs(data);
                     model.on(['save', 'load'], function() {
@@ -303,7 +331,7 @@ YUI().add('server-app', function(Y) {
                         }));
                     });
                     model.on('error', function(e) {
-                    	Y.log(e);
+                    	
                         res.send(Y.JSON.stringify({
                             success: false,
                             src: e.src,
@@ -311,7 +339,11 @@ YUI().add('server-app', function(Y) {
                         }));
                     });
                     if (action === "create" || action === "update") {
-                    	if(action ==="create") { model.set("created_at",Date.now()); }
+                    	if(action ==="create") { 
+                    		model.set("created_at",Date.now());
+                    		
+                    		
+                    	}
                     	if(action ==="update") { model.set("updated_at",Date.now()); }
                         model.save();
                     }
@@ -341,8 +373,7 @@ YUI().add('server-app', function(Y) {
                     data = Y.JSON.parse(req.body.data),
                     user = req.session.user,
                     output;
-                Y.api = self.get("config").api;
-                Y.api.set("user", user);
+                
                 Y.on("api:/login",function(e){
                 	
 	        		if(e.user)
@@ -352,7 +383,7 @@ YUI().add('server-app', function(Y) {
 	           	});
                 try
                 {
-                	output = Y.JSON.stringify(Y.api.invoke(path, data));
+                	output = Y.JSON.stringify(req.api.invoke(path, data));
                 }
                 catch(ex)
                 {
@@ -364,7 +395,11 @@ YUI().add('server-app', function(Y) {
 
             });
 			ex.get("/"+Y.config.AppConfig.templateURL+"/:template",function(req,res){
-				new Y[req.params.template]().render();
+				var view = new Y[req.params.template]({
+					
+				});
+				
+				view.render();
 			});
 			
 			ex.post("/upload",function(req,res){
@@ -376,12 +411,59 @@ YUI().add('server-app', function(Y) {
             	});
 
             });
+            
+            ex.post("/list",function(req,res){
+            	var data = {
+            		name : req.body.name,
+            		size: req.body.size || 10,
+					page: req.body.page || 1,
+					query: req.body.query || ''
+            	},output;
+            	
+                output = req.api.invoke("/list/timeline",data);
+                res.send(Y.JSON.stringify(output));
+            	
+            });
 			
 			
             ex.get("/test-suite",function(req,res){
-            	res.log(req.session.user);
+            	var s = new Y.SignUpModel();
             	
+            	s.setAttrs({
+            		firstname:"test",
+            		lastname:"hello",
+            		email:"akshar@akshar.co.in",
+            		gender:"male",
+            		password:'password',
+            		password2:'password',
+            		dob:'2012-09-09'
+            	});
+            	s.set("api",req.api);
+            	Y.log(req.api.invoke("/user/hash_password",{
+            		val:"Test"
+            	}));
+            	s.save(function(err){
+            		Y.log(err);
+            	});
+            	res.send("");
+            	
+                
             });
+           
+           ex.get("/db-update",function(req,res){
+           		req.api.invoke("/db/update",{},function(){
+           			res.send("Updated");
+           		});
+           		
+           });
+           
+           ex.get("/signout",function(req,res){
+		
+				req.session.destroy(function(){
+				    res.redirect('/');
+				});
+			
+			});
             
             
              
@@ -522,8 +604,12 @@ YUI().add('server-app', function(Y) {
         }
     });
 
-
+	Y.AshleshaBaseList = function(){
+		Y.AshleshaBaseView.superclass.constructor.apply(this, arguments);
+	};
+	Y.extend(Y.AshleshaBaseList, Y.ModelList,{});
+	
 }, '0.99', {
-    requires: ['base', 'model', 'ashlesha-base-models', 'ashlesha-api'],
+    requires: ['base', 'model', 'ashlesha-base-models', 'ashlesha-api','model-list'],
     skinnable: false
 });

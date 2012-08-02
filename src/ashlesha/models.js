@@ -179,7 +179,9 @@ YUI().add('common-models-store', function(Y) {
      * @cfg {attrs:{
      *         attr_name:{
      *         value:'default value',
-     *      validation_rules:'trim|required|numeric'
+     *         validation_rules:'trim|required|numeric',
+     *         hash:[true|false]
+     *         save:[true,false]
      * }
      * }} configuration attributes
      *
@@ -242,6 +244,7 @@ YUI().add('common-models-store', function(Y) {
                 return errors;
             }
         }
+    	
     });
 
 }, '0.0.9', {
