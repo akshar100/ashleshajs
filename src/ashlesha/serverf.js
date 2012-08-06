@@ -12,10 +12,10 @@ var YUI = require('yui').YUI,
 
 YUI().add('ashlesha-api', function(Y) {
     Y.APIEndpoint = {
-        invoke: function(path, config) {
+        invoke: function(path, config,callback) {
             var response;
             API.setYInstance(Y);
-            response = API.api(path, config); //The Real API will never have callbacks into it
+            response = API.api(path, config,callback); //The Real API will never have callbacks into it
 			return response;
         }
     };
@@ -29,7 +29,7 @@ YUI().add('ashlesha-api', function(Y) {
                 cfg = config || {},
                 output;
             cfg.user = this.get("user"); // We need to send the current user with the API call as well.
-            output = ep.invoke(path, cfg);
+            output = ep.invoke(path, cfg,callback);
             return output;
             
         }
@@ -65,7 +65,9 @@ YUI().add('ashlesha-base-models', function(Y) {
 				Y.Object.each(data.attrs,function(val,key){
 					
 					if(val.hash){
-						data[key] = api.invoke("/user/hash_password",{val:val});
+						
+						data[key] = api.invoke("/user/hash_password",{val:data[key]});
+						
 					}
 					if(typeof val.save!== "undefined" && val.save===false){
 						delete data[key];
@@ -250,6 +252,22 @@ YUI().add('server-app', function(Y) {
                     store: new express.session.MemoryStore
                 }));
                 
+               
+                
+                /**Event Listener MiddleWare**/
+                app.use(function(req,res,next){
+                	
+                	Y.on("UpdateUser",function(e){
+                		if(e.user){
+                			req.session.user = e.user;
+                		}
+                		Y.log("Update User Fired");
+                	});
+                	
+                	next();
+                });
+                
+                 /** API is decoupled from the NODEJS LAYER this middleware makes available and interface for that API through req object**/
                 app.use(function(req,res,next){
                 	var api = new Y.BaseAPI(),user = req.session.user || {};
                 	req.api = api;
@@ -325,6 +343,7 @@ YUI().add('server-app', function(Y) {
                 if (model) {
                     model.setAttrs(data);
                     model.on(['save', 'load'], function() {
+                    	model.removeAttr("api");
                         res.send(Y.JSON.stringify({
                             success: true,
                             data: model.toJSON()
@@ -374,24 +393,25 @@ YUI().add('server-app', function(Y) {
                     user = req.session.user,
                     output;
                 
-                Y.on("api:/login",function(e){
-                	
-	        		if(e.user)
-	        		{
-	        			user = req.session.user = e.user;
-	        		}
-	           	});
+                
                 try
                 {
-                	output = Y.JSON.stringify(req.api.invoke(path, data));
+                	Y.JSON.stringify(req.api.invoke(path, data,function(err,data){
+                		if(typeof err ==="undefined" || err===null){
+                			res.send(Y.JSON.stringify(data));
+                		}
+                		else{
+                			res.send(Y.JSON.stringify(err));
+                		}
+                	}));
                 }
                 catch(ex)
                 {
-                	output = Y.JSON.stringify({error:true});
+                	res.send(Y.JSON.stringify({error:true}));
                 }
                
                 
-                res.send(output);
+                
 
             });
 			ex.get("/"+Y.config.AppConfig.templateURL+"/:template",function(req,res){
@@ -420,46 +440,44 @@ YUI().add('server-app', function(Y) {
 					query: req.body.query || ''
             	},output;
             	
-                output = req.api.invoke("/list/timeline",data);
-                res.send(Y.JSON.stringify(output));
+                output = req.api.invoke("/list/timeline",data,function(err,data){
+                	res.send(Y.JSON.stringify(data));
+                });
+                
             	
             });
 			
 			
             ex.get("/test-suite",function(req,res){
-            	var s = new Y.SignUpModel();
+            	var testCase=new Y.Test.Case({
+
+				    name: "TestCase Name",
+				
+				    testLogin : function () {
+				        req.api.invoke("/login",{username:'akshar@akshar.co.in',password:""},function(err,data){
+				        	Y.Assert.isObject(data);
+				        	Y.Assert.isTrue(data.success,true);
+				        	res.write(data);
+				        });
+				    }
+				});
             	
-            	s.setAttrs({
-            		firstname:"test",
-            		lastname:"hello",
-            		email:"akshar@akshar.co.in",
-            		gender:"male",
-            		password:'password',
-            		password2:'password',
-            		dob:'2012-09-09'
-            	});
-            	s.set("api",req.api);
-            	Y.log(req.api.invoke("/user/hash_password",{
-            		val:"Test"
-            	}));
-            	s.save(function(err){
-            		Y.log(err);
-            	});
-            	res.send("");
-            	
-                
+            	res.send("Complete");
+                Y.Test.Runner.add(testCase);
+                Y.Test.Runner.run();
             });
            
            ex.get("/db-update",function(req,res){
            		req.api.invoke("/db/update",{},function(){
            			res.send("Updated");
            		});
-           		
+           		res.send("Updated");
            });
            
            ex.get("/signout",function(req,res){
 		
-				req.session.destroy(function(){
+				delete req.session.user;
+				req.session.regenerate(function(){
 				    res.redirect('/');
 				});
 			
@@ -610,6 +628,6 @@ YUI().add('server-app', function(Y) {
 	Y.extend(Y.AshleshaBaseList, Y.ModelList,{});
 	
 }, '0.99', {
-    requires: ['base', 'model', 'ashlesha-base-models', 'ashlesha-api','model-list'],
+    requires: ['base', 'model', 'ashlesha-base-models', 'ashlesha-api','model-list','test'],
     skinnable: false
 });

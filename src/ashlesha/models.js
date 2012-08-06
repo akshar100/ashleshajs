@@ -198,7 +198,7 @@ YUI().add('common-models-store', function(Y) {
             }
 
         },
-        validate: function(attrs) {
+        validate: function(attrs,callback) {
 
             var attrConfig = this.get("attrs"),
                 errors = [];

@@ -63,8 +63,8 @@
   	
   	
   	<target name="ashlesha.js" depends="nonyui.js.concatenate" >
-  		<fixcrlf srcdir="${src.js_mod.dir}" includes="**/*.js" eol="lf" eof="remove" />
-  		<copy todir="${build.js_mod.dir}" filtering="true">
+  		
+<!--  		<copy todir="${build.js_mod.dir}" filtering="true">
   			<filterchain>
 			    <filterreader classname="org.apache.tools.ant.filters.ReplaceTokens">
 			            <param type="propertiesfile" value="${custom.jsconfig.file}"/>
@@ -72,7 +72,7 @@
 		    </filterchain>
 		    <fileset dir="${src.js_mod.dir}"/>
 		</copy>
-		
+-->		
 
 		<tstamp>
 			<format property="build.time"
