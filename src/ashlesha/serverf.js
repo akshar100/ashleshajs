@@ -258,7 +258,7 @@ YUI().add('server-app', function(Y) {
                 app.use(function(req,res,next){
                 	
                 	Y.on("UpdateUser",function(e){
-                		if(e.user){
+                		if(e.user && e.success){
                 			req.session.user = e.user;
                 		}
                 		Y.log("Update User Fired");

@@ -357,7 +357,7 @@ YUI().add('ashlesha-common', function(Y) {
             this.loadModules();
         }
     });
-    Y.LoginModel = Y.Base.create("LoginView", Y.CommonModel, [], {
+    Y.LoginModel = Y.Base.create("LoginModel", Y.CommonModel, [], {
         initializer: function() {
             Y.LoginModel.superclass.initializer.call(this, {
                 attrs: {
@@ -422,7 +422,10 @@ YUI().add('ashlesha-common', function(Y) {
 
                         if (data.success) {
                             Y.fire("updateUser");
-                            Y.api.invoke("/user/send_welcome_mail",{},function(){});
+                        }
+                        else
+                        {
+                        	 c.one(".alert").removeClass('hide');
                         }
                     });
                 }
