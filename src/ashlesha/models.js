@@ -167,6 +167,7 @@ YUI().add('common-models-store', function(Y) {
         	}
         	
         }
+        
 
     });
 
@@ -199,8 +200,7 @@ YUI().add('common-models-store', function(Y) {
 
         },
         validate: function(attrs,callback) {
-
-            var attrConfig = this.get("attrs"),
+        	var attrConfig = this.get("attrs"),
                 errors = [];
             if (attrConfig) {
 
@@ -241,11 +241,18 @@ YUI().add('common-models-store', function(Y) {
                 }, this);
             }
             if (errors.length > 0) {
-                return errors;
+                callback && callback(errors);
+            }
+            else
+            {
+            	callback && callback();
             }
         }
+        
     	
     });
+
+
 
 }, '0.0.9', {
     requires: ['ashlesha-base-models']

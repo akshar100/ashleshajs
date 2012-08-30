@@ -9,8 +9,6 @@
 					</legend>
 					<div class="first_name"></div>
 		            <div class="last_name"></div>
-		            <div class="password"></div>
-		            <div class="password2"></div>
 		            <div class="email"></div>
 		            <div class="gender"></div>
 		            <div class="date_field"></div>

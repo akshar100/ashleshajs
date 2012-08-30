@@ -39,7 +39,12 @@ YUI().add('ashlesha-common', function(Y) {
         },
         setValue: function(val) {
             var c = this.get("container");
-            c.one("input").set("value", val || "");
+            if(c.one("input")){
+            	c.one("input").set("value", val || "");
+            }
+            if(c.one("textarea")){
+            	c.one("textarea").setHTML(val || "");
+            }
         }
 
     }, {
@@ -511,6 +516,12 @@ YUI().add('ashlesha-common', function(Y) {
             Y.Array.each(items, function(item) {
                 item.clearError();
             });
+        },
+        plugValues: function(model){
+        	var items = this.getFormItems();
+            Y.Array.each(items, function(item) {
+                item.setValue(model.get(item.get("field_name")));
+            });
         }
 
     });
@@ -544,8 +555,8 @@ YUI().add('ashlesha-common', function(Y) {
                     },
                     password2: {
                         value: '',
-                        validation_rules: 'required',
-                        save:false
+                        validation_rules: 'required'
+                       // save:false
                     },
                     type: {
                         value: 'user'
@@ -570,16 +581,21 @@ YUI().add('ashlesha-common', function(Y) {
             Y.SignUpView.superclass.altInitializer.apply(this, arguments);
         },
         onSubmit: function(e) {
-            var model = new Y.SignUpModel();
-            e.halt();
-
-            this.startWait(e.target);
-			model.set("type","user");
-            model = this.plugModel(model); //Method used to map the Form to the Model
-            model.on("save", function() { // User Rgisters successfully.
-                this.signUpSuccess();
-            }, this);
-            model.save();
+        	try{
+	            var model = new Y.SignUpModel();
+	            e.halt();
+	
+	            this.startWait(e.target);
+				model.set("type","user");
+	            model = this.plugModel(model); //Method used to map the Form to the Model
+	            model.on("save", function() { // User Registers successfully.
+	                this.signUpSuccess();
+	            }, this);
+	            model.save();
+            }
+            catch(ex){
+            	Y.log(ex);
+            }
         },
         signUpSuccess: function() {
         	Y.api.invoke("/user/send_welcome_mail");
@@ -798,16 +814,26 @@ YUI().add('ashlesha-common', function(Y) {
             this.loadModules();
         },
         onSubmit: function(e) {
-            var model = new Y.PostModel();
+            var model = new Y.PostModel() , user = this.get("user");
             e.halt();
-
-            this.startWait(e.target);
-
-            model = this.plugModel(model); //Method used to map the Form to the Model
-            model.on("save", function() { // User Rgisters successfully.
-                this.postSuccess();
-            }, this);
-            model.save();
+			try{
+	            this.startWait(e.target);
+	            model = this.plugModel(model); //Method used to map the Form to the Model
+	            
+	            model.on("error",function(){
+	            	Y.log("error found");
+	            },this);
+	           	model.on("save", function() {
+	            	Y.log("Saved"); 
+	                this.postSuccess();
+	            }, this);
+				model.set("type","PostModel");
+				mode.set("author_name",user.get("fullname"));
+	            model.save();
+	            
+            }catch(ex){
+            	Y.log(ex);
+            }
         },
         postSuccess: function() {
             var c = this.get("container");
@@ -855,6 +881,7 @@ YUI().add('ashlesha-common', function(Y) {
                 list = new Y.PostList(),
                 self = this;
             c.setHTML(t.one("#" + this.name + "-main").getHTML());
+            Y.log("Loading :"+this.get('tType'));
             list.on('load', function() {
                 list.each(function(model) {
                     var post = new Y.PostView({
@@ -864,12 +891,17 @@ YUI().add('ashlesha-common', function(Y) {
                     c.one(".list-container").append(post.render().get("container"));
                 });
             });
-            list.load();
+            list.load({
+            		tType:this.get('tType')
+            });
 
         }
     });
 
     Y.ProfileModel = Y.Base.create("ProfileModel", Y.CommonModel, [], {
+    	sync:function(options){
+    		Y.log(arguments);
+    	},
         initializer: function() {
             Y.ProfileModel.superclass.initializer.apply(this, [{
                 attrs: {
@@ -923,17 +955,38 @@ YUI().add('ashlesha-common', function(Y) {
     Y.EditProfileView = Y.Base.create("EditProfileView", Y.FormView, [], {
         altInitializer: function(auth) {
             var c = this.get("container"),
-                t = this.get("template");
+                t = this.get("template"),
+                m = new Y.ProfileModel();
             if (auth && auth.user) {
                 c.setHTML(t.one("#" + this.name + "-main-signed").getHTML());
             }
             this.loadModules();
+            m.set("_id", this.get("user").get("_id"));
+            
+            m.on("load",function(){
+            	this.plugValues(m); 
+            },this);
+            setTimeout(function() { m.load();},500);
+           	
+            this.set("model",m);
+            
         },
         onSubmit: function(e) {
-            var model = new Y.ProfileModel();
-            e.halt();
-            model.set("_id", this.get("user").get("_id"));
-            this.plugModel(model);
+            var model = this.get("model");
+            
+            try{
+	            e.halt();
+	            model.set("_id", this.get("user").get("_id"));
+	            model = this.plugModel(model);
+	            model.save(function(){
+	            	Y.log(arguments);
+	            	model.load();
+	            });
+	            Y.log(model.toJSON()); 
+	         }catch(ex){
+	         	Y.log(ex);
+	         }
+            
 
         }
     });

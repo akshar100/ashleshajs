@@ -79,6 +79,7 @@ YUI().add('ashlesha-base-models', function(Y) {
     Y.AshleshaBaseModel = Y.Base.create('AshleshaBaseModel', Y.Model, [], {
         idAttribute: "_id",
         sync: function(action, options, callback) {
+        	Y.log("Synching");
             var cache, cached, data;
             this.removeAttr("attrs", "");
             data = {
@@ -166,7 +167,7 @@ YUI().add('ashlesha-base-models', function(Y) {
                         name: this.name,
                         size: this.get("size") || 10,
                         page: this.get("page") || 1,
-                        query: ''
+                        query: Y.JSON.stringify(options)
                     },
                     on: {
                         complete: function(i, o, a) {
@@ -346,6 +347,8 @@ YUI().add('ashlesha-base-view', function(Y) {
                     moduleContainer.setHTML(view.render().get('container')); // replace the
                     addedModules.push(view);
                 }
+                
+                
 
             });
 

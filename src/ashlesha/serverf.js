@@ -437,8 +437,10 @@ YUI().add('server-app', function(Y) {
             		name : req.body.name,
             		size: req.body.size || 10,
 					page: req.body.page || 1,
-					query: req.body.query || ''
+					query: (req.body.query && Y.JSON.parse(req.body.query))|| {}
             	},output;
+            	
+            	Y.log(data);
             	
                 output = req.api.invoke("/list/timeline",data,function(err,data){
                 	res.send(Y.JSON.stringify(data));

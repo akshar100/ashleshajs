@@ -16,9 +16,9 @@
 			</div>
 		</div>
 		<div class="row">
-			<hr/>
-			<div class="span9 timeline-container">
 			
+			<div class="span9 timeline-container">
+			<hr/>
 			</div>
 		</div>
 		</div>
