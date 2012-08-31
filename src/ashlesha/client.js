@@ -79,7 +79,7 @@ YUI().add('ashlesha-base-models', function(Y) {
     Y.AshleshaBaseModel = Y.Base.create('AshleshaBaseModel', Y.Model, [], {
         idAttribute: "_id",
         sync: function(action, options, callback) {
-        	Y.log("Synching");
+        	
             var cache, cached, data;
             this.removeAttr("attrs", "");
             data = {
@@ -87,6 +87,8 @@ YUI().add('ashlesha-base-models', function(Y) {
                 action: action,
                 name: this.name
             };
+            data.data._id = this.get("_id") || this.get("id");
+            
             cache = new Y.CacheOffline({
                 sandbox: "models"
             });
@@ -100,11 +102,13 @@ YUI().add('ashlesha-base-models', function(Y) {
                 Y.io(Y.config.AppConfig.baseURL + Y.config.AppConfig.modelMapURL, {
                     method: 'POST',
                     data: data,
+                    context:this,
                     on: {
                         success: function(i, o, a) {
                             var data = Y.JSON.parse(o.responseText);
                             if (data.success) {
                                 cache.add(data.data._id, Y.JSON.stringify(data.data));
+                                data.data._rev = data.data.rev;
                                 callback(null, data.data);
                             }
                             else {

@@ -242,6 +242,7 @@ YUI().add('common-models-store', function(Y) {
             }
             if (errors.length > 0) {
                 callback && callback(errors);
+                return errors;
             }
             else
             {

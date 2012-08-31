@@ -53,3 +53,17 @@ footer
 	border-bottom:1px solid #ddd;
 	padding-top:10px;
 }
+.img40
+{
+	width:40px;
+	height:40px;
+}
+.commentsSection
+{
+	padding-top:10px;
+}
+.commentRow
+{
+	margin-top:5px;
+	margin-bottom:5px;
+}

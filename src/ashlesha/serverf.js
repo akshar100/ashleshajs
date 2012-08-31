@@ -360,10 +360,11 @@ YUI().add('server-app', function(Y) {
                     if (action === "create" || action === "update") {
                     	if(action ==="create") { 
                     		model.set("created_at",Date.now());
-                    		
-                    		
                     	}
-                    	if(action ==="update") { model.set("updated_at",Date.now()); }
+                    	if(action==="update"){
+                    		model.set("_id",data._id);
+                    	}
+                    	model.set("updated_at",Date.now()); 
                         model.save();
                     }
                     else if (action === "read") {
@@ -439,9 +440,7 @@ YUI().add('server-app', function(Y) {
 					page: req.body.page || 1,
 					query: (req.body.query && Y.JSON.parse(req.body.query))|| {}
             	},output;
-            	
-            	Y.log(data);
-            	
+
                 output = req.api.invoke("/list/timeline",data,function(err,data){
                 	res.send(Y.JSON.stringify(data));
                 });

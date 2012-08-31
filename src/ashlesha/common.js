@@ -775,10 +775,39 @@ YUI().add('ashlesha-common', function(Y) {
                     },
                     image: {
                         value: ''
+                    },
+                    comments_count:{
+                    	value:0
+                    },
+                    comments:{
+                    	value:[]
+                    },
+                    likes:{
+                    	value:[]
+                    },
+                    shares:{
+                    	value:[]
                     }
+                    
                 }}]);
         }
     });
+    
+    Y.CommentModel = Y.Base.create("CommentModel", Y.CommonModel, [], {
+        initializer: function() {
+            Y.PostModel.superclass.initializer.apply(this, [{
+                attrs: {
+
+                    commenttext: {
+                        value: '',
+                        validation_rules: "trim|required|min(8)"
+                    }
+                    
+                }}]);
+        }
+    });
+    
+    
     Y.CreatePostView = Y.Base.create("CreatePostView", Y.FormView, [], {
 
         preModules: function() {
@@ -828,7 +857,7 @@ YUI().add('ashlesha-common', function(Y) {
 	                this.postSuccess();
 	            }, this);
 				model.set("type","PostModel");
-				mode.set("author_name",user.get("fullname"));
+				model.set("author_name",user.get("firstname"));
 	            model.save();
 	            
             }catch(ex){
@@ -842,10 +871,44 @@ YUI().add('ashlesha-common', function(Y) {
     });
 
     Y.PostList = Y.Base.create("PostList", Y.AshleshaBaseList, [], {
-        model: Y.PostModel
+        model: Y.PostModel,
+        comparator: function (model) {
+		    return -1*model.get('created_at');
+		}
     });
 
     Y.PostView = Y.Base.create("PostView", Y.AshleshaBaseView, [], {
+    	events:{
+    		".like":{
+    			"click":function(e){
+    				var model=this.get("model"),likes = model.get("likes") || []; 
+    				likes.push(this.get("user").get("_id"));
+    				likes = Y.Array.unique(likes);
+    				model.set("likes",likes);
+    				model.save();
+    				e.halt();
+    			}
+    		},
+    		".unlike":{
+    			"click":function(e){
+    				var model=this.get("model"),likes = model.get("likes") || [], index = likes.indexOf(this.get("user").get("_id")); 
+    				if(index>=0){
+    					likes.splice(index,1);
+    				}
+    				model.set("likes",likes);
+    				model.save();
+    				e.halt();
+    			}
+    		},
+    		".comments":{
+    			"click":function(e){
+    				
+    				this.toggleComments();
+    				e.halt();
+    			}
+    		}
+    		
+    	},
         altInitializer: function() {
             var c = this.get('container'),
                 t = this.get("template"),
@@ -856,21 +919,97 @@ YUI().add('ashlesha-common', function(Y) {
 
             }
             else {
-                model.on("load", this.modelLoaded);
+                model.on("load", this.modelLoaded,this);
+               
                 model.load();
             }
+            model.on("save", this.modelLoaded,this);
         },
         modelLoaded: function() {
             var model = this.get("model"),
                 c = this.get('container'),
                 t = this.get('template'),
-                date = new Date(model.get("created_at"));
+                date = new Date(model.get("created_at")),
+                likes = model.get("likes"),
+                user = this.get("user")
+                ,likeDiv,unlikeDiv;
             c.setHTML(Y.Lang.sub(t.one("#" + this.name + "-main-signed").getHTML(), {
                 author_name: model.get("author_name"),
                 post_text: model.get("posttext"),
                 created_at: date.getHours() + ":" + date.getMinutes() + " " + date.getDate() + "-" + date.getMonth() + "-" + date.getFullYear(),
-                comment_count: model.get("comment_count")
+                comment_count: model.get("comments_count")
             }));
+            likeDiv = c.one(".like").ancestor("div");
+            unlikeDiv = c.one(".unlike").ancestor("div");
+            if(likes && typeof likes==="object" && likes.indexOf(user.get("_id"))>=0){
+            	likeDiv.addClass("hide");
+            	unlikeDiv.removeClass("hide");
+            }else{
+            	unlikeDiv.addClass("hide");
+            	likeDiv.removeClass("hide");
+            }
+        },
+        toggleComments:function(){
+        	var c = this.get("container");
+        	if(c.one(".commentsSection").hasClass('hide')){
+        		this.showComments();
+        	}else{
+        		this.hideComments();
+        	}
+        },
+        showComments:function(){
+        	var c = this.get("container"),cs = c.one(".commentsSection"),btn = cs.one(".submitComment"), 
+		        	txt = new Y.TextAreaField({
+		        		label:'Your Comment',
+		        		field_name: 'comment',
+		                rows: 5,
+		                cls: "span7",
+		                user:this.get("user")
+		        	}),
+		        	model = this.get("model"),
+		        	comments = model.get("comments"),
+		        	user = this.get("user"),
+		        	cl = c.one(".commentsList"),i,
+		        	t= this.get("template").one("#PostView-CommentView").getHTML();
+        	cs.removeClass('hide');
+        	cs.one(".commentTextarea").setHTML(txt.render().get("container"));
+        	btn.on("click",function(e){
+        		var cm = new Y.CommentModel(),errors,error,comments;
+        		cm.set("commenttext",txt.get("value"));
+        		errors = cm.checkValidity();
+        		if(Y.Lang.isArray(errors)){
+        			error = errors.pop();
+        			txt.setErrorText(error.error);
+        			return;
+        		}
+        		else
+        		{
+        			comments = model.get("comments");
+        			comments.push({
+        				commentText:txt.get('value'),
+        				author_id:user.get("_id"),
+        				author_name:user.get("firstname")+" "+user.get("lastname")
+        				
+        			});
+        			model.set("comments",comments);
+        			this.startWait(btn);
+        			model.once("save",function(){
+        				this.showComments();
+        			},this);
+        			model.save();
+        		}
+        	},this);
+        	
+        	for(i=0;i<comments.length;i++){
+        		cl.append(Y.Lang.sub(t,{
+        				TEXT:comments[i].commentText,
+        				NAME:comments[i].author_name
+        		}));
+        	}
+        },
+        hidecomments:function(){
+        	var c = this.get("container");
+        	c.one(".commentsSection").addClass('hide');
         }
     });
 
@@ -881,7 +1020,7 @@ YUI().add('ashlesha-common', function(Y) {
                 list = new Y.PostList(),
                 self = this;
             c.setHTML(t.one("#" + this.name + "-main").getHTML());
-            Y.log("Loading :"+this.get('tType'));
+           
             list.on('load', function() {
                 list.each(function(model) {
                     var post = new Y.PostView({
