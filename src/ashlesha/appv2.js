@@ -103,14 +103,16 @@ YUI({
                                                     ".create-post": {
                                                         view: "CreatePostView"
                                                     },
-                                                    ".post-list": {
+                                                    ".timeline-container": {
                                                         view: "PostListView",
                                                         config: {
                                                             modules: {
                                                                 ".post_dummy": {
                                                                     view: "PostView"
                                                                 }
-                                                            }
+                                                            },
+                                                            tType:"publishing-page"
+                                                 
                                                         }
                                                     }
                                                 }
@@ -723,15 +725,22 @@ YUI({
                                             	 timelineType: 'fanpages',
                                             	 modules: {
 	                                                ".create-post": {
-	                                                    view: "CreatePostView"
+	                                                    view: "CreatePostView",
+	                                                    config: {
+	                                                    	tType:'fanpages'
+	                                                    }
 	                                                },
-	                                                ".post-list": {
+	                                                ".timeline-container": {
 	                                                    view: "PostListView",
 	                                                    config: {
 	                                                        modules: {
 	                                                            ".post_dummy": {
 	                                                                view: "PostView"
 	                                                            }
+	                                                        },
+	                                                        query:{
+	                                                        	pageID:req.params.id,
+	                                                        	tType:'fanpages'
 	                                                        }
 	                                                    }
 	                                                }

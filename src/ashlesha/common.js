@@ -694,7 +694,7 @@ YUI().add('ashlesha-common', function(Y) {
                     HELPTEXT: "Your friend's have posted on your wall"
                 }));
                 c.one(".pub-btn").addClass('hide');
-                //c.one(".create-post").setHTML(new Y.CreatePostView({tType:"publishing-page",user:this.get("user")}).render().get("container"));
+                
                 c.one(".timeline-container").setHTML(new Y.PostListView({
                     tType: "publishing-page",
                     user: this.get("user")
@@ -705,7 +705,7 @@ YUI().add('ashlesha-common', function(Y) {
                     HELPTEXT: "your favourite brands are sharing with you"
                 }));
                 c.one(".pub-btn").addClass('hide');
-                //c.one(".create-post").setHTML(new Y.CreatePostView({tType:"publishing-page",user:this.get("user")}).render().get("container"));
+                
                 c.one(".timeline-container").setHTML(new Y.PostListView({
                     tType: "publishing-page",
                     user: this.get("user")
@@ -716,7 +716,7 @@ YUI().add('ashlesha-common', function(Y) {
                     HELPTEXT: "@SITENAME@'s picks"
                 }));
                 c.one(".pub-btn").addClass('hide');
-                //c.one(".create-post").setHTML(new Y.CreatePostView({tType:"publishing-page",user:this.get("user")}).render().get("container"));
+                
                 c.one(".timeline-container").setHTML(new Y.PostListView({
                     tType: "publishing-page",
                     user: this.get("user")
@@ -730,23 +730,17 @@ YUI().add('ashlesha-common', function(Y) {
                 c.one(".create-post").setHTML(new Y.CreatePostView({tType:"publishing-page",user:this.get("user")}).render().get("container"));
                 c.one(".timeline-container").setHTML(new Y.PostListView({
                     tType: "publishing-page",
-                    user: this.get("user")
+                    user: this.get("user"),
+                    query:this.get("query")
                 }).render().get("container"));
                 break;
             
             default:
+            	
                 //This is our regular timeline that shows posts from other people's publishing page
                 c.setHTML(Y.Lang.sub(t.one("#TimeLineView-default").getHTML(), {
                     HELPTEXT: "Your too can share with your friends."
                 }));
-                c.one(".create-post").setHTML(new Y.CreatePostView({
-                    tType: this.get("timelineType"),
-                    user: this.get("user")
-                }).render().get("container"));
-                c.one(".timeline-container").setHTML(new Y.PostListView({
-                    tType: "publishing-page",
-                    user: this.get("user")
-                }).render().get("container"));
                 break;
             }
 
@@ -847,6 +841,7 @@ YUI().add('ashlesha-common', function(Y) {
                 c.one(".title").setHTML(this.get("postTitle"));
             }
             this.loadModules();
+            Y.log("init"+this.get("tType"));
         },
         onSubmit: function(e) {
             var model = new Y.PostModel() , user = this.get("user");
@@ -859,7 +854,7 @@ YUI().add('ashlesha-common', function(Y) {
 	            	Y.log("error found");
 	            },this);
 	           	model.on("save", function() {
-	            	Y.log("Saved"); 
+	            	
 	                this.postSuccess();
 	            }, this);
 				model.set("type","PostModel");
@@ -1025,7 +1020,8 @@ YUI().add('ashlesha-common', function(Y) {
             var c = this.get('container'),
                 t = this.get("template"),
                 list = new Y.PostList(),
-                self = this;
+                self = this,
+                query = this.get("query") || {};
             c.setHTML(t.one("#" + this.name + "-main").getHTML());
            
             list.on('load', function() {
@@ -1037,9 +1033,7 @@ YUI().add('ashlesha-common', function(Y) {
                     c.one(".list-container").append(post.render().get("container"));
                 });
             });
-            list.load({
-            		tType:this.get('tType')
-            });
+            list.load(query);
 
         }
     });
@@ -1276,7 +1270,6 @@ YUI().add('ashlesha-common', function(Y) {
 	    		this.loadModules();
     		},this);
     		model.set("_id",pageID);
-    		Y.log(model.toJSON());
 			model.load();
     		
     		
