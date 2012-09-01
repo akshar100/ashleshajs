@@ -672,6 +672,8 @@ YUI().add('ashlesha-common', function(Y) {
         },
         altInitializer: function(auth) {
             var c = this.get("container");
+            
+            
             if (auth.user) {
                 this.setupTimeline(this.get("timelineType")); //Load the default timeline
             }
@@ -679,6 +681,7 @@ YUI().add('ashlesha-common', function(Y) {
                 c.setHTML("This resource is not available!");
             }
             this.loadModules();
+            
         },
         setupTimeline: function(tType) {
             var c = this.get('container'),
@@ -737,7 +740,7 @@ YUI().add('ashlesha-common', function(Y) {
                     HELPTEXT: "Your too can share with your friends."
                 }));
                 c.one(".create-post").setHTML(new Y.CreatePostView({
-                    tType: "publishing-page",
+                    tType: this.get("timelineType"),
                     user: this.get("user")
                 }).render().get("container"));
                 c.one(".timeline-container").setHTML(new Y.PostListView({
@@ -787,6 +790,9 @@ YUI().add('ashlesha-common', function(Y) {
                     },
                     shares:{
                     	value:[]
+                    },
+                    tType:{ //tType refers to the category of the post.
+                    	value:''
                     }
                     
                 }}]);
@@ -857,6 +863,7 @@ YUI().add('ashlesha-common', function(Y) {
 	                this.postSuccess();
 	            }, this);
 				model.set("type","PostModel");
+				model.set("tType",this.get("tType"));
 				model.set("author_name",user.get("firstname"));
 	            model.save();
 	            
@@ -1118,7 +1125,7 @@ YUI().add('ashlesha-common', function(Y) {
 	            model.set("_id", this.get("user").get("_id"));
 	            model = this.plugModel(model);
 	            model.save(function(){
-	            	Y.log(arguments);
+	            	
 	            	model.load();
 	            });
 	            Y.log(model.toJSON()); 
@@ -1165,15 +1172,118 @@ YUI().add('ashlesha-common', function(Y) {
     	}
     });
     
+    Y.FanPageModel = Y.Base.create("FanPageModel", Y.CommonModel, [], {
+        initializer: function() {
+            Y.FanPageModel.superclass.initializer.apply(this, [{
+                attrs: {
+					_id:{
+						value:''
+					},
+                    title: {
+                        value: '',
+                        validation_rules: "trim|required|min(3)"
+                    },
+                    description: {
+                    	value: '',
+                    	validation_rules: "trim|required|min(8)"
+                    },
+                    brand_name: {
+                    	value:'',
+                    	validation_rules: "trim|required|min(3)" 
+                    },
+                    image: {
+                    	value:''
+                    }
+                    
+                }}]);
+        }
+    });
+    
     Y.CreateFanPageView = Y.Base.create("CreateFanPageView",Y.FormView,[],{
     	altInitializer:function(auth){
     		var c = this.get("container"),t = this.get("template");
+    		
     		if(auth && auth.user){
     			c.setHTML(t.one("#"+this.name+"-main-signed").getHTML());
     		}
     		this.loadModules();
+    		
+    	},
+    	onSubmit:function(e){
+    		var model = new Y.FanPageModel();
+    		model.set("type",model.name);
+    		this.startWait(e.target);
+    		model.on(["save","error"],function(){
+    			this.endWait();
+    			Y.fire("navigate",{
+    				action:"/"
+    			});
+    		},this);
+    		model = this.plugModel(model);
+    		model.save();
+    		e.halt();
     	}
     });
+    
+    Y.FanPageList = Y.Base.create("FanPageList", Y.AshleshaBaseList, [], {
+        model: Y.FanPageModel,
+        comparator: function (model) {
+		    return -1*model.get('created_at');
+		}
+    });
+    
+    Y.FanPageListView = Y.Base.create("FanPageListView",Y.AshleshaBaseView,[],{
+    	altInitializer:function(auth){
+    		var c = this.get("container"),t = this.get("template"),btn = c.one(".searchBtn"), list = new Y.FanPageList(), row = t.one("#FanPageListView-item").getHTML();
+    		
+    		if(auth && auth.user){
+    			c.setHTML(t.one("#"+this.name+"-main-signed").getHTML());
+    		}
+    		this.loadModules();
+    		list.on("load",function(){
+    			list.each(function(item){
+    				c.one(".pageList").append(
+    					Y.Lang.sub(row,{
+    						TITLE:item.get("title"),
+    						DESCRIPTION:item.get("description"),
+    						IMG:item.get("image"),
+    						ID:item.get("_id")
+    					})
+    				);
+    			});
+    			this.endWait();
+    		},this);
+    		this.startWait(c.one(".pageList"));
+    		list.load();
+    	}
+    });
+
+	Y.FanPageView = Y.Base.create("FanPageView",Y.AshleshaBaseView,[],{
+    	altInitializer:function(auth){
+    		var c = this.get("container"),t = this.get("template"),model = new Y.FanPageModel(),pageID= this.get("pageID");
+    		
+    		this.startWait(c);
+    		model.on("load",function(){
+    			this.endWait();
+    			if(auth && auth.user){
+	    			c.setHTML(Y.Lang.sub(t.one("#"+this.name+"-main-signed").getHTML(),{
+	    				TITLE:model.get("title"),
+	    				DESCRIPTION:model.get('description'),
+	    				IMG:model.get("image"),
+	    				ID:model.get("_id")
+	    			}));
+	    		}
+	    		this.loadModules();
+    		},this);
+    		model.set("_id",pageID);
+    		Y.log(model.toJSON());
+			model.load();
+    		
+    		
+    	}
+    });
+
+
 
 }, '0.0.1', {
     requires: ['base', 'cache', 'model-list', function() {

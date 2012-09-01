@@ -82,12 +82,15 @@ YUI().add('ashlesha-base-models', function(Y) {
         	
             var cache, cached, data;
             this.removeAttr("attrs", "");
+           
             data = {
                 data: Y.JSON.stringify(this.toJSON()),
                 action: action,
                 name: this.name
             };
-            data.data._id = this.get("_id") || this.get("id");
+           
+            
+            data.data._id = this.get("_id"); //Really required ?
             
             cache = new Y.CacheOffline({
                 sandbox: "models"
@@ -98,7 +101,9 @@ YUI().add('ashlesha-base-models', function(Y) {
                     callback(null, Y.JSON.parse(cached.response));
                 }
             }
-            else {
+            
+            if(!cached) {
+            	
                 Y.io(Y.config.AppConfig.baseURL + Y.config.AppConfig.modelMapURL, {
                     method: 'POST',
                     data: data,
@@ -236,7 +241,7 @@ YUI().add('ashlesha-base-view', function(Y) {
             var cache = this.get('cache'),
                 cached = cache.retrieve(name),
                 path;
-
+		
             if (cached && cached.response) {
                 this.set("template", Y.Node.create(cached.response));
                 this.fire("template_loaded");

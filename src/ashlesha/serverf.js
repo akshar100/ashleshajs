@@ -80,6 +80,7 @@ YUI().add('ashlesha-base-models', function(Y) {
 			try { delete data.api;} catch(ex) { Y.log("API NOT PRESENT IN MODEL");}
             switch (action) {
             case "read":
+            	Y.log(data);
                 Y.io(dburl + "/" + data._id, {
                     method: 'GET',
                     headers: {
@@ -441,7 +442,7 @@ YUI().add('server-app', function(Y) {
 					query: (req.body.query && Y.JSON.parse(req.body.query))|| {}
             	},output;
 
-                output = req.api.invoke("/list/timeline",data,function(err,data){
+                output = req.api.invoke("/list/"+req.body.name,data,function(err,data){
                 	res.send(Y.JSON.stringify(data));
                 });
                 

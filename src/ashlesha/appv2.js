@@ -7,8 +7,8 @@ YUI({
     AppConfig: {
         baseURL: 'http://@SUBDOMAIN@.@DOMAIN@.@TLD@/',
         port: '@PORT@',
-        logoImage: 'static/images/logo.png',
-        loaderImage: 'static/loader.gif',
+        logoImage: '/static/images/logo.png',
+        loaderImage: '/static/loader.gif',
         modelMapURL: 'model',
         templateURL: 'template',
         uploadURL: 'upload',
@@ -341,7 +341,34 @@ YUI({
             }
         });
     });
+	
+	app.route("/fanpages", function(req,res){
+		this.showView('home', {
+            req: req,
+            res: res,
+            user: currentUser,
+            modules: {
+                ".topbar": {
+                    view: "TopBarView"
+                },
+                ".homepage": {
+                    view: "HomePageView",
+                    config: {
 
+                        modules: {
+                            ".sidebar": {
+                                view: "SideBarView"
+                            },
+                            ".mainarea": {
+                                view: "FanPageListView"
+                            }
+                        }
+                    }
+                }
+            }
+        });
+	});
+	
     app.route("/publish", function(req, res) {
         this.showView('home', {
             req: req,
@@ -621,6 +648,14 @@ YUI({
                                 view: "CreateFanPageView",
                                 config: {
                                     modules: {
+                                    	".title":{
+                                    		view:"FormItem",
+                                    		config:{
+                                    			label:"Title",
+                                    			field_name:"title",
+                                    			input_type:"text"
+                                    		}
+                                    	},
                                         ".brand_name": {
                                             view: "FormItem",
                                             config: {
@@ -659,6 +694,64 @@ YUI({
 
     });
 
+	app.route("/fanpage/:id", function(req,res){
+		
+		this.showView('home', {
+            req: req,
+            res: res,
+            user: currentUser,
+            modules: {
+                ".topbar": {
+                    view: "TopBarView"
+                },
+                ".homepage": {
+                    view: "HomePageView",
+                    config: {
+
+                        modules: {
+                            ".sidebar": {
+                                view: "SideBarView"
+                            },
+                            ".mainarea": {
+                                view: "FanPageView",
+                                config:{
+                                	pageID:req.params.id,
+                                	modules:{
+                                		".fanpageTimeline":{
+                                            view:"TimeLineView",
+                                            config:{
+                                            	 timelineType: 'fanpages',
+                                            	 modules: {
+	                                                ".create-post": {
+	                                                    view: "CreatePostView"
+	                                                },
+	                                                ".post-list": {
+	                                                    view: "PostListView",
+	                                                    config: {
+	                                                        modules: {
+	                                                            ".post_dummy": {
+	                                                                view: "PostView"
+	                                                            }
+	                                                        }
+	                                                    }
+	                                                }
+	                                            }
+                                            }
+                                            
+                                           
+                                            
+
+                                        }
+                                	}
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+	});
+	
     app.route("/wishlist", function(req, res) {
         this.showView('home', {
             req: req,

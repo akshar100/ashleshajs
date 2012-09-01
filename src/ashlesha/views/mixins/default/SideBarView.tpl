@@ -19,7 +19,7 @@
 				<div class="span2">
 					<div class="nav nav-list">
 						<li class="nav-header">Pages</li>
-						<li> <a href=""><i class="icon-heart"></i> Fan Pages</a></li>
+						<li> <a href="/fanpages"><i class="icon-heart"></i> Fan Pages</a></li>
 						<li> <a href=""><i class="icon-barcode"></i> Brand Pages</a></li>
 						<li> <a href=""><i class="icon-picture"></i> Pubs Page</a></li>
 					</div>
