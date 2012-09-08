@@ -210,7 +210,10 @@ YUI({
                                                 timelineType: 'wardrobes',
                                                 modules: {
                                                     ".create-post": {
-                                                        view: "CreatePostView"
+                                                        view: "CreatePostView",
+                                                        config:{
+                                                        	tType:"wardrobe-entry"
+                                                        }
                                                     },
                                                     ".post-list": {
                                                         view: "PostListView",
@@ -421,7 +424,9 @@ YUI({
                             ".mainarea": {
                                 view: "CreatePostView",
                                 config: {
-                                    "postTitle": "Add a wardrobe entry"
+                                    "postTitle": "Add a wardrobe entry",
+                                     tType:"wardrobe-entry"
+                                     
                                 }
                             }
                         }
@@ -727,7 +732,8 @@ YUI({
 	                                                ".create-post": {
 	                                                    view: "CreatePostView",
 	                                                    config: {
-	                                                    	tType:'fanpages'
+	                                                    	tType:'fanpages',
+	                                                    	owner_id:req.params.id //all the posts under this are owned by
 	                                                    }
 	                                                },
 	                                                ".timeline-container": {
@@ -741,6 +747,109 @@ YUI({
 	                                                        query:{
 	                                                        	pageID:req.params.id,
 	                                                        	tType:'fanpages'
+	                                                        }
+	                                                    }
+	                                                }
+	                                            }
+                                            }
+                                            
+                                           
+                                            
+
+                                        }
+                                	}
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+	});
+	
+	app.route("/user/:id", function(req,res){
+		
+		this.showView('home', {
+            req: req,
+            res: res,
+            user: currentUser,
+            modules: {
+                ".topbar": {
+                    view: "TopBarView"
+                },
+                ".homepage": {
+                    view: "HomePageView",
+                    config: {
+
+                        modules: {
+                            ".sidebar": {
+                                view: "SideBarView"
+                            },
+                            ".mainarea": {
+                                view: "UserPageView",
+                                config:{
+                                	user_id:req.params.id,
+                                	modules:{
+                                		".dummy": {
+                                			view: "FriendshipView"
+                                		}
+                                	}
+                                }
+                                
+                            }
+                        }
+                    }
+                }
+            }
+        });
+	});
+	
+	app.route("/my/wardrobe", function(req,res){
+		
+		this.showView('home', {
+            req: req,
+            res: res,
+            user: currentUser,
+            modules: {
+                ".topbar": {
+                    view: "TopBarView"
+                },
+                ".homepage": {
+                    view: "HomePageView",
+                    config: {
+
+                        modules: {
+                            ".sidebar": {
+                                view: "SideBarView"
+                            },
+                            ".mainarea": {
+                                view: "WardrobeView",
+                                config:{
+                                	pageID:req.params.id,
+                                	modules:{
+                                		".fanpageTimeline":{
+                                            view:"TimeLineView",
+                                            config:{
+                                            	 timelineType: 'wardrobe-entry',
+                                            	 modules: {
+	                                                ".create-post": {
+	                                                    view: "CreatePostView",
+	                                                    config: {
+	                                                    	tType:'wardrobe-entry',
+	                                                    	owner_id:currentUser.get("_id") || currentUser.get("id")
+	                                                    }
+	                                                },
+	                                                ".timeline-container": {
+	                                                    view: "PostListView",
+	                                                    config: {
+	                                                        modules: {
+	                                                            ".post_dummy": {
+	                                                                view: "PostView"
+	                                                            }
+	                                                        },
+	                                                        query:{
+	                                                        	owner_id:currentUser.get("_id") || currentUser.get("id"),
+	                                                        	tType:'wardrobe-entry'
 	                                                        }
 	                                                    }
 	                                                }

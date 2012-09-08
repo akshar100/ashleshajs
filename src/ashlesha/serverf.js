@@ -80,7 +80,9 @@ YUI().add('ashlesha-base-models', function(Y) {
 			try { delete data.api;} catch(ex) { Y.log("API NOT PRESENT IN MODEL");}
             switch (action) {
             case "read":
+            	Y.log("reading Model");
             	Y.log(data);
+            	Y.log(this.toJSON());
                 Y.io(dburl + "/" + data._id, {
                     method: 'GET',
                     headers: {
@@ -339,7 +341,7 @@ YUI().add('server-app', function(Y) {
                     name = req.body.name,
                     model = new Y[name](),
                     attrs = model.get("attrs") || {};
-                   
+                    Y.log(data);
                 	model.set("api",req.api);
                 if (model) {
                     model.setAttrs(data);
@@ -369,8 +371,11 @@ YUI().add('server-app', function(Y) {
                         model.save();
                     }
                     else if (action === "read") {
+                    	Y.log(data);
+                    	model.set("_id",data._id);
                         model.load({
                         	req:req
+                        	
                         });
                     }
                     else if (action === "delete") {

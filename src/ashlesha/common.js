@@ -739,7 +739,7 @@ YUI().add('ashlesha-common', function(Y) {
             	
                 //This is our regular timeline that shows posts from other people's publishing page
                 c.setHTML(Y.Lang.sub(t.one("#TimeLineView-default").getHTML(), {
-                    HELPTEXT: "Your too can share with your friends."
+                    HELPTEXT: "You too can share with your friends."
                 }));
                 break;
             }
@@ -841,10 +841,10 @@ YUI().add('ashlesha-common', function(Y) {
                 c.one(".title").setHTML(this.get("postTitle"));
             }
             this.loadModules();
-            Y.log("init"+this.get("tType"));
+           
         },
         onSubmit: function(e) {
-            var model = new Y.PostModel() , user = this.get("user");
+            var model = new Y.PostModel() , user = this.get("user"),owner_id = this.get('owner_id') || null;
             e.halt();
 			try{
 	            this.startWait(e.target);
@@ -860,6 +860,8 @@ YUI().add('ashlesha-common', function(Y) {
 				model.set("type","PostModel");
 				model.set("tType",this.get("tType"));
 				model.set("author_name",user.get("firstname"));
+				model.set("owner_id",owner_id);
+				model.set("author_id",user.get("_id"));
 	            model.save();
 	            
             }catch(ex){
@@ -936,6 +938,7 @@ YUI().add('ashlesha-common', function(Y) {
                 user = this.get("user")
                 ,likeDiv,unlikeDiv;
             c.setHTML(Y.Lang.sub(t.one("#" + this.name + "-main-signed").getHTML(), {
+            	author_id:model.get('author_id'),
                 author_name: model.get("author_name"),
                 post_text: model.get("posttext"),
                 created_at: date.getHours() + ":" + date.getMinutes() + " " + date.getDate() + "-" + date.getMonth() + "-" + date.getFullYear(),
@@ -1037,6 +1040,87 @@ YUI().add('ashlesha-common', function(Y) {
 
         }
     });
+    
+    
+    Y.FriendshipView = Y.Base.create("FriendshipView", Y.AshleshaBaseView, [], {
+    	events:{
+    		"button.add-frnd":{
+    			click:function(){
+    				
+    			}
+    		},
+    		"button.accept-friend":{
+    			click:function(){
+    				
+    			}
+    		},
+    		"button.remove-friend":{
+    			click:function(){
+    				
+    			}
+    		},
+    		"button.follow":{
+    			click:function(){
+    				
+    			}
+    		},
+    		"button.unfollow":{
+    			click:function(){
+    				
+    			}
+    		}
+    	},
+    	altInitializer: function(auth) {
+            var c = this.get('container'),
+                t = this.get("template"),
+                user = this.get("user"),
+                targetUser = this.get("targetUser");
+                c.setHTML(t.one("#" + this.name + "-main-signed").getHTML());
+                this.refresh();
+       },
+       refresh:function(){
+       		
+       		Y.api.invoke("/relations/getRelation",{
+       			source:this.get("source").get("_id"),
+       			target:this.get("target").get("_id")
+       		},function(){
+       			Y.log(arguments);
+       		});
+       }
+    });
+    
+    Y.UserPageView = Y.Base.create("UserPageView", Y.AshleshaBaseView, [], {
+        altInitializer: function(auth) {
+            var c = this.get('container'),
+                t = this.get("template"),
+                targetUser = new Y.CommonModel({
+                	_id:this.get("user_id")
+                }),
+                user = this.get("user"),
+                relation = new Y.FriendshipView({
+                	source:user,
+                	target:targetUser,
+                	user:user
+                });
+                
+                
+            targetUser.set("_id",this.get("user_id"));
+            targetUser.on("load",function(){
+            	c.setHTML(Y.Lang.sub(t.one("#" + this.name + "-main-signed").getHTML(),{
+            		USERNAME:targetUser.get("firstname")+" "+targetUser.get("lastname"),
+            		IMG:targetUser.get("image")
+            	}));
+           		this.loadModules();
+           		c.one(".friend").setHTML(relation.render().get('container'));
+           		
+            },this);
+            targetUser.load({
+           			_id:this.get("user_id")
+           		});
+           
+
+        }
+    });
 
     Y.ProfileModel = Y.Base.create("ProfileModel", Y.CommonModel, [], {
     	sync:function(options){
@@ -1070,6 +1154,9 @@ YUI().add('ashlesha-common', function(Y) {
                     gender: {
                         value: '',
                         validation_rules: 'required'
+                    },
+                    relations: {
+                    	value: [] 
                     }
                 }}]);
         }
@@ -1249,6 +1336,19 @@ YUI().add('ashlesha-common', function(Y) {
     		},this);
     		this.startWait(c.one(".pageList"));
     		list.load();
+    	}
+    });
+    
+    Y.WardrobeView = Y.Base.create("WardrobeView",Y.AshleshaBaseView,[],{
+    	altInitializer:function(auth){
+    		var c = this.get("container"),t = this.get("template"), self = this;
+    		
+    		if(auth && auth.user){
+    			c.setHTML(t.one("#"+this.name+"-main-signed").getHTML());
+    		}
+    		
+    		
+    		
     	}
     });
 

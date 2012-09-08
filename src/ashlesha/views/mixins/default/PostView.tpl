@@ -4,7 +4,7 @@
 			<img class="img40" src="http://placehold.it/40x40">
 		</div>
 		<div class="span8">
-			<h4>{author_name}</h4>
+			<h4><a href="/user/{author_id}">{author_name}</a></h4>
 			<div class="row">
 				<div class="span8">
 					{post_text}

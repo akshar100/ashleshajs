@@ -31,7 +31,7 @@
 						<li class="nav-header">People</li>
 						<li> <a href="/me"><i class="icon-asterisk"></i>My Profile</a></li>
 						<li> <a href=""><i class="icon-user"></i>My Friends</a></li>
-						<li> <a href=""><i class="icon-shopping-cart"></i>My Wardrobe</a></li>
+						<li> <a href="/my/wardrobe"><i class="icon-shopping-cart"></i>My Wardrobe</a></li>
 					</div>
 				</div>
 			</div>

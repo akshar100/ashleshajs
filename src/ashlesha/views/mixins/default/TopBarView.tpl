@@ -16,8 +16,7 @@
 	          	 <div class="nav-collapse">
 		            <ul class="nav">
 		              <li><a href="/">Home</a></li>
-		              <li><a href="/page/features">Features</a></li>
-		              <li><a href="/page/pricing">Pricing</a></li>
+		              <li><a href="/page/know_us">Know Us</a></li>
 		            </ul>
 		          </div><!--/.nav-collapse -->
 	          </div>

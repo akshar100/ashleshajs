@@ -99,6 +99,7 @@ YUI().add('ashlesha-base-models', function(Y) {
                 cached = cache.retrieve(this.get("_id"));
                 if (cached && cached.response) {
                     callback(null, Y.JSON.parse(cached.response));
+                    return;
                 }
             }
             
