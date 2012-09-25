@@ -79,19 +79,18 @@ YUI().add('ashlesha-base-models', function(Y) {
     Y.AshleshaBaseModel = Y.Base.create('AshleshaBaseModel', Y.Model, [], {
         idAttribute: "_id",
         sync: function(action, options, callback) {
-        	
+
             var cache, cached, data;
             this.removeAttr("attrs", "");
-           
+
             data = {
                 data: Y.JSON.stringify(this.toJSON()),
                 action: action,
                 name: this.name
             };
-           
-            
+
+
             data.data._id = this.get("_id"); //Really required ?
-            
             cache = new Y.CacheOffline({
                 sandbox: "models"
             });
@@ -102,13 +101,13 @@ YUI().add('ashlesha-base-models', function(Y) {
                     return;
                 }
             }
-            
-            if(!cached) {
-            	
+
+            if (!cached) {
+
                 Y.io(Y.config.AppConfig.baseURL + Y.config.AppConfig.modelMapURL, {
                     method: 'POST',
                     data: data,
-                    context:this,
+                    context: this,
                     on: {
                         success: function(i, o, a) {
                             var data = Y.JSON.parse(o.responseText);
@@ -242,7 +241,7 @@ YUI().add('ashlesha-base-view', function(Y) {
             var cache = this.get('cache'),
                 cached = cache.retrieve(name),
                 path;
-		
+
             if (cached && cached.response) {
                 this.set("template", Y.Node.create(cached.response));
                 this.fire("template_loaded");
@@ -357,8 +356,8 @@ YUI().add('ashlesha-base-view', function(Y) {
                     moduleContainer.setHTML(view.render().get('container')); // replace the
                     addedModules.push(view);
                 }
-                
-                
+
+
 
             });
 
@@ -383,7 +382,6 @@ YUI().add('ashlesha-base-view', function(Y) {
             this.fire("endWait");
         }
     });
-
 
 
 }, '0.99', {

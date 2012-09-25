@@ -14,9 +14,6 @@ YUI({
         uploadURL: 'upload',
         apiURL: 'api',
         listURL: 'list'
-    },
-    modules: {
-
     }
 }).use('base', 'cache', 'ashlesha-common', function() {
     if (typeof document !== 'undefined') {
@@ -111,8 +108,8 @@ YUI({
                                                                     view: "PostView"
                                                                 }
                                                             },
-                                                            tType:"publishing-page"
-                                                 
+                                                            tType: "publishing-page"
+
                                                         }
                                                     }
                                                 }
@@ -211,8 +208,8 @@ YUI({
                                                 modules: {
                                                     ".create-post": {
                                                         view: "CreatePostView",
-                                                        config:{
-                                                        	tType:"wardrobe-entry"
+                                                        config: {
+                                                            tType: "wardrobe-entry"
                                                         }
                                                     },
                                                     ".post-list": {
@@ -346,9 +343,9 @@ YUI({
             }
         });
     });
-	
-	app.route("/fanpages", function(req,res){
-		this.showView('home', {
+
+    app.route("/fanpages", function(req, res) {
+        this.showView('home', {
             req: req,
             res: res,
             user: currentUser,
@@ -372,8 +369,8 @@ YUI({
                 }
             }
         });
-	});
-	
+    });
+
     app.route("/publish", function(req, res) {
         this.showView('home', {
             req: req,
@@ -425,8 +422,8 @@ YUI({
                                 view: "CreatePostView",
                                 config: {
                                     "postTitle": "Add a wardrobe entry",
-                                     tType:"wardrobe-entry"
-                                     
+                                    tType: "wardrobe-entry"
+
                                 }
                             }
                         }
@@ -655,14 +652,14 @@ YUI({
                                 view: "CreateFanPageView",
                                 config: {
                                     modules: {
-                                    	".title":{
-                                    		view:"FormItem",
-                                    		config:{
-                                    			label:"Title",
-                                    			field_name:"title",
-                                    			input_type:"text"
-                                    		}
-                                    	},
+                                        ".title": {
+                                            view: "FormItem",
+                                            config: {
+                                                label: "Title",
+                                                field_name: "title",
+                                                input_type: "text"
+                                            }
+                                        },
                                         ".brand_name": {
                                             view: "FormItem",
                                             config: {
@@ -701,9 +698,9 @@ YUI({
 
     });
 
-	app.route("/fanpage/:id", function(req,res){
-		
-		this.showView('home', {
+    app.route("/fanpage/:id", function(req, res) {
+
+        this.showView('home', {
             req: req,
             res: res,
             user: currentUser,
@@ -721,43 +718,43 @@ YUI({
                             },
                             ".mainarea": {
                                 view: "FanPageView",
-                                config:{
-                                	pageID:req.params.id,
-                                	modules:{
-                                		".fanpageTimeline":{
-                                            view:"TimeLineView",
-                                            config:{
-                                            	 timelineType: 'fanpages',
-                                            	 modules: {
-	                                                ".create-post": {
-	                                                    view: "CreatePostView",
-	                                                    config: {
-	                                                    	tType:'fanpages',
-	                                                    	owner_id:req.params.id //all the posts under this are owned by
-	                                                    }
-	                                                },
-	                                                ".timeline-container": {
-	                                                    view: "PostListView",
-	                                                    config: {
-	                                                        modules: {
-	                                                            ".post_dummy": {
-	                                                                view: "PostView"
-	                                                            }
-	                                                        },
-	                                                        query:{
-	                                                        	pageID:req.params.id,
-	                                                        	tType:'fanpages'
-	                                                        }
-	                                                    }
-	                                                }
-	                                            }
+                                config: {
+                                    pageID: req.params.id,
+                                    modules: {
+                                        ".fanpageTimeline": {
+                                            view: "TimeLineView",
+                                            config: {
+                                                timelineType: 'fanpages',
+                                                modules: {
+                                                    ".create-post": {
+                                                        view: "CreatePostView",
+                                                        config: {
+                                                            tType: 'fanpages',
+                                                            owner_id: req.params.id //all the posts under this are owned by
+                                                        }
+                                                    },
+                                                    ".timeline-container": {
+                                                        view: "PostListView",
+                                                        config: {
+                                                            modules: {
+                                                                ".post_dummy": {
+                                                                    view: "PostView"
+                                                                }
+                                                            },
+                                                            query: {
+                                                                pageID: req.params.id,
+                                                                tType: 'fanpages'
+                                                            }
+                                                        }
+                                                    }
+                                                }
                                             }
-                                            
-                                           
-                                            
+
+
+
 
                                         }
-                                	}
+                                    }
                                 }
                             }
                         }
@@ -765,11 +762,11 @@ YUI({
                 }
             }
         });
-	});
-	
-	app.route("/user/:id", function(req,res){
-		
-		this.showView('home', {
+    });
+
+    app.route("/user/:id", function(req, res) {
+
+        this.showView('home', {
             req: req,
             res: res,
             user: currentUser,
@@ -787,26 +784,26 @@ YUI({
                             },
                             ".mainarea": {
                                 view: "UserPageView",
-                                config:{
-                                	user_id:req.params.id,
-                                	modules:{
-                                		".dummy": {
-                                			view: "FriendshipView"
-                                		}
-                                	}
+                                config: {
+                                    user_id: req.params.id,
+                                    modules: {
+                                        ".dummy": {
+                                            view: "FriendshipView"
+                                        }
+                                    }
                                 }
-                                
+
                             }
                         }
                     }
                 }
             }
         });
-	});
-	
-	app.route("/my/wardrobe", function(req,res){
-		
-		this.showView('home', {
+    });
+
+    app.route("/my/wardrobe", function(req, res) {
+
+        this.showView('home', {
             req: req,
             res: res,
             user: currentUser,
@@ -824,43 +821,43 @@ YUI({
                             },
                             ".mainarea": {
                                 view: "WardrobeView",
-                                config:{
-                                	pageID:req.params.id,
-                                	modules:{
-                                		".fanpageTimeline":{
-                                            view:"TimeLineView",
-                                            config:{
-                                            	 timelineType: 'wardrobe-entry',
-                                            	 modules: {
-	                                                ".create-post": {
-	                                                    view: "CreatePostView",
-	                                                    config: {
-	                                                    	tType:'wardrobe-entry',
-	                                                    	owner_id:currentUser.get("_id") || currentUser.get("id")
-	                                                    }
-	                                                },
-	                                                ".timeline-container": {
-	                                                    view: "PostListView",
-	                                                    config: {
-	                                                        modules: {
-	                                                            ".post_dummy": {
-	                                                                view: "PostView"
-	                                                            }
-	                                                        },
-	                                                        query:{
-	                                                        	owner_id:currentUser.get("_id") || currentUser.get("id"),
-	                                                        	tType:'wardrobe-entry'
-	                                                        }
-	                                                    }
-	                                                }
-	                                            }
+                                config: {
+                                    pageID: req.params.id,
+                                    modules: {
+                                        ".fanpageTimeline": {
+                                            view: "TimeLineView",
+                                            config: {
+                                                timelineType: 'wardrobe-entry',
+                                                modules: {
+                                                    ".create-post": {
+                                                        view: "CreatePostView",
+                                                        config: {
+                                                            tType: 'wardrobe-entry',
+                                                            owner_id: currentUser.get("_id") || currentUser.get("id")
+                                                        }
+                                                    },
+                                                    ".timeline-container": {
+                                                        view: "PostListView",
+                                                        config: {
+                                                            modules: {
+                                                                ".post_dummy": {
+                                                                    view: "PostView"
+                                                                }
+                                                            },
+                                                            query: {
+                                                                owner_id: currentUser.get("_id") || currentUser.get("id"),
+                                                                tType: 'wardrobe-entry'
+                                                            }
+                                                        }
+                                                    }
+                                                }
                                             }
-                                            
-                                           
-                                            
+
+
+
 
                                         }
-                                	}
+                                    }
                                 }
                             }
                         }
@@ -868,8 +865,8 @@ YUI({
                 }
             }
         });
-	});
-	
+    });
+
     app.route("/wishlist", function(req, res) {
         this.showView('home', {
             req: req,
@@ -1001,7 +998,51 @@ YUI({
         });
     });
 
+	app.route("/my/friends",function(req,res){
+		 this.showView('home', {
+            req: req,
+            res: res,
+            user: currentUser,
+            modules: {
+                ".topbar": {
+                    view: "TopBarView"
+                },
+                ".homepage": {
+                    view: "HomePageView",
+                    config: {
 
+                        modules: {
+                            ".sidebar": {
+                                view: "SideBarView"
+                            },
+                            ".mainarea": {
+                                view: "TitledPageView",
+                                config:{
+                                	title:"My Friends",
+                                	modules:{
+                                		".content":{
+                                			view:"UserListView",
+                                			config:{
+                                				searchable:true, //User can search the users 
+                                				selectable:true,
+                                				load:{
+                                					api:""
+                                				}
+                                			}
+                                		}
+                                	}
+                                }
+                                
+                            }
+                        }
+                    }
+                }
+
+            }
+        });
+	});
+	
+	
     app.render().dispatch();
     Y.fire("updateUser");
 });

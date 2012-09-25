@@ -80,9 +80,7 @@ YUI().add('ashlesha-base-models', function(Y) {
 			try { delete data.api;} catch(ex) { Y.log("API NOT PRESENT IN MODEL");}
             switch (action) {
             case "read":
-            	Y.log("reading Model");
-            	Y.log(data);
-            	Y.log(this.toJSON());
+            	
                 Y.io(dburl + "/" + data._id, {
                     method: 'GET',
                     headers: {
@@ -264,7 +262,7 @@ YUI().add('server-app', function(Y) {
                 		if(e.user && e.success){
                 			req.session.user = e.user;
                 		}
-                		Y.log("Update User Fired");
+                		
                 	});
                 	
                 	next();
@@ -341,7 +339,7 @@ YUI().add('server-app', function(Y) {
                     name = req.body.name,
                     model = new Y[name](),
                     attrs = model.get("attrs") || {};
-                    Y.log(data);
+                   
                 	model.set("api",req.api);
                 if (model) {
                     model.setAttrs(data);
@@ -371,7 +369,7 @@ YUI().add('server-app', function(Y) {
                         model.save();
                     }
                     else if (action === "read") {
-                    	Y.log(data);
+                    	
                     	model.set("_id",data._id);
                         model.load({
                         	req:req
@@ -423,10 +421,14 @@ YUI().add('server-app', function(Y) {
             });
 			ex.get("/"+Y.config.AppConfig.templateURL+"/:template",function(req,res){
 				var view = new Y[req.params.template]({
-					
+					xhr:true
 				});
-				
+				view.on("render",function(e){
+					
+					res.send(Y.JSON.stringify(e.data));
+				});
 				view.render();
+				
 			});
 			
 			ex.post("/upload",function(req,res){
@@ -458,14 +460,31 @@ YUI().add('server-app', function(Y) {
             ex.get("/test-suite",function(req,res){
             	var testCase=new Y.Test.Case({
 
-				    name: "TestCase Name",
-				
+				    name: "Login",
 				    testLogin : function () {
-				        req.api.invoke("/login",{username:'akshar@akshar.co.in',password:""},function(err,data){
+				        req.api.invoke("/login",{username:'akshar2@akshar.co.in',password:"123456"},function(err,data){
 				        	Y.Assert.isObject(data);
 				        	Y.Assert.isTrue(data.success,true);
-				        	res.write(data);
+				        	
 				        });
+				    },
+				    testGetFriends: function(){
+				    	req.api.invoke("/user/getFriends",{
+				    		user_id:"f82553cf0de08b4fba34229d39029af7"
+				    	},function(err,data){
+				    		Y.Assert.isNull(err);
+				    		Y.Assert.isArray(data);
+				    	});
+				    },
+				    testGetByRelation: function(){
+				    	req.api.invoke("/relations/getByRelation",{
+				    		user_id:"f82553cf0de08b4fba34229d39029af7",
+				    		relation:"friend"
+				    	},function(err,data){
+				    		Y.Assert.isNull(err);
+				    		Y.Assert.isArray(data);
+				    		Y.log(data);
+				    	});
 				    }
 				});
             	

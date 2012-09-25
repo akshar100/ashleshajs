@@ -63,16 +63,7 @@
   	
   	
   	<target name="ashlesha.js" depends="nonyui.js.concatenate" >
-  		
-<!--  		<copy todir="${build.js_mod.dir}" filtering="true">
-  			<filterchain>
-			    <filterreader classname="org.apache.tools.ant.filters.ReplaceTokens">
-			            <param type="propertiesfile" value="${custom.jsconfig.file}"/>
-			    </filterreader>
-		    </filterchain>
-		    <fileset dir="${src.js_mod.dir}"/>
-		</copy>
--->		
+
 
 		<tstamp>
 			<format property="build.time"
@@ -92,6 +83,8 @@
 				<file name="ashlesha/appv2.js" />
 			</filelist>
 		</concat>
+		
+		
 		<concat destfile="${build.dir}/ashlesha/server.js" fixlastline="yes">
 			<header>
 				/* Build Time: ${build.time} */
