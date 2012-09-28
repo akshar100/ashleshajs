@@ -47,7 +47,7 @@
 				/* Build Time: ${build.time} */
 				/*${license}*/
 			</header>
-			<fileset dir="${build.static.css.dir}" includes="*.css" excludes="build.min.css,build.css,bootstrap.css,bootstrap-response.css"/>
+			<fileset dir="${build.static.css.dir}" includes="*.css" excludes="build.min.css,build.css,bootstrap.css,bootstrap-responsive.css"/>
 		</concat>
   	</target>
   	

@@ -485,6 +485,16 @@ YUI().add('server-app', function(Y) {
 				    		Y.Assert.isArray(data);
 				    		Y.log(data);
 				    	});
+				    },
+				    testWardrobeSections:function(){
+				    	req.api.invoke("/relations/getByRelation",{
+				    		user_id:"f82553cf0de08b4fba34229d39029af7"
+				    		
+				    	},function(err,data){
+				    		Y.Assert.isNull(err);
+				    		Y.Assert.isArray(data);
+				    		
+				    	});
 				    }
 				});
             	

@@ -10,7 +10,8 @@ YUI().add('ashlesha-common', function(Y) {
 
     Y.FormItem = Y.Base.create("FormItem", Y.AshleshaBaseView, [], {
         altInitializer: function(auth) {
-            var c = this.get('container');
+            var c = this.get('container'),
+                ac = this.get("ac");
             c.setHTML(Y.Lang.sub(this.get('template').one('#' + this.name + "-main").getHTML(), {
                 LABEL: this.get("label") || "ITEM",
                 FIELD_NAME: this.get('field_name') || "field",
@@ -21,6 +22,10 @@ YUI().add('ashlesha-common', function(Y) {
             }));
 
             c.addClass('yui3-input-container');
+
+            if (ac) {
+                this.setupAC(ac);
+            }
 
         },
         setHelpText: function(text) {
@@ -45,7 +50,22 @@ YUI().add('ashlesha-common', function(Y) {
             if (c.one("textarea")) {
                 c.one("textarea").setHTML(val || "");
             }
+        },
+        setupAC: function(ac) {
+            var c = this.get('container'),
+                input = c.one("input");
+            if (ac && input) {
+                input.on('click', function() {
+
+                    input.plug(Y.Plugin.AutoComplete, ac);
+
+                }, this);
+
+
+
+            }
         }
+
 
     }, {
         ATTRS: {
@@ -1033,7 +1053,7 @@ YUI().add('ashlesha-common', function(Y) {
                 self = this,
                 query = this.get("query") || {};
             c.setHTML(t.one("#" + this.name + "-main").getHTML());
-			this.startWait(c);
+            this.startWait(c);
             list.on('load', function() {
                 list.each(function(model) {
                     var post = new Y.PostView({
@@ -1043,7 +1063,7 @@ YUI().add('ashlesha-common', function(Y) {
                     c.one(".list-container").append(post.render().get("container"));
                 });
                 this.endWait();
-            },this);
+            }, this);
             list.load(query);
 
         }
@@ -1118,7 +1138,7 @@ YUI().add('ashlesha-common', function(Y) {
             this.refresh();
 
             this.on("relation", function(e) {
-				this.startWait(c);
+                this.startWait(c);
                 if (e.relation === "follow") {
                     Y.api.invoke("/relations/createRelation", {
                         source: e.source.get("_id"),
@@ -1208,12 +1228,12 @@ YUI().add('ashlesha-common', function(Y) {
                 source = this.get("source"),
                 target = this.get("target"),
                 self = this;
-                
-			if(source.get("_id")===target.get("_id")){
-				c.addClass('hide');
-				return;
-			}
-			this.startWait(c);
+
+            if (source.get("_id") === target.get("_id")) {
+                c.addClass('hide');
+                return;
+            }
+            this.startWait(c);
             Y.api.invoke("/relations/getRelation", {
                 source: source.get("_id"),
                 target: target.get("_id")
@@ -1242,7 +1262,7 @@ YUI().add('ashlesha-common', function(Y) {
                         removeBtn.removeClass('hide');
                     }
                 }
-				self.endWait();
+                self.endWait();
             });
         }
     });
@@ -1505,14 +1525,210 @@ YUI().add('ashlesha-common', function(Y) {
         altInitializer: function(auth) {
             var c = this.get("container"),
                 t = this.get("template"),
-                self = this;
+                area;
 
             if (auth && auth.user) {
                 c.setHTML(t.one("#" + this.name + "-main-signed").getHTML());
+                area = c.one(".wrcontent");
+                area.setHTML(t.one("#" + this.name + "-section-container").getHTML());
+                this.on("loadWardrobe", this.loadWardrobe, this);
+				this.fire("loadWardrobe");
+				this.on("loadSection",this.loadSection,this);
+
+
             }
+        },
+        loadWardrobe: function() {
+            var self = this,
+                t = this.get("template"),
+                c = this.get("container"),
+                li = t.one("#" + this.name + "-section-li").getHTML(),
+                pane = t.one("#" + this.name + "-section-tab-pane").getHTML(),
+                area = c.one(".wrcontent"),
+                sections = area.one('.nav-tabs'),
+                panes = area.one('.tab-content');
+                
+			Y.api.invoke("/wardrobe/getUserSections", {
+                user_id: this.get("user").get("_id")
+            }, function(err, response) {
+                if (!err) {
+                    Y.Object.each(response, function(value, key) {
+		                var id = "i" + Math.floor(Math.random() * 10000);
+		                sections.append(Y.Lang.sub(li, {
+		                    SECTION_NAME: key,
+		                    SECTION_ID: key,
+		                    ID: id
+		                }));
+		                panes.append(Y.Lang.sub(pane, {
+		                    SECTION_NAME: key,
+		                    SECTION_ID: key,
+		                    ID: id
+		                }));
+		                
+		                self.fire("loadSection",{
+		                	section:key
+		                });
+		                
+	            	});
+	            	
+	            	sections.one("li").addClass("active");
+	            	
+	            	sections.all("a").on("click",function(e){
+	            		var n = e.target; 
+	            		e.halt();
+	            		sections.all("li").removeClass("active");
+	            		n.ancestor("li").addClass("active");
+	            		panes.all("div").addClass("hide");
+	            		panes.one(n.getAttribute("href")).removeClass("hide");
+	            		
+	            	},this);
+	            	
+	            	
+	            	
+	            	 
+                }
+            });
+
+            
+        },
+        loadSection:function(e){
+        	var section = e.section;
+        	Y.api.invoke("/wardrobe/getSectionContent",{
+        		section:section,
+        		user_id:this.get("user").get("_id")
+        	},function(err,response){
+        		
+        	});
+        }
 
 
 
+    });
+
+    Y.WREntryModel = Y.Base.create("WREntryModel", Y.CommonModel, [], {
+        initializer: function() {
+            Y.PostModel.superclass.initializer.apply(this, [{
+                attrs: {
+
+                    posttext: {
+                        value: '',
+                        validation_rules: "trim|required|min(8)"
+                    },
+                    image: {
+                        value: ''
+                    },
+                    comments_count: {
+                        value: 0
+                    },
+                    comments: {
+                        value: []
+                    },
+                    likes: {
+                        value: []
+                    },
+                    shares: {
+                        value: []
+                    },
+                    tType: { //tType refers to the category of the post.
+                        value: ''
+                    },
+                    section_name: { //Each entry belongs to a section. For example "Mobile Phones" is a section
+                        value: '',
+                        validation_rules: "trim|required"
+                    },
+                    brand_name: { //Each product may be associated with a brand_name
+                        value: '',
+                        validation_rules: "trim|required"
+                    }
+
+
+
+
+                }}]);
+        }
+    });
+	
+	
+	
+	
+    Y.CreateWREntryView = Y.Base.create("CreateWREntryView", Y.CreatePostView, [], {
+        preModules: function() {
+            return {
+
+                ".form-item-section": {
+                    view: "FormItem",
+                    config: {
+                        label: "Section",
+                        placeholder: "Type for prompt",
+                        rows: 2,
+                        cls: "span9",
+                        field_name: "section_name",
+                        ac: { //Autocomplete Configuration
+                            resultHighlighter: 'phraseMatch',
+                            source: ['Section 1', 'Section 2']
+                        }
+                    }
+                },
+                ".form-item": {
+                    view: "TextAreaField",
+                    config: {
+                        label: " ",
+                        placeholder: "type something....",
+                        rows: 2,
+                        cls: "span9",
+                        field_name: "posttext"
+                    }
+                },
+                ".form-item-product": {
+                    view: "FormItem",
+                    config: {
+                        label: "Product",
+                        placeholder: "Type for prompt",
+                        rows: 2,
+                        cls: "span9",
+                        field_name: "brand_name",
+                        ac: { //Autocomplete Configuration
+                            resultHighlighter: 'phraseMatch',
+                            source: ['Samsung Galaxy', 'iPhone']
+                        }
+                    }
+                },
+                ".file-upload": {
+                    view: "FileUploadField",
+                    config: {
+                        label: " ",
+                        cls: "span9",
+                        field_name: "image",
+                        placeholder: "Upload Photo"
+                    }
+                }
+            };
+        },
+        onSubmit: function(e) {
+            var model = new Y.WREntryModel(),
+                user = this.get("user"),
+                owner_id = this.get('owner_id') || null;
+            e.halt();
+            try {
+                this.startWait(e.target);
+                model = this.plugModel(model); //Method used to map the Form to the Model
+                model.on("error", function() {
+                    Y.log(arguments);
+                }, this);
+                model.on("save", function() {
+
+                    this.postSuccess();
+                }, this);
+                model.set("type", model.name);
+                model.set("tType", this.get("tType"));
+                model.set("author_name", user.get("firstname"));
+                model.set("owner_id", owner_id);
+                model.set("author_id", user.get("_id"));
+                model.save();
+
+            } catch (ex) {
+                Y.log(ex);
+            }
         }
     });
 
@@ -1543,80 +1759,76 @@ YUI().add('ashlesha-common', function(Y) {
         }
     });
 
-	Y.TitledPageView = Y.Base.create("TitledPageView", Y.AshleshaBaseView, [], {
-		altInitializer:function(auth){
-			 var c = this.get("container"),
+    Y.TitledPageView = Y.Base.create("TitledPageView", Y.AshleshaBaseView, [], {
+        altInitializer: function(auth) {
+            var c = this.get("container"),
                 t = this.get("template"),
                 user = this.get("user");
-                if(auth){
-                	c.setHTML(Y.Lang.sub(t.one("#"+this.name+"-signed-main").getHTML(),{
-                		TITLE:this.get("title") || ""
-                	}));
-                	this.loadModules();
-                } 
-		}
-		
-	});
-	
-	
-	Y.UserBlockView = Y.Base.create("UserBlockView",Y.AshleshaBaseView, [], {
-		altInitializer:function(auth){
-			 var c = this.get("container"),
+            if (auth) {
+                c.setHTML(Y.Lang.sub(t.one("#" + this.name + "-signed-main").getHTML(), {
+                    TITLE: this.get("title") || ""
+                }));
+                this.loadModules();
+            }
+        }
+
+    });
+
+
+    Y.UserBlockView = Y.Base.create("UserBlockView", Y.AshleshaBaseView, [], {
+        altInitializer: function(auth) {
+            var c = this.get("container"),
                 t = this.get("template"),
                 m = this.get("model");
-                c.setHTML(Y.Lang.sub(t.one("#"+this.name+"-signed-main").getHTML(),{
-                	NAME:m.get("firstname")+" "+m.get("lastname"),
-                	USER_URL:'/user/'+m.get("_id")
-                }));
-                
-		}
-	});
-	
-	
-	
-	Y.UserListView = Y.Base.create("UserListView",Y.AshleshaBaseView, [], {
-		altInitializer:function(auth){
-			 var c = this.get("container"),
+            c.setHTML(Y.Lang.sub(t.one("#" + this.name + "-signed-main").getHTML(), {
+                NAME: m.get("firstname") + " " + m.get("lastname"),
+                USER_URL: '/user/' + m.get("_id")
+            }));
+
+        }
+    });
+
+    Y.UserListView = Y.Base.create("UserListView", Y.AshleshaBaseView, [], {
+        altInitializer: function(auth) {
+            var c = this.get("container"),
                 t = this.get("template"),
                 user = this.get("user"),
                 isSearchable = this.get("searchable") || true,
                 self = this;
-                if(auth){
-                	c.setHTML(Y.Lang.sub(t.one("#"+this.name+"-signed-main").getHTML()));
-                	if(!isSearchable){
-                		c.one('.search').remove();
-                	}
-                	else
-                	{
-                		//Search related code here please!
-                	}
-                	Y.api.invoke("/user/getFriends",{
-                		user_id:user.get("_id")
-                	},function(err,data){
-                		self.renderUsers(data);
-                	});
-                	this.loadModules();
+            if (auth) {
+                c.setHTML(Y.Lang.sub(t.one("#" + this.name + "-signed-main").getHTML()));
+                if (!isSearchable) {
+                    c.one('.search').remove();
                 }
-		},
-		renderUsers:function(data){
-			var c = this.get("container").one('.userList');
-			if(data.length===0){
-				c.setHTML('<h4>No One to be found!</h4>');
-			}
-			else
-			{
-				Y.Array.each(data,function(item){
-					c.append(new Y.UserBlockView({
-						model:new Y.Model(item),
-						user:this.get('user')
-					}).render().get('container'));
-				},this);
-			}
-		}
-	});
+                else {
+                    //Search related code here please!
+                }
+                Y.api.invoke("/user/getFriends", {
+                    user_id: user.get("_id")
+                }, function(err, data) {
+                    self.renderUsers(data);
+                });
+                this.loadModules();
+            }
+        },
+        renderUsers: function(data) {
+            var c = this.get("container").one('.userList');
+            if (data.length === 0) {
+                c.setHTML('<h4>No One to be found!</h4>');
+            }
+            else {
+                Y.Array.each(data, function(item) {
+                    c.append(new Y.UserBlockView({
+                        model: new Y.Model(item),
+                        user: this.get('user')
+                    }).render().get('container'));
+                }, this);
+            }
+        }
+    });
 
 }, '0.0.1', {
-    requires: ['base', 'cache', 'model-list', function() {
+    requires: ['base', 'cache', 'model-list', 'autocomplete', 'node', function() {
         if (typeof document !== 'undefined') {
             return 'client-app';
         } else {

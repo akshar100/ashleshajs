@@ -14,6 +14,11 @@ YUI({
         uploadURL: 'upload',
         apiURL: 'api',
         listURL: 'list'
+    },
+    modules:{
+    	'ashlesha-common':{
+    		fullpath:"./common.js"
+    	}
     }
 }).use('base', 'cache', 'ashlesha-common', function() {
     if (typeof document !== 'undefined') {
@@ -419,7 +424,7 @@ YUI({
                                 view: "SideBarView"
                             },
                             ".mainarea": {
-                                view: "CreatePostView",
+                                view: "CreateWREntryView",
                                 config: {
                                     "postTitle": "Add a wardrobe entry",
                                     tType: "wardrobe-entry"
