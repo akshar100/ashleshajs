@@ -14,11 +14,6 @@ YUI({
         uploadURL: 'upload',
         apiURL: 'api',
         listURL: 'list'
-    },
-    modules:{
-    	'ashlesha-common':{
-    		fullpath:"./common.js"
-    	}
     }
 }).use('base', 'cache', 'ashlesha-common', function() {
     if (typeof document !== 'undefined') {
@@ -76,7 +71,10 @@ YUI({
         api: Y.api
     });
 
-    app.route("/", function(req, res) {
+	app.route("/",function(req,res){
+		app.navigate("/wardrobes",res);
+	});
+    app.route("/timeline", function(req, res) {
         this.showView('home', {
             req: req,
             res: res,
@@ -111,10 +109,15 @@ YUI({
                                                             modules: {
                                                                 ".post_dummy": {
                                                                     view: "PostView"
+                                                                },
+                                                                ".post_dummy2": {
+                                                                    view: "PlaceView"
+                                                                },
+                                                                ".post_dummy3": {
+                                                                    view: "WREntryView"
                                                                 }
                                                             },
                                                             tType: "publishing-page"
-
                                                         }
                                                     }
                                                 }
@@ -185,6 +188,59 @@ YUI({
             }
         });
     });
+    
+    
+    
+    app.route("/places", function(req, res) {
+        this.showView('home', {
+            req: req,
+            res: res,
+            user: currentUser,
+            modules: {
+                ".topbar": {
+                    view: "TopBarView"
+                },
+                ".homepage": {
+                    view: "HomePageView",
+                    config: {
+
+                        modules: {
+                            ".sidebar": {
+                                view: "SideBarView"
+                            },
+                            ".mainarea": {
+                                view: "MainAreaView",
+                                config: {
+                                    modules: {
+                                        ".wall": {
+                                            view: "TimeLineView",
+                                            config: {
+                                                timelineType: 'places',
+                                                modules: {
+                                                    ".post-list": {
+                                                        view: "MapView"
+                                                        
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+        });
+    });
+    
+    
+    
+    
+    
+    
     app.route("/wardrobes", function(req, res) {
         this.showView('home', {
             req: req,
@@ -209,25 +265,22 @@ YUI({
                                         ".wall": {
                                             view: "TimeLineView",
                                             config: {
-                                                timelineType: 'wardrobes',
                                                 modules: {
-                                                    ".create-post": {
-                                                        view: "CreatePostView",
-                                                        config: {
-                                                            tType: "wardrobe-entry"
-                                                        }
-                                                    },
                                                     ".post-list": {
-                                                        view: "PostListView",
+                                                        view: "WRListView",
                                                         config: {
                                                             modules: {
                                                                 ".post_dummy": {
-                                                                    view: "PostView"
+                                                                    view: "WREntryView"
                                                                 }
-                                                            }
+                                                                
+                                                            },
+                                                            timelineType:"wardrobes"
+                                                            
                                                         }
                                                     }
-                                                }
+                                                },
+                                                timelineType:"wardrobes"
                                             }
 
                                         }
@@ -437,6 +490,39 @@ YUI({
             }
         });
     });
+
+
+	 app.route("/places/new", function(req, res) {
+	        this.showView('home', {
+	            req: req,
+	            res: res,
+	            user: currentUser,
+	            modules: {
+	                ".topbar": {
+	                    view: "TopBarView"
+	                },
+	                ".homepage": {
+	                    view: "HomePageView",
+	                    config: {
+	
+	                        modules: {
+	                            ".sidebar": {
+	                                view: "SideBarView"
+	                            },
+	                            ".mainarea": {
+	                                view: "CreatePlaceEntryView",
+	                                config: {
+	                                    "postTitle": "Add a place",
+	                                    tType: "place-entry"
+	
+	                                }
+	                            }
+	                        }
+	                    }
+	                }
+	            }
+	        });
+	    });
 
     app.route("/me", function(req, res) {
         this.showView('home', {
@@ -846,7 +932,7 @@ YUI({
                                                         config: {
                                                             modules: {
                                                                 ".post_dummy": {
-                                                                    view: "PostView"
+                                                                    view: "WREntryView"
                                                                 }
                                                             },
                                                             query: {
@@ -1047,7 +1133,45 @@ YUI({
         });
 	});
 	
+	app.route("/my/places",function(req,res){
+		 this.showView('home', {
+            req: req,
+            res: res,
+            user: currentUser,
+            modules: {
+                ".topbar": {
+                    view: "TopBarView"
+                },
+                ".homepage": {
+                    view: "HomePageView",
+                    config: {
+
+                        modules: {
+                            ".sidebar": {
+                                view: "SideBarView"
+                            },
+                            ".mainarea": {
+                                view: "PlacesView",
+                                config:{
+                                	modules:{
+                                		".dummy":{
+                                			view: "PlaceView"
+                                		}
+                                	}
+                                	
+                                }
+                                
+                            }
+                        }
+                    }
+                }
+
+            }
+        });
+	});
 	
     app.render().dispatch();
     Y.fire("updateUser");
+    
+    
 });

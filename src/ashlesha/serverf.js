@@ -8,7 +8,7 @@ var YUI = require('yui').YUI,
     API = require('api'),
     redis = require('redis'),
     io = require("socket.io"),
-    crypto = require('crypto');;
+    crypto = require('crypto');
 
 YUI().add('ashlesha-api', function(Y) {
     Y.APIEndpoint = {
@@ -84,7 +84,7 @@ YUI().add('ashlesha-base-models', function(Y) {
                 Y.io(dburl + "/" + data._id, {
                     method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     },
                     xdr: {
                         use: "nodejs"
@@ -110,7 +110,7 @@ YUI().add('ashlesha-base-models', function(Y) {
                 Y.io(dburl, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     },
                     xdr: {
                         use: "nodejs"
@@ -133,7 +133,7 @@ YUI().add('ashlesha-base-models', function(Y) {
                     method: 'PUT',
                     data: Y.JSON.stringify(data),
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     },
                     xdr: {
                         use: "nodejs"
@@ -154,7 +154,7 @@ YUI().add('ashlesha-base-models', function(Y) {
                 Y.io(dburl + "/" + data._id, {
                     method: 'DELETE',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     },
                     xdr: {
                         use: "nodejs"
@@ -224,10 +224,12 @@ YUI().add('server-app', function(Y) {
         routes = require('./routes'),
         fs = require("fs"),
         Lang = Y.Lang,
-        oneYear = 31557600000;;
+        oneYear = 31557600000;
 
     Y.Express = express;
-    var RedisStore = require('connect-redis')(express);
+    var RedisStore = require('connect-redis')(express), Redis = require("redis");
+	var redis = Redis.createClient(), fileClient = Redis.createClient();
+
     
     Y.AshleshaApp = function() {
         Y.AshleshaApp.superclass.constructor.apply(this, arguments);
@@ -238,7 +240,7 @@ YUI().add('server-app', function(Y) {
             var app = module.exports = express.createServer();
             io = io.listen(app);
             app.configure(function() {
-                var oneYear = 0; //31557600000; //We are setting Expirty to none for development version.
+                var oneYear = 0; 
                 app.set('views', __dirname + '/views');
                 app.set('view engine', 'haml');
                 app.use(express.bodyParser({
@@ -250,7 +252,8 @@ YUI().add('server-app', function(Y) {
                 app.use(express.cookieParser());
                 app.use(express.session({
                     secret: "SessionKey",
-                    store: new express.session.MemoryStore
+                    store: new RedisStore({ host: 'localhost', port: 6379, client: redis })
+
                 }));
                 
                
@@ -496,6 +499,7 @@ YUI().add('server-app', function(Y) {
 				    		
 				    	});
 				    }
+				    
 				});
             	
             	res.send("Complete");
@@ -519,7 +523,7 @@ YUI().add('server-app', function(Y) {
 			
 			});
             
-            
+           
              
             
         },
@@ -532,6 +536,9 @@ YUI().add('server-app', function(Y) {
         },
         render: function() {
             return this;
+        },
+        navigate:function(path,res){
+        	res.redirect(path);
         }
     });
 
@@ -592,20 +599,40 @@ YUI().add('server-app', function(Y) {
                                 }
                                 
                                 if (chain === 0) {
-                                    fs.readFile("./views/mixins/default/" + template + ".tpl", function(err, data) {
-                                        if (!err) {
-                                        	response[template] = data.toString();
-                                            self.fire("render", {
-                                                data: response
+                                 
+                                	fs.readFile("./views/mixins/default/" + template + ".tpl", function(err, data) {
+                                                if (!err) {
+                                                    response[template] = data.toString();
+                                                    
+                                                    
+                                                    fileClient.set("./views/mixins/default/" + template + ".tpl",Y.JSON.stringify(response));
+                                                    self.fire("render", {
+                                                        data: response
+                                                    });
+                                                }
+                                                else {
+                                                    self.fire("render", {
+                                                        data: "Error! Template not found."
+                                                    });
+                                                }
                                             });
-                                        }
-                                        else {
-                                            self.fire("render", {
-                                                data: "Error! Template not found."
-                                            });
-
-                                        }
-                                    });
+                                            /**
+                                	fileClient.get("./views/mixins/default/" + template + ".tpl",function(err,reply){
+                                		
+                                		if(!err && reply){
+	                                		self.fire("render", {
+		                                        data: reply
+		                                    });
+	                                    }
+                                		else{
+                                		
+                                	
+	                                		
+	                                    
+	                                    }
+                                	
+                                	});**/
+                                    
                                 }
 
 

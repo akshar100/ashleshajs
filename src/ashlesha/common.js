@@ -2,8 +2,95 @@
 /*global require*/
 /*global module*/
 /*global YUI*/
+/*global google*/
 /*global __dirname*/
 "use strict";
+
+YUI({
+    modules: {
+        "google-maps": {
+            combine: false,
+            fullpath: 'http://maps.googleapis.com/maps/api/js?sensor=false&key=@GMAP_KEY@'
+        }
+    }
+}).add('yui3-gmaps', function(Y) {
+
+    function Gmap(config) {
+        Gmap.superclass.constructor.apply(this, arguments);
+    }
+
+    Y.extend(Gmap, Y.Base, {
+        initializer: function(config) {
+            var c = config.container;
+            this.set("container",c);
+            c.setStyle("height", config.height || 200);
+            c.setStyle("width", config.width || 300);
+            this.set("markers",config.markers);
+
+        },
+        loadMap: function(result) { //Maps can be loaded only after our container is a part of DOM
+        	
+            var self=this,
+                c = this.get("container");
+
+            if(!google || !google.maps || !google.maps.LatLng){
+            	Y.jsonp('http://maps.googleapis.com/maps/api/js?sensor=false&key=@GMAP_KEY@',function(){
+            		self.mapLoaded(result);
+            	});
+            }
+            else
+            {
+            	self.mapLoaded(result);
+            }
+            
+
+        },
+        setLocation:function(result){
+        	this.set("location",result);
+        	
+        },
+        getLocation:function(){
+        	return this.get("location");
+        },
+        mapLoaded:function(result){
+        		Y.log(result);	
+            	var self=this,map,c=this.get('container'),mapOptions,marker,myLatlng=new google.maps.LatLng(result.raw.geometry.location.lat, result.raw.geometry.location.lng),markers = this.get("markers");
+            	mapOptions = {
+	                center: myLatlng,
+	                zoom: 8,
+	                mapTypeId: google.maps.MapTypeId.ROADMAP
+	            };
+            	map = new google.maps.Map(c.getDOMNode(), mapOptions);
+            	
+            	
+				marker = new google.maps.Marker({
+					position: myLatlng,
+					map: map,
+					title: result.text
+				}); 
+				
+				if(markers && Y.Lang.isArray(markers)){
+					Y.Array.each(markers,function(item){
+						var marker = new google.maps.Marker({
+							position: new google.maps.LatLng(item.raw.geometry.location.lat, item.raw.geometry.location.lng),
+							map: map,
+							title: item.text
+						}); 
+					});
+				}
+				//self.set("map",map);
+				//self.set("location",result);
+				//self.set("google",google);
+            }
+        
+        
+    });
+
+    Y.Gmap = Gmap;
+}, '0.0.1', {
+    requires: ['base', 'google-maps', 'jsonp', 'jsonp-url']
+});
+
 YUI().add('ashlesha-common', function(Y) {
 
 
@@ -53,13 +140,34 @@ YUI().add('ashlesha-common', function(Y) {
         },
         setupAC: function(ac) {
             var c = this.get('container'),
-                input = c.one("input");
+                input = c.one("input"),
+                lastValue = '';
             if (ac && input) {
-                input.on('click', function() {
 
-                    input.plug(Y.Plugin.AutoComplete, ac);
+                if (ac.selectOnly) { //User can not edit the field.
+                    ac.activateFirstItem = true;
+                }
+                input.plug(Y.Plugin.AutoComplete, ac);
 
-                }, this);
+                if (ac.selectOnly) {
+                    input.on('focus', function() {
+                        input.ac.sendRequest('');
+                    });
+                    input.ac.on('results', function(e) {
+
+                        if (e.results.length) {
+                            lastValue = input.ac.get('value');
+                        } else {
+                            input.set('value', lastValue);
+                        }
+                    });
+                    input.ac.after('select', function(e) {
+                        lastValue = e.result.text;
+                    });
+                }
+
+
+
 
 
 
@@ -88,7 +196,81 @@ YUI().add('ashlesha-common', function(Y) {
         }
     });
 
+    Y.PlaceField = Y.Base.create("PlaceField", Y.FormItem, [], {
+        altInitializer: function() {
+            var ac, input, c = this.get('container'),self=this;
+            if (arguments && arguments[0]) {
+                arguments[0].ac = null;
+            }
+            Y.PlaceField.superclass.altInitializer.apply(this, arguments);
 
+            ac = {
+
+                activateFirstItem: true,
+                maxResults: 10,
+                minQueryLength: 5,
+                queryDelay: 1500,
+                resultListLocator: function(response) {
+                    if (response.error) {
+                        return [];
+                    }
+                    var query = response.query.results.json,
+                        addresses;
+                    if (query.status !== 'OK') {
+                        return [];
+                    }
+                    addresses = query.results;
+                    return addresses.length > 0 ? addresses : [addresses];
+                },
+                resultTextLocator: 'formatted_address',
+                requestTemplate: function(query) {
+                    return encodeURI(query);
+                },
+                source: 'SELECT * FROM json WHERE ' + 'url="http://maps.googleapis.com/maps/api/geocode/json?' + 'sensor=false&' + 'address={request}"',
+                width: 'auto',
+                selectOnly: true
+            };
+            this.setupAC(ac);
+            input = c.one("input");
+
+            input.ac.on('select', function(e) {
+            
+            	this.set("place",e.result);
+            	
+                YUI().use('yui3-gmaps', function(Y2) {
+                    var gmap = new Y2.Gmap({
+                        container: c.one(".map-block")
+                    });
+                    gmap.loadMap(e.result);
+                    
+                });
+
+            },this);
+
+        },
+        setValue: function(val) {
+            var c = this.get("container");
+            if (c.one("input")) {
+                c.one("input").set("value", val.text);
+            }
+            this.set("place",val);
+            
+        }
+        
+    },{
+        ATTRS: {
+            "value": {
+                value: '',
+                getter:function(){
+                	return this.get("place");
+                }
+            },
+            "viewType": {
+                value: "PlaceField"
+            }
+
+        }
+    });
 
     Y.DateField = Y.Base.create("DateField", Y.FormItem, [], {
         events: {
@@ -756,6 +938,30 @@ YUI().add('ashlesha-common', function(Y) {
                 }).render().get("container"));
                 break;
 
+			case "wardrobes": 
+				 c.setHTML(Y.Lang.sub(t.one("#TimeLineView-default").getHTML(), {
+                    HELPTEXT: "See what people are owning"
+                }));
+                c.one(".pub-btn").addClass('hide');
+                c.one(".timeline-container").setHTML(new Y.WRListView({
+                    user: this.get("user"),
+                    query: this.get("query"),
+                    template: t
+                }).render().get("container"));
+                break;
+                
+            case "places": 
+            
+            	c.setHTML(Y.Lang.sub(t.one("#TimeLineView-default").getHTML(), {
+                    HELPTEXT: "See what people are owning"
+                }));
+                c.one(".timeline-container").setHTML(new Y.MapView({
+                    user: this.get("user"),
+                    query: this.get("query"),
+                    template:t
+                }).render().get("container"));
+                break;
+                
             default:
 
                 //This is our regular timeline that shows posts from other people's publishing page
@@ -969,15 +1175,25 @@ YUI().add('ashlesha-common', function(Y) {
                 created_at: date.getHours() + ":" + date.getMinutes() + " " + date.getDate() + "-" + date.getMonth() + "-" + date.getFullYear(),
                 comment_count: model.get("comments_count")
             }));
-            likeDiv = c.one(".like").ancestor("div");
-            unlikeDiv = c.one(".unlike").ancestor("div");
-            if (likes && typeof likes === "object" && likes.indexOf(user.get("_id")) >= 0) {
-                likeDiv.addClass("hide");
-                unlikeDiv.removeClass("hide");
-            } else {
-                unlikeDiv.addClass("hide");
-                likeDiv.removeClass("hide");
-            }
+            this.setupLikeUnlike();
+            this.loadImages();
+        },
+        setupLikeUnlike:function(){
+        	var model = this.get("model"),
+        		c = this.get("container"),
+        		likes = model.get("likes"),
+                user = this.get("user"),
+                likeDiv, unlikeDiv;
+                
+                likeDiv = c.one(".like").ancestor("div");
+	            unlikeDiv = c.one(".unlike").ancestor("div");
+	            if (likes && typeof likes === "object" && likes.indexOf(user.get("_id")) >= 0) {
+	                likeDiv.addClass("hide");
+	                unlikeDiv.removeClass("hide");
+	            } else {
+	                unlikeDiv.addClass("hide");
+	                likeDiv.removeClass("hide");
+	            }
         },
         toggleComments: function() {
             var c = this.get("container");
@@ -1002,7 +1218,7 @@ YUI().add('ashlesha-common', function(Y) {
                 comments = model.get("comments"),
                 user = this.get("user"),
                 cl = c.one(".commentsList"),
-                i, t = this.get("template").one("#PostView-CommentView").getHTML();
+                i, t = this.get("template").one("#"+this.name+"-CommentView").getHTML();
             cs.removeClass('hide');
             cs.one(".commentTextarea").setHTML(txt.render().get("container"));
             btn.on("click", function(e) {
@@ -1039,9 +1255,21 @@ YUI().add('ashlesha-common', function(Y) {
                 }));
             }
         },
-        hidecomments: function() {
+        hideComments: function() {
             var c = this.get("container");
             c.one(".commentsSection").addClass('hide');
+        },
+        loadImages:function(){
+        	var c=this.get("container"),model = this.get("model"),image = model.get("image"),imgNode;
+        	
+        	if(image){
+        		imgNode = Y.Node.create('<img src="'+image+'">');
+        		imgNode.setStyle("max-width","200px");
+        		imgNode.setStyle("max-height","300px");
+        		imgNode.addClass('thumbnail');
+        		c.one(".images").append(imgNode);
+        	}
+        	
         }
     });
 
@@ -1058,7 +1286,8 @@ YUI().add('ashlesha-common', function(Y) {
                 list.each(function(model) {
                     var post = new Y.PostView({
                         user: self.get("user"),
-                        model: model
+                        model: model,
+                        template:self.get("template") 
                     });
                     c.one(".list-container").append(post.render().get("container"));
                 });
@@ -1066,6 +1295,87 @@ YUI().add('ashlesha-common', function(Y) {
             }, this);
             list.load(query);
 
+        }
+    });
+    
+    
+    Y.WRListView = Y.Base.create("WRListView", Y.AshleshaBaseView, [], {
+        altInitializer: function(auth) {
+            var c = this.get('container'),
+                t = this.get("template"),
+                list = new Y.ModelList(),
+                self = this,
+                query = this.get("query") || {};
+            c.setHTML(t.one("#" + this.name + "-main").getHTML());
+            this.startWait(c);
+            this.loadModules();
+            this.on('wrload', function() {
+            
+            	Y.api.invoke("/wardrobe/getEntriesByUserCollection",{
+            		user_id:this.get("user").get("_id")
+            	},function(err,response){
+            		list.add(response);
+            	
+            		 list.each(function(model) {
+	                    var post = new Y.WREntryView({
+	                        user: self.get("user"),
+	                        model: model,
+	                        template:t
+	                    });
+	                    c.one(".list-container").append(post.render().get("container"));
+	                });
+	                self.endWait();
+            	});
+               
+                
+                
+            }, this);
+            this.fire("wrload");
+			
+        }
+    });
+    
+    
+    Y.MapView = Y.Base.create("MapView", Y.AshleshaBaseView, [], {
+        altInitializer: function(auth) {
+            var c = this.get('container'),
+                t = this.get("template"),
+                list = new Y.ModelList(),
+                self = this,
+                query = this.get("query") || {};
+            c.setHTML(t.one("#" + this.name + "-main").getHTML());
+            this.startWait(c);
+            this.loadModules();
+            this.on('placesLoad', function() {
+            
+            	Y.api.invoke("/places/getPlacesByUsers",{
+            		user_id:this.get("user").get("_id")
+            	},function(err,response){
+            		
+            		Y.Array.each(response,function(item){
+            		 	list.add(item);
+            		});
+            		
+            		
+        		 	YUI().use('yui3-gmaps', function(Y2) {
+        		 	  var gmap = new Y2.Gmap({
+		                    container: c,
+		                    height:500,
+		                    width:800,
+		                    markers:response
+		                });
+			            gmap.loadMap(list.item(0).toJSON());   
+	                });
+            		 
+            		      		 
+	                self.endWait();
+            	});
+               
+                
+                
+            }, this);
+            this.fire("placesLoad");
+			
         }
     });
 
@@ -1387,7 +1697,7 @@ YUI().add('ashlesha-common', function(Y) {
 
                     model.load();
                 });
-                Y.log(model.toJSON());
+               
             } catch (ex) {
                 Y.log(ex);
             }
@@ -1520,6 +1830,46 @@ YUI().add('ashlesha-common', function(Y) {
             list.load();
         }
     });
+    
+    
+    Y.WREntryView = Y.Base.create("WREntryView", Y.PostView, [], {
+        altInitializer: function() {
+            var c = this.get('container'),
+                t = this.get("template"),
+                model = this.get("model");
+            c.setHTML(t.one("#" + this.name + "-main-signed").getHTML());
+            if (model && model.get("created_at")) { //Check to see if the model is loaded. Not a very elegant one.
+                this.modelLoaded();
+
+            }
+            else {
+                model.on("load", this.modelLoaded, this);
+
+                model.load();
+            }
+            model.on("save", this.modelLoaded, this);
+        },
+        modelLoaded: function() {
+            var model = this.get("model"),
+                c = this.get('container'),
+                t = this.get('template'),
+                date = new Date(model.get("created_at")),
+                likes = model.get("likes"),
+                user = this.get("user"),
+                likeDiv, unlikeDiv;
+            c.setHTML(Y.Lang.sub(t.one("#" + this.name + "-main-signed").getHTML(), {
+                author_id: model.get('author_id'),
+                author_name: model.get("author_name"),
+                post_text: model.get("posttext"),
+                created_at: date.getHours() + ":" + date.getMinutes() + " " + date.getDate() + "-" + date.getMonth() + "-" + date.getFullYear(),
+                comment_count: model.get("comments_count"),
+                brand_name:model.get("brand_name"),
+                section_name:model.get("section_name")
+            }));
+            this.setupLikeUnlike();
+            this.loadImages();
+        }
+    });
 
     Y.WardrobeView = Y.Base.create("WardrobeView", Y.AshleshaBaseView, [], {
         altInitializer: function(auth) {
@@ -1532,8 +1882,8 @@ YUI().add('ashlesha-common', function(Y) {
                 area = c.one(".wrcontent");
                 area.setHTML(t.one("#" + this.name + "-section-container").getHTML());
                 this.on("loadWardrobe", this.loadWardrobe, this);
-				this.fire("loadWardrobe");
-				this.on("loadSection",this.loadSection,this);
+                this.fire("loadWardrobe");
+                this.on("loadSection", this.loadSection, this);
 
 
             }
@@ -1547,58 +1897,73 @@ YUI().add('ashlesha-common', function(Y) {
                 area = c.one(".wrcontent"),
                 sections = area.one('.nav-tabs'),
                 panes = area.one('.tab-content');
-                
-			Y.api.invoke("/wardrobe/getUserSections", {
+
+            Y.api.invoke("/wardrobe/getUserSections", {
                 user_id: this.get("user").get("_id")
             }, function(err, response) {
                 if (!err) {
                     Y.Object.each(response, function(value, key) {
-		                var id = "i" + Math.floor(Math.random() * 10000);
-		                sections.append(Y.Lang.sub(li, {
-		                    SECTION_NAME: key,
-		                    SECTION_ID: key,
-		                    ID: id
-		                }));
-		                panes.append(Y.Lang.sub(pane, {
-		                    SECTION_NAME: key,
-		                    SECTION_ID: key,
-		                    ID: id
-		                }));
-		                
-		                self.fire("loadSection",{
-		                	section:key
-		                });
-		                
-	            	});
-	            	
-	            	sections.one("li").addClass("active");
-	            	
-	            	sections.all("a").on("click",function(e){
-	            		var n = e.target; 
-	            		e.halt();
-	            		sections.all("li").removeClass("active");
-	            		n.ancestor("li").addClass("active");
-	            		panes.all("div").addClass("hide");
-	            		panes.one(n.getAttribute("href")).removeClass("hide");
-	            		
-	            	},this);
-	            	
-	            	
-	            	
-	            	 
+                        var id = "i" + Math.floor(Math.random() * 10000);
+                        sections.append(Y.Lang.sub(li, {
+                            SECTION_NAME: key,
+                            SECTION_ID: key,
+                            ID: id
+                        }));
+                        panes.append(Y.Lang.sub(pane, {
+                            SECTION_NAME: key,
+                            SECTION_ID: key,
+                            ID: id
+                        }));
+
+                        self.fire("loadSection", {
+                            section: key
+                        });
+
+                    });
+
+
+                    sections.all("a").on("click", function(e) {
+                        var n = e.target,
+                            panel, panels = panes.all("div.tab-pane");
+                        e.halt();
+                        sections.all("li").removeClass("active");
+                        n.ancestor("li").addClass("active");
+                        panels.removeClass("active");
+                        panels.addClass("hide");
+                        panel = panes.one(n.getAttribute("href"));
+                        panel.removeClass("hide");
+                        panel.addClass("active");
+
+                    }, this);
+
+
+
+
                 }
             });
 
-            
+
         },
-        loadSection:function(e){
-        	var section = e.section;
-        	Y.api.invoke("/wardrobe/getSectionContent",{
-        		section:section,
-        		user_id:this.get("user").get("_id")
-        	},function(err,response){
-        		
-        	});
+        loadSection: function(e) {
+            var section = e.section,
+                self = this,
+                c = this.get("container"),
+                sc = c.one("div[data-section-name=" + section + "]");
+            
+            sc.setHTML("");
+            Y.api.invoke("/wardrobe/getSectionContent", {
+                section: section,
+                user_id: this.get("user").get("_id")
+            }, function(err, response) {
+            	sc.setHTML("");
+                Y.Array.each(response, function(item) {
+                    sc.append(new Y.WREntryView({
+                        model: new Y.WREntryModel(item),
+                        user: self.get("user"),
+                        template:self.get("template")
+                    }).render().get("container"));
+                });
+            });
         }
 
 
@@ -1647,10 +2012,10 @@ YUI().add('ashlesha-common', function(Y) {
                 }}]);
         }
     });
-	
-	
-	
-	
+
+
+
+
     Y.CreateWREntryView = Y.Base.create("CreateWREntryView", Y.CreatePostView, [], {
         preModules: function() {
             return {
@@ -1826,9 +2191,200 @@ YUI().add('ashlesha-common', function(Y) {
             }
         }
     });
+    
+    Y.PlaceModel = Y.Base.create("PlaceModel", Y.CommonModel, [], {
+        initializer: function() {
+            Y.PostModel.superclass.initializer.apply(this, [{
+                attrs: {
+
+                    posttext: {
+                        value: '',
+                        validation_rules: "trim|required|min(8)"
+                    },
+                    image: {
+                        value: ''
+                    },
+                    comments_count: {
+                        value: 0
+                    },
+                    comments: {
+                        value: []
+                    },
+                    likes: {
+                        value: []
+                    },
+                    shares: {
+                        value: []
+                    },
+                    tType: { //tType refers to the category of the post.
+                        value: ''
+                    },
+                    place:{
+                    	value:'',
+                    	validation_rules:'required'
+                    }
+                    
+
+                }}]);
+        }
+    });
+
+    Y.CreatePlaceEntryView = Y.Base.create("CreatePlaceEntryView", Y.CreatePostView, [], {
+        preModules: function() {
+            return {
+                ".place-item": {
+                    view: "PlaceField",
+                    config: {
+                        label: "Place",
+                        placeholder: "Type the place name",
+                        rows: 2,
+                        cls: "span9",
+                        field_name: "place"
+                    }
+                },
+                ".form-item": {
+                    view: "TextAreaField",
+                    config: {
+                        label: " ",
+                        placeholder: "type something....",
+                        rows: 2,
+                        cls: "span9",
+                        field_name: "posttext"
+                    }
+                },
+                ".file-upload": {
+                    view: "FileUploadField",
+                    config: {
+                        label: " ",
+                        cls: "span9",
+                        field_name: "image",
+                        placeholder: "Upload Photo"
+                    }
+                }
+            };
+        },
+        onSubmit: function(e) {
+            var model = new Y.PlaceModel(),
+                user = this.get("user"),
+                owner_id = this.get('owner_id') || null;
+            e.halt();
+            try {
+                this.startWait(e.target);
+                model = this.plugModel(model); //Method used to map the Form to the Model
+                model.on("error", function() {
+                    Y.log(arguments);
+                }, this);
+                model.on("save", function() {
+                    this.postSuccess();
+                }, this);
+                model.set("type", model.name);
+                model.set("tType", this.get("tType"));
+                model.set("author_name", user.get("firstname"));
+                model.set("owner_id", owner_id);
+                model.set("author_id", user.get("_id"));
+                model.save();
+                               
+
+            } catch (ex) {
+                Y.log(ex);
+            }
+        }
+
+    });
+
+	Y.PlaceView = Y.Base.create("PlaceView", Y.PostView, [], {
+        altInitializer: function() {
+            var c = this.get('container'),
+                t = this.get("template"),
+                model = this.get("model");
+            c.setHTML(t.one("#" + this.name + "-main-signed").getHTML());
+            if (model && model.get("created_at")) { //Check to see if the model is loaded. Not a very elegant one.
+                this.modelLoaded();
+
+            }
+            else {
+                model.on("load", this.modelLoaded, this);
+
+                model.load();
+            }
+            model.on("save", this.modelLoaded, this);
+        },
+        modelLoaded: function() {
+            var model = this.get("model"),
+                c = this.get('container'),
+                t = this.get('template'),
+                date = new Date(model.get("created_at")),
+                likes = model.get("likes"),
+                user = this.get("user"),
+                likeDiv, unlikeDiv;
+            c.setHTML(Y.Lang.sub(t.one("#" + this.name + "-main-signed").getHTML(), {
+                author_id: model.get('author_id'),
+                author_name: model.get("author_name"),
+                post_text: model.get("posttext"),
+                created_at: date.getHours() + ":" + date.getMinutes() + " " + date.getDate() + "-" + date.getMonth() + "-" + date.getFullYear(),
+                comment_count: model.get("comments_count"),
+                place:model.get("place") && model.get("place").text
+            }));
+            this.setupLikeUnlike();
+            this.loadImages();
+            this.loadPlace();
+        },
+        loadPlace:function(){
+        	var place = this.get("model").get("place"),c = this.get("container").one(".place");
+        	
+        	
+                YUI().use('yui3-gmaps', function(Y2) {
+                    var gmap = new Y2.Gmap({
+                        container: c
+                    });
+                    gmap.loadMap(place);
+                    
+                });
+        }
+    });
+
+
+    Y.PlacesView = Y.Base.create("PlacesView", Y.AshleshaBaseView, [], {
+        altInitializer: function(auth) {
+            var c = this.get("container"),
+                t = this.get("template"),
+                user = this.get("user");
+            if (auth) {
+                c.setHTML(Y.Lang.sub(t.one("#" + this.name + "-main-signed").getHTML(), {
+                    TITLE: this.get("title") || ""
+                }));
+                this.loadModules();
+                this.on('loadPlaces',this.loadPlaces,this);
+                this.fire("loadPlaces");
+            }
+        },
+        loadPlaces:function(){
+        	
+        	var list = new Y.ModelList(), c = this.get("container"),user= this.get("user");
+        	c = c.one(".content");
+        	
+        	c.setHTML("");
+        	Y.api.invoke("/places/getPlacesByUser",{
+        		user_id:user.get("_id")
+        	},function(err,response){
+        		
+        		Y.Array.each(response,function(item){
+        			list.add(new Y.PlaceModel(item));
+        		});
+        		list.each(function(item){
+        			c.append(new Y.PlaceView({
+        				model:item,
+        				user:user
+        			}).render().get("container"));
+        		});
+        		
+        	});
+        }
+
+    });
 
 }, '0.0.1', {
-    requires: ['base', 'cache', 'model-list', 'autocomplete', 'node', function() {
+    requires: ['base', 'cache', 'model-list', function() {
         if (typeof document !== 'undefined') {
             return 'client-app';
         } else {

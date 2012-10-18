@@ -35,6 +35,14 @@
 					</div>
 				</div>
 			</div>
+			<div class="row">
+				<div class="span2">
+					<div class="nav nav-list">
+						<li class="nav-header">Favourites</li>
+						<li> <a href="/my/places"><i class="icon-asterisk"></i>Places</a></li>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 	

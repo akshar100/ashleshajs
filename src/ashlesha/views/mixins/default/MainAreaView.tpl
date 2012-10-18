@@ -4,11 +4,12 @@
 			<div class="row"><div class="span9">
 				<div class="subnav">
 				<ul class="nav nav-pills">
-			      <li class="active"><a href="/">Timeline</a></li>
-			      <li><a href="/wall">Wall</a></li>
-			      <li><a href="/wardrobes">Wardrobes</a></li>
-			      <li><a href="/brand-updates">Brand Updates</a></li>
+				  <li class="active"><a href="/wardrobes">Wardrobes</a></li>
+				  <li><a href="/wall">Wall</a></li>
+				  <li><a href="/brand-updates">Brand Updates</a></li>
+			      <li><a href="/timeline">Timeline</a></li>
 			      <li><a href="/featured">Featured</a></li>
+			      <li><a href="/places">Places</a></li>
 			    </ul>
 			</div>
 			</div></div>

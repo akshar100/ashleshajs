@@ -416,6 +416,6 @@ YUI().add('client-app', function(Y) {
         }
     });
 }, '0.99', {
-    requires: ['app', 'ashlesha-base-view', 'selector-css3','node','autocomplete'],
+    requires: ['app', 'ashlesha-base-view', 'selector-css3','autocomplete', 'node'],
     skinnable: false
 });

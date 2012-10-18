@@ -10,6 +10,10 @@
 					{post_text}
 				</div>
 			</div>
+			<div class="row">
+				<div class="span8 images">
+				</div>
+			</div>
 			<h6>POSTED ON {created_at}</h6>
 			<div class="row">
 				<div class="span2 comments"><a href="#">Comments ({comment_count})</a></div>

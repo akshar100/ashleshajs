@@ -1,5 +1,5 @@
 <script type="text/x-template" id="HomeView-main">
-	<div class="topbar" >
+	<div class="topbar navbar-fixed-top">
 		
 	</div>
 
@@ -30,7 +30,7 @@
 	</div> <!-- /container -->
 </script>
 <script type="text/x-template" id="HomeView-main-unsigned">
-	<div class="topbar">
+	<div class="topbar navbar-fixed-top">
 		 
 	</div>
     <div class="container container-area">
@@ -71,7 +71,7 @@
     </div> <!-- /container -->
 </script>
 <script type="text/x-template" id="HomeView-main-signed">
-	<div class="topbar">
+	<div class="topbar navbar-fixed-top">
 		 
 	</div>
     <div class="container container-area">

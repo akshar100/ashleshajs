@@ -6,19 +6,19 @@
 				<div class="span1">
 					<i class="icon-shopping-cart"></i>
 				</div>
-				<div class="span7">
+				<div class="span8">
 					<h3>Wardrobe Entries!</h3>
 					<hr/>
 				</div>
 			</div>
 			<div class="row">
-				<div class="span8">
+				<div class="span9">
 					<a class="btn btn-primary add-entry" type="button" href="/wardrobe/new">Add Entry</a>
 					<hr/>
 				</div>
 			</div>
 			<div class="row">
-				<div class="span8 wrcontent">
+				<div class="span9 wrcontent">
 					
 				</div>
 			</div>
@@ -26,7 +26,7 @@
 	</div>
 </script>
 <script id="WardrobeView-section-container" type="text/x-template" >
-	<div class="tabbable tabs-left">
+	<div class="tabbable">
               <ul class="nav nav-tabs">
                 
             
