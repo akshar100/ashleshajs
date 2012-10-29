@@ -10,7 +10,7 @@ var YUI = require('yui').YUI,
     io = require("socket.io"),
     crypto = require('crypto');
 
-YUI().add('ashlesha-api', function(Y) {
+YUI().add('ashlesha-api-base', function(Y) {
     Y.APIEndpoint = {
         invoke: function(path, config,callback) {
             var response;
@@ -216,9 +216,158 @@ YUI().add('ashlesha-base-models', function(Y) {
     requires: ['model', 'json', 'io-nodejs', 'querystring-stringify-simple']
 });
 
+YUI().add('ashlesha-base-view',function(Y){ 
+    
+    Y.AshleshaBaseView = function() {
+        Y.AshleshaBaseView.superclass.constructor.apply(this, arguments);
+    };
+
+    Y.extend(Y.AshleshaBaseView, Y.Base, {
+        initializer: function(config) {
+            var m;
+            if (config) {
+                this.set("xhr", config.xhr || false);
+                this.set("modules", config.modules || {} );
+                if(Y.Lang.isFunction(this.preModules)) //Sometimes you may want to define modeules within the view instead of passing them to the constructor
+                {
+                    m = this.get("modules");
+                    m = Y.mix(m,this.preModules());
+                    
+                    this.set("modules",m);
+                }
+            }
+            else {
+                this.set("xhr", false);
+                this.set("modules", null);
+            }
+
+        },
+        render: function() {
+            var name = this.name,
+                template = this.get('templateID') || this.name,
+                modules = this.get("modules"),
+                self = this,
+                chain = 0,
+                response = {};
+            if (this.get("xhr")) //if requested through AJAX
+            {
+                if (modules && !Y.Object.isEmpty(modules)) {
+                    
+                    Y.Object.each(modules, function(value, key) {
+                        var config = (value && value.config) || {};
+                        config.xhr = true;
+                       
+                        var v = new Y[value.view](config);
+                        if (v) {
+
+                            chain++;
+                            v.on("render", function(e) {
+                                var templateID = config.templateID || value.view;
+                                chain -= 1;
+                                if(Y.Lang.isString(e.data)){
+                                    response[templateID] = e.data;
+                                }else
+                                {
+                                    Y.Object.each(e.data,function(item,key){
+                                        response[key] = item;
+                                    });
+                                }
+                                
+                                if (chain === 0) {
+                                 
+                                    fs.readFile("./views/mixins/default/" + template + ".tpl", function(err, data) {
+                                                if (!err) {
+                                                    response[template] = data.toString();
+                                                    
+                                                    
+                                                    fileClient.set("./views/mixins/default/" + template + ".tpl",Y.JSON.stringify(response));
+                                                    self.fire("render", {
+                                                        data: response
+                                                    });
+                                                }
+                                                else {
+                                                    self.fire("render", {
+                                                        data: "Error! Template not found."
+                                                    });
+                                                }
+                                            });
+                                            /**
+                                    fileClient.get("./views/mixins/default/" + template + ".tpl",function(err,reply){
+                                        
+                                        if(!err && reply){
+                                            self.fire("render", {
+                                                data: reply
+                                            });
+                                        }
+                                        else{
+                                        
+                                    
+                                            
+                                        
+                                        }
+                                    
+                                    });**/
+                                    
+                                }
 
 
-YUI().add('server-app', function(Y) {
+
+                            });
+                            v.render();
+                        }
+                        else {
+                            Y.log("View is Empty");
+                        }
+                    });
+                }
+                else {
+                    
+                    fs.readFile("./views/mixins/default/" + template + ".tpl", function(err, data) {
+                        if (!err) {
+                            response[template] = data.toString();
+                            self.fire("render", {
+                                data: response
+                            });
+                        }
+                        else {
+                            self.fire("render", {
+                                data: "Error! Template not found."
+                            });
+
+                        }
+                    });
+                }
+
+            }
+            else //If its a normal GET request
+            {
+                fs.readFile("./views/mixins/default/mainpage.tpl", function(err, data) {
+                    if (!err) {
+                        self.fire("render", {
+                            data: Lang.sub(data.toString(), {
+                                baseURL: Y.config.AppConfig.baseURL
+                            })
+                        });
+                    }
+                    else {
+                        self.fire("render", {
+                            data: "Error! Template not found."
+                        });
+                    }
+                });
+            }
+            return this;
+        }
+    });
+    
+    
+    
+    },'0.0.1',{
+    requires:['base','app','cache']
+});
+
+
+YUI().add('ashlesha-base-app', function(Y) {
 
     var express = require('express'),
         routes = require('./routes'),
@@ -542,148 +691,6 @@ YUI().add('server-app', function(Y) {
         }
     });
 
-
-    Y.AshleshaBaseView = function() {
-        Y.AshleshaBaseView.superclass.constructor.apply(this, arguments);
-    };
-
-    Y.extend(Y.AshleshaBaseView, Y.Base, {
-        initializer: function(config) {
-        	var m;
-            if (config) {
-                this.set("xhr", config.xhr || false);
-                this.set("modules", config.modules || {} );
-                if(Y.Lang.isFunction(this.preModules)) //Sometimes you may want to define modeules within the view instead of passing them to the constructor
-                {
-                	m = this.get("modules");
-                	m = Y.mix(m,this.preModules());
-                	
-                	this.set("modules",m);
-                }
-            }
-            else {
-                this.set("xhr", false);
-                this.set("modules", null);
-            }
-
-        },
-        render: function() {
-            var name = this.name,
-                template = this.get('templateID') || this.name,
-                modules = this.get("modules"),
-                self = this,
-                chain = 0,
-                response = {};
-            if (this.get("xhr")) //if requested through AJAX
-            {
-                if (modules && !Y.Object.isEmpty(modules)) {
-					
-                    Y.Object.each(modules, function(value, key) {
-                        var config = (value && value.config) || {};
-                        config.xhr = true;
-                       
-                        var v = new Y[value.view](config);
-                        if (v) {
-
-                            chain++;
-                            v.on("render", function(e) {
-								var templateID = config.templateID || value.view;
-                                chain -= 1;
-                                if(Y.Lang.isString(e.data)){
-                                	response[templateID] = e.data;
-                                }else
-                                {
-                                	Y.Object.each(e.data,function(item,key){
-                                		response[key] = item;
-                                	});
-                                }
-                                
-                                if (chain === 0) {
-                                 
-                                	fs.readFile("./views/mixins/default/" + template + ".tpl", function(err, data) {
-                                                if (!err) {
-                                                    response[template] = data.toString();
-                                                    
-                                                    
-                                                    fileClient.set("./views/mixins/default/" + template + ".tpl",Y.JSON.stringify(response));
-                                                    self.fire("render", {
-                                                        data: response
-                                                    });
-                                                }
-                                                else {
-                                                    self.fire("render", {
-                                                        data: "Error! Template not found."
-                                                    });
-                                                }
-                                            });
-                                            /**
-                                	fileClient.get("./views/mixins/default/" + template + ".tpl",function(err,reply){
-                                		
-                                		if(!err && reply){
-	                                		self.fire("render", {
-		                                        data: reply
-		                                    });
-	                                    }
-                                		else{
-                                		
-                                	
-	                                		
-	                                    
-	                                    }
-                                	
-                                	});**/
-                                    
-                                }
-
-
-
-                            });
-                            v.render();
-                        }
-                        else {
-                            Y.log("View is Empty");
-                        }
-                    });
-                }
-                else {
-                    
-                    fs.readFile("./views/mixins/default/" + template + ".tpl", function(err, data) {
-                        if (!err) {
-                        	response[template] = data.toString();
-                            self.fire("render", {
-                                data: response
-                            });
-                        }
-                        else {
-                            self.fire("render", {
-                                data: "Error! Template not found."
-                            });
-
-                        }
-                    });
-                }
-
-            }
-            else //If its a normal GET request
-            {
-                fs.readFile("./views/mixins/default/mainpage.tpl", function(err, data) {
-                    if (!err) {
-                        self.fire("render", {
-                            data: Lang.sub(data.toString(), {
-                                baseURL: Y.config.AppConfig.baseURL
-                            })
-                        });
-                    }
-                    else {
-                        self.fire("render", {
-                            data: "Error! Template not found."
-                        });
-                    }
-                });
-            }
-            return this;
-        }
-    });
 
 	Y.AshleshaBaseList = function(){
 		Y.AshleshaBaseView.superclass.constructor.apply(this, arguments);

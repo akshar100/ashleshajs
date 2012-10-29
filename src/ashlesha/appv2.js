@@ -3,25 +3,7 @@
 /*global YUI*/
 "use strict";
 
-YUI({
-    AppConfig: {
-        baseURL: 'http://@SUBDOMAIN@.@DOMAIN@.@TLD@/',
-        port: '@PORT@',
-        logoImage: '/static/images/logo.png',
-        loaderImage: '/static/loader.gif',
-        modelMapURL: 'model',
-        templateURL: 'template',
-        uploadURL: 'upload',
-        apiURL: 'api',
-        listURL: 'list'
-    }
-}).use('base', 'cache', 'ashlesha-common', function() {
-    if (typeof document !== 'undefined') {
-        return 'client-app';
-    } else {
-        return 'server-app';
-    }
-}(), function(Y) {
+YUI('ashlesha-base-app', function(Y) {
     var vcache = new Y.CacheOffline({
         sandbox: "views"
     }),
@@ -189,8 +171,6 @@ YUI({
         });
     });
     
-    
-    
     app.route("/places", function(req, res) {
         this.showView('home', {
             req: req,
@@ -235,10 +215,6 @@ YUI({
             }
         });
     });
-    
-    
-    
-    
     
     
     app.route("/wardrobes", function(req, res) {
@@ -1011,7 +987,6 @@ YUI({
             }
         });
     });
-
 
     app.route("/signup", function(req, res) {
         this.showView('page', {
