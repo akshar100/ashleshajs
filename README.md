@@ -1,8 +1,11 @@
 AshleshaJS
 =============
 
-NodeJS/Express based framework for building in-page modern web applications.
+NodeJS/Express based framework for building single modern web applications still providing incremental enhancements for
+those browsers which dont support Javascript. 
 
+* Based on YUI3
+* Uses Twitter Bootstrap
 * MVC architecture at the backend and front end.
 * Write an API that seamlessly works on client as well as on server. No more redundant code.
 * Module based design. Write web pages as collection of self-contained modules.
@@ -11,13 +14,13 @@ NodeJS/Express based framework for building in-page modern web applications.
 * LocalStorage based caching for templates and models. (Falls back to memory on other browsers)
 * Finetuned for A grade on YSlow. 
 * Intergrated with CouchDB
-* Runs JSHint, YUI compressort on the Javascript file, minifies and concatenates it into a single file.
-* Capture events for data analysis at the server as well as client.(Similar to Mixpanel we we can capture events on server as well).
+* Runs JSHint, Minification on the Javascript file, minifies and concatenates it into a single file.
+ 
 
 Configuration
 --------------
 
-- After you clone the repository run the command ```git submodules update``` 	This will refer to other git repositories.
+- After you clone the repository run the command ```git submodules update```. This will fetch Twitter Bootstrap
 - Install NodeJS
 - Install the dependent node modules using the command ```npm install -g yui3 express redis nodemailer less```
 - Since our framework uses Bootstrap you will also the need the modules required to compile bootstrap ```npm install recess uglify-js jshint -g``` 

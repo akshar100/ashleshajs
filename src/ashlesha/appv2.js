@@ -3,9 +3,16 @@
 /*global YUI*/
 "use strict";
 
-YUI('ashlesha-base-app', function(Y) {
+YUI({
+    AppConfig:{
+        port:8000,
+        modelMapURL:'/models/'
+    }
+    
+}).use('ashlesha-base-app','cache-offline','ashlesha-base-models', 'ashlesha-base-view', function(Y) {
+    
     var vcache = new Y.CacheOffline({
-        sandbox: "views"
+        sandbox: "views",
     }),
         mcache = new Y.CacheOffline({
             sandbox: "models"
@@ -13,6 +20,7 @@ YUI('ashlesha-base-app', function(Y) {
         model;
     vcache.flush();
     mcache.flush();
+    
     var currentUser = new Y.AshleshaCurrentUserModel();
     Y.currentUser = currentUser;
     Y.on("updateUser", function() {

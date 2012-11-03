@@ -8,7 +8,31 @@ var YUI = require('yui').YUI,
     API = require('api'),
     redis = require('redis'),
     io = require("socket.io"),
-    crypto = require('crypto');
+    crypto = require('crypto'),
+    jsdom = require('jsdom');
+
+
+jsdom.defaultDocumentFeatures = {
+        //Don't bring in outside resources
+        FetchExternalResources   : false,
+        //Don't process them
+        ProcessExternalResources : false,
+        //Don't expose Mutation events (for performance)
+        MutationEvents           : false,
+        //Do not use their implementation of QSA
+        QuerySelector            : false
+};
+
+
+var dom = jsdom.defaultLevel;
+//Hack in focus and blur methods so they don't fail when a YUI widget calls them
+dom.Element.prototype.blur = function() {};
+dom.Element.prototype.focus = function() {};
+
+
+//Create the document and window
+var document = jsdom.jsdom("<html><head><title></title></head><body><h1></h1></body></html>"),
+window = document.createWindow();
 
 YUI().add('ashlesha-api-base', function(Y) {
     Y.APIEndpoint = {
@@ -61,26 +85,26 @@ YUI().add('ashlesha-base-models', function(Y) {
                 api = this.get("api");
                 data = this.toJSON();
                 
-			if(data.attrs){ //no need to save Attribute Metadata
-				Y.Object.each(data.attrs,function(val,key){
-					
-					if(val.hash){
-						
-						data[key] = api.invoke("/user/hash_password",{val:data[key]});
-						
-					}
-					if(typeof val.save!== "undefined" && val.save===false){
-						delete data[key];
-					}
-					
-				});
-				this.removeAttr("api");
-				delete data.attrs;
-			}
-			try { delete data.api;} catch(ex) { Y.log("API NOT PRESENT IN MODEL");}
+            if(data.attrs){ //no need to save Attribute Metadata
+                Y.Object.each(data.attrs,function(val,key){
+                    
+                    if(val.hash){
+                        
+                        data[key] = api.invoke("/user/hash_password",{val:data[key]});
+                        
+                    }
+                    if(typeof val.save!== "undefined" && val.save===false){
+                        delete data[key];
+                    }
+                    
+                });
+                this.removeAttr("api");
+                delete data.attrs;
+            }
+            try { delete data.api;} catch(ex) { Y.log("API NOT PRESENT IN MODEL");}
             switch (action) {
             case "read":
-            	
+                
                 Y.io(dburl + "/" + data._id, {
                     method: 'GET',
                     headers: {
@@ -193,13 +217,13 @@ YUI().add('ashlesha-base-models', function(Y) {
         idAttribute: "_id",
         sync: function(action, options, callback) {
             if (action === "read") {
-				if(options.req)
-				{
-					
-					this.setAttrs(options.req.session.user);
-					callback(null, options.req.session.user);
-					return;
-				}
+                if(options.req)
+                {
+                    
+                    this.setAttrs(options.req.session.user);
+                    callback(null, options.req.session.user);
+                    return;
+                }
                 callback(null, {
 
                 });
@@ -228,7 +252,7 @@ YUI().add('ashlesha-base-view',function(Y){
             if (config) {
                 this.set("xhr", config.xhr || false);
                 this.set("modules", config.modules || {} );
-                if(Y.Lang.isFunction(this.preModules)) //Sometimes you may want to define modeules within the view instead of passing them to the constructor
+                if(Y.Lang.isFunction(this.preModules)) //Sometimes you may want to define modules within the view instead of passing them to the constructor
                 {
                     m = this.get("modules");
                     m = Y.mix(m,this.preModules());
@@ -363,12 +387,10 @@ YUI().add('ashlesha-base-view',function(Y){
     
     
     },'0.0.1',{
-    requires:['base','app','cache']
+    requires:['base','cache']
 });
 
-
 YUI().add('ashlesha-base-app', function(Y) {
-
     var express = require('express'),
         routes = require('./routes'),
         fs = require("fs"),
@@ -698,6 +720,6 @@ YUI().add('ashlesha-base-app', function(Y) {
 	Y.extend(Y.AshleshaBaseList, Y.ModelList,{});
 	
 }, '0.99', {
-    requires: ['base', 'model', 'ashlesha-base-models', 'ashlesha-api','model-list','test'],
+    requires: ['base','model-list'],
     skinnable: false
 });

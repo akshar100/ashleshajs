@@ -13,5 +13,5 @@ YUI().add('ashlesha-api', function(Y) {
     Y.api = new API(); //A global instace available to everyone else. :)
     
 },'0.0.1',{
-    requires:['base','app']
+    requires:['base','ashlesha-api-base']
 });

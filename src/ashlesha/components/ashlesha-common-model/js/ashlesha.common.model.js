@@ -240,5 +240,5 @@ YUI().add('ashlesha-common-model', function(Y) {
     
     
 }, '0.0.1', {
-    requires:['base','app','ashlesha-api','ashlesha-base','ashlesha-base-models']
+    requires:['base','ashlesha-api','ashlesha-base-models']
 });
