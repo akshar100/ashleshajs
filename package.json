@@ -1,0 +1,42 @@
+{
+  "name": "ashleshajs",
+  "version": "1.0.0",
+  "description": "AshleshaJS is a framework to build high performance and maintainable single page web applications. It uses ExpressJS and YUI3 as foundation. It is tightly coupled with Twitter Bootstrap for the CSS framework but you can use any other framework as well. ",
+  "main": "ashlesha/index.js",
+  "scripts": {
+    "test": "ashleshajs test"
+  },
+  "dependencies":{
+  	"express":">=3.0.0",
+  	"yui":"*",
+  	"socket.io":"*",
+  	"redis": "*",
+  	"hiredis": "*",
+  	"cradle": "*",
+  	"gear": "*",
+  	"gear-lib": "*",
+  	"commander": "*",
+  	"wrench": "*",
+  	"prettyjson": "*",
+  	"nodemailer":"*",
+  	"connect-redis":"*",
+  	"crypto": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/akshar100/ashleshajs.git"
+  },
+  "keywords": [
+    "NodeJS",
+    "node",
+    "YUI3",
+    "Express",
+    "Bootstrap"
+  ],
+  "author": "Akshar Prabhu Desai",
+  "license": "MIT",
+  "bin": { "ashleshajs": "./bin/ashlesha" },
+  "engines":{
+  	"node": ">=0.6"
+  }
+}

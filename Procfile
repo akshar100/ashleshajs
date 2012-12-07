@@ -1,0 +1,1 @@
+web: node gear build

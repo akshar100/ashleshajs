@@ -1,5 +1,5 @@
-.htaccess
-fb_ca_chain_bundle.crt
 build
-custom.properties
-
+node_modules/*
+!node_modules/api
+!node_modules/api/*
+ashlesha/public/static/bootstrap/bootstrap
