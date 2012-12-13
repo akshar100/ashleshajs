@@ -2,6 +2,12 @@ $(function () {
 
     module("bootstrap-tooltip")
 
+      test("should provide no conflict", function () {
+        var tooltip = $.fn.tooltip.noConflict()
+        ok(!$.fn.tooltip, 'tooltip was set back to undefined (org value)')
+        $.fn.tooltip = tooltip
+      })
+
       test("should be defined on jquery object", function () {
         var div = $("<div></div>")
         ok(div.tooltip, 'popover method is defined')
@@ -37,10 +43,11 @@ $(function () {
         tooltip.tooltip('hide')
       })
 
-      test("should always allow html entities", function () {
+      test("should allow html entities", function () {
         $.support.transition = false
         var tooltip = $('<a href="#" rel="tooltip" title="<b>@fat</b>"></a>')
           .appendTo('#qunit-fixture')
+          .tooltip({html: true})
           .tooltip('show')
 
         ok($('.tooltip b').length, 'b tag was inserted')
@@ -128,28 +135,25 @@ $(function () {
         }, 200)
       })
 
-      test("should detect if title string is html or text: foo", function () {
-        ok(!$.fn.tooltip.Constructor.prototype.isHTML('foo'), 'correctly detected html')
+      test("should destroy tooltip", function () {
+        var tooltip = $('<div/>').tooltip().on('click.foo', function(){})
+        ok(tooltip.data('tooltip'), 'tooltip has data')
+        ok($._data(tooltip[0], 'events').mouseover && $._data(tooltip[0], 'events').mouseout, 'tooltip has hover event')
+        ok($._data(tooltip[0], 'events').click[0].namespace == 'foo', 'tooltip has extra click.foo event')
+        tooltip.tooltip('show')
+        tooltip.tooltip('destroy')
+        ok(!tooltip.hasClass('in'), 'tooltip is hidden')
+        ok(!$._data(tooltip[0], 'tooltip'), 'tooltip does not have data')
+        ok($._data(tooltip[0], 'events').click[0].namespace == 'foo', 'tooltip still has click.foo')
+        ok(!$._data(tooltip[0], 'events').mouseover && !$._data(tooltip[0], 'events').mouseout, 'tooltip does not have any events')
       })
 
-      test("should detect if title string is html or text: &amp;lt;foo&amp;gt;", function () {
-        ok(!$.fn.tooltip.Constructor.prototype.isHTML('&lt;foo&gt;'), 'correctly detected html')
+      test("should show tooltip with delegate selector on click", function () {
+        var div = $('<div><a href="#" rel="tooltip" title="Another tooltip"></a></div>')
+        var tooltip = div.appendTo('#qunit-fixture')
+                         .tooltip({ selector: 'a[rel=tooltip]',
+                                    trigger: 'click' })
+        div.find('a').trigger('click')
+        ok($(".tooltip").is('.fade.in'), 'tooltip is faded in')
       })
-
-      test("should detect if title string is html or text: &lt;div>foo&lt;/div>", function () {
-        ok($.fn.tooltip.Constructor.prototype.isHTML('<div>foo</div>'), 'correctly detected html')
-      })
-
-      test("should detect if title string is html or text: asdfa&lt;div>foo&lt;/div>asdfasdf", function () {
-        ok($.fn.tooltip.Constructor.prototype.isHTML('asdfa<div>foo</div>asdfasdf'), 'correctly detected html')
-      })
-
-      test("should detect if title string is html or text: document.createElement('div')", function () {
-        ok($.fn.tooltip.Constructor.prototype.isHTML(document.createElement('div')), 'correctly detected html')
-      })
-
-      test("should detect if title string is html or text: $('&lt;div />)", function () {
-        ok($.fn.tooltip.Constructor.prototype.isHTML($('<div></div>')), 'correctly detected html')
-      })
-
 })
