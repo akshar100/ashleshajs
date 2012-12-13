@@ -37,6 +37,8 @@
   "license": "MIT",
   "bin": { "ashleshajs": "./bin/ashlesha" },
   "engines":{
-  	"node": ">=0.6"
+  	"node": ">=0.6",
+  	"npm": "1.1.x"
+
   }
 }

@@ -74,9 +74,13 @@ YUI({
         api: Y.api
     });
 
+    app.routeMap("/test","test-url");
+
 	app.route("/",function(req,res){
 		app.navigate("/wardrobes",res);
 	});
+	
+	
     app.route("/timeline", function(req, res) {
         this.showView('home', {
             req: req,

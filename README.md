@@ -15,20 +15,14 @@ AshleshaJS requires NodeJS >=0.6.0, REDIS and CouchDB to be present on the machi
 
 Run the following command to install AshleshaJS
 
-```npm install ashleshajs -g```
+``git clone git://github.com/akshar100/ashleshajs.git``
 
-This will install the framework as global module. 
+Then run the following commands
 
-	- mkdir myapp
-	- npm install ashleshajs
-	- cd myapp
-	- node ashleshajs app
+ - cd ashleshajs
+ - npm install 
+ - node gear build
 
-This will generate an application in the directory app. Then you can build the app.
-
-	- node ashleshajs build  
-
-This will start the server on port 8000. 
 
 Visit http://localhost:8000/ to visit the web app. 
 
@@ -41,7 +35,14 @@ Currently the Bootstrap framework does not get compiled on Heroku and we are loo
 Development
 --------------------------------
 
-The main application file is appv2.js
+The main application file is appv2.js. This is where you tie the URLS to components
+
+Creating your components
+========================
+
+Create the command
+
+- node gear create 'module_name'
 
 
 Roadmap

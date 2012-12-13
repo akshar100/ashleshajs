@@ -408,6 +408,16 @@ YUI().add('ashlesha-base-app', function(Y) {
             }, this);
 
 
+        },
+        /*
+         * Provide a URL pattern to View mapping here.
+         * @method routeMap
+         * @param path {string} The path of the form /mypath it is possible to provide variables as /mypath/:id
+         * @param map {Object} The object that specifies what combination of views is to be rendered when the given path is visited 
+         */
+        routeMap:function(path,map){
+            //The map is actually an external YUI module which needs to be fetched
+            this.route(path);
         }
     });
 }, '0.99', {
