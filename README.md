@@ -19,8 +19,7 @@ Run the following command to install AshleshaJS
 
 Then run the following commands
 
- - cd ashleshajs
- - npm install 
+ - sudo sh init.sh
  - node gear build
 
 
@@ -49,7 +48,6 @@ Roadmap
 --------------------------------
 
 - API does not support Sync methods
-- Models do not support server side only validations yet
 
 License
 --------------------------------
