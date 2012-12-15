@@ -5,13 +5,15 @@
 "use strict";
 
 var YUI = require('yui').YUI,
-    API = require('api'),
     redis = require('redis'),
     io = require("socket.io"),
     crypto = require('crypto'),
     fs = require('fs'),
     http = require('http'),
-    confObj = require('./config.js').config;
+    confObj = require('./config.js').config,
+    API = require('api');
+    API.init(confObj);
+   
 
 
 YUI().add('ashlesha-api-base', function(Y) {
@@ -43,10 +45,11 @@ YUI().add('ashlesha-api-base', function(Y) {
                 output;
             cfg.user = this.get("user"); // We need to send the current user with the API call as well.
             output = ep.invoke(path, cfg, callback);
-            if (typeof callback !== "undefined") {
+            if (typeof callback !== "undefined" && config && config.sync) {
                 callback(null, output);
             }
-            return output; // If the method is a sync method it will automatically return the output else the call
+            
+           // return output; // If the method is a sync method it will automatically return the output else the call
         }
     });
 
@@ -548,22 +551,27 @@ YUI().add('ashlesha-base-app', function(Y) {
                     data = Y.JSON.parse(req.body.data),
                     user = req.session.user,
                     output;
-                Y.log("Received API call");
+              
 
                 try {
                     Y.JSON.stringify(req.api.invoke(path, data, function(err, data) {
+                    	
+                    	
                         if (typeof err === "undefined" || err === null) {
                             res.send(Y.JSON.stringify(data));
                         }
                         else {
                             res.send(Y.JSON.stringify(err));
                         }
+                        
+                        
                     }));
                 }
                 catch (ex) {
-                    res.send(Y.JSON.stringify({
-                        error: true
-                    }));
+                	
+                	console.log(ex);
+                	
+                    
                 }
 
 
@@ -610,6 +618,12 @@ YUI().add('ashlesha-base-app', function(Y) {
 
 
             ex.get("/test-suite", function(req, res) {
+                
+                req.api.invoke("/login",{
+                	
+                },function(){
+                	res.send("test");
+                });
                 
             });
 

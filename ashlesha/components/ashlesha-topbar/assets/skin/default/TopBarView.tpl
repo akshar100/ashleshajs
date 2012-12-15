@@ -37,7 +37,9 @@
 	          <a class="brand" href="/"><img src="/static/images/logo.png" height="20" alt="@SITENAME@" title="@SITENAME@"/></a>
 	          <div class="pull-right">
 	          	 
-	          		<a class="navbar-link" href="/me">{EMAIL}</a>
+	          	 	<ul class="nav">
+	          			<li><a class="navbar-link" href="/me">{EMAIL}</a></li>
+	            	</ul>
 	            	<a class="btn btn-primary" href="/signout" title="signout"><i class="icon-off icon-white"></i></a>
 	          	
 	          </div>

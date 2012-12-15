@@ -5,6 +5,8 @@ config.TOKENS = {};
 config.TOKENS = {
     'port':8000,
     'host':'localhost',
+    'couchHost':'localhost',
+    'couchPort':'5984',
     'couchdbURL':'http://localhost:5984/',
     'dbName':'devportal',
     'modelMapURL':'models/',
