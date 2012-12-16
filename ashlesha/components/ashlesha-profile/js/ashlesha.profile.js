@@ -33,6 +33,9 @@ YUI().add('ashlesha-profile',function(Y) {
                     },
                     relations: {
                         value: []
+                    },
+                    profile_pic: { 
+                    	value: 'http://placehold.it/100x100'
                     }
                 }}]);
         }
@@ -97,13 +100,31 @@ YUI().add('ashlesha-profile',function(Y) {
     });
 
     Y.EditProfilePhotoView = Y.Base.create("EditProfilePhotoView", Y.FormView, [], {
+    	events:{
+    		"button[type=submit]":{
+    			click:function(e){
+    				var m = this.get("m");
+    				this.plugModel(m);
+    				m.save();
+    				e.halt();
+    			}
+    		}
+    	},
+    	onSubmit:function(e){
+    		e.halt();
+    	},
         altInitializer: function(auth) {
-            var c = this.get("container");
+            var c = this.get("container"), m = new Y.ProfileModel();
             c.setHTML(Y.Lang.sub(this.get("template").one("#" + this.name + "-main-signed").getHTML(), {
                 IMG: 'http://placehold.it/100x100'
             }));
             this.loadModules();
-
+			m.set("_id", this.get("user").get("_id"));
+			m.on("load",function(){
+				this.plugValues(m); //Checks the model and picks up values from form and puts them into the model. The model attribtue name = form name
+			},this);
+			m.load();
+			this.set("m",m);
         }
     });
 

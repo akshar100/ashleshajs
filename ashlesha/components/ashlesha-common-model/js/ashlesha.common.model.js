@@ -183,7 +183,7 @@ YUI().add('ashlesha-common-model', function(Y) {
             {
                 this.set("attrs", Y.clone(attrs));
                 this.addAttrs(attrs);
-                console.log(attrs);
+                
 
             }
 

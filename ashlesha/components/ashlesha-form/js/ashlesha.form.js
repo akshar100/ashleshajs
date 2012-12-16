@@ -435,13 +435,7 @@ YUI().add('ashlesha-form', function(Y) {
                         this.endWait();
                         try {
                             r = Y.JSON.parse(o.responseText);
-
-
-                            c.one(".image-preview").setHTML(
-                            Y.Node.create(Y.Lang.sub("<img src='{URL}' class='span1 thumbnail'/>", {
-                                URL: r.url
-                            })));
-                            c.one("input[type=hidden]").set("value", r.url);
+                            this.setValue(r.url);
                         } catch (ex) {
                             this.setErrorText("The file is not supported by us.");
                         }
@@ -454,6 +448,14 @@ YUI().add('ashlesha-form', function(Y) {
                     }
                 }
             });
+        },
+        setValue:function(sUrl){
+        	var c = this.get('container'), i = c.one("input[type=hidden]"), img = c.one(".image-preview");
+        	
+        	img.setHTML(Y.Node.create(Y.Lang.sub("<img src='{URL}' class='span1 thumbnail'/>", {
+                                URL: sUrl
+                            })));
+        	i.set("value",sUrl);
         }
 
     }, {

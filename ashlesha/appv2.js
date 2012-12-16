@@ -672,7 +672,8 @@ YUI({
                                             config: {
                                                 label: " ",
                                                 helptext: "The photo should be preferably a square image",
-                                                placeholder: "click to upload"
+                                                placeholder: "click to upload",
+                                                field_name: "profile_pic"
                                             }
                                         }
                                     }
