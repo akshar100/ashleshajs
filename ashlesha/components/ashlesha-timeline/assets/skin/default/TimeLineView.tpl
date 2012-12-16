@@ -18,9 +18,11 @@
 		<div class="row">
 			
 			<div class="span9 timeline-container">
-			<hr/>
+				<hr/>
 			</div>
+			
 		</div>
+		
 		</div>
 		
 	</div>

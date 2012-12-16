@@ -13,10 +13,11 @@ config.TOKENS = {
     'baseURL':'http://localhost:8000/',
     'listURL':'list',
     'apiURL':'api',
-    'loaderImage':'/static/loader.gif'
+    'loaderImage':'/static/loader.gif',
+    'uploadURL':'upload'
 };
 
 //Which Configuration attributes are visible to the client side ? 
-config.CLIENT = ['baseURL','modelMapURL','listURL','apiURL','loaderImage'];
+config.CLIENT = ['baseURL','modelMapURL','listURL','apiURL','loaderImage','uploadURL'];
 
 exports.config = config;

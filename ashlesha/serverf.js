@@ -590,7 +590,7 @@ YUI().add('ashlesha-base-app', function(Y) {
 
             });
 
-            ex.post("/upload", function(req, res) {
+            ex.post("/"+confObj.TOKENS.uploadURL, function(req, res) {
                 var file = req.files.fileupload.path,
                     filename = file.split("/").pop();
                 res.send({

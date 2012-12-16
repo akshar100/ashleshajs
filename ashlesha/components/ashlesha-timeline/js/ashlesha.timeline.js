@@ -1,5 +1,9 @@
 YUI().add('ashlesha-timeline',function(Y) {
-    
+   
+   /**
+    * @component TimelineView 
+    * Responsible for showing posts in an infinite scroll like list.
+    */
    Y.TimeLineView = Y.Base.create("TimeLineView", Y.AshleshaBaseView, [], {
         events: {
             "a.pub-btn": {
@@ -19,6 +23,12 @@ YUI().add('ashlesha-timeline',function(Y) {
             this.loadModules();
 
         },
+        /**
+         * @method setupTimeline 
+ 		 * @param {String} tType
+ 		 * tType refers to the type of posts that can be loaded in this timeline. Timeline must be viewed as a higher level container
+ 		 * that lists number of posts. The posts themselves can be different.
+         */
         setupTimeline: function(tType) {
             var c = this.get('container'),
                 t = this.get('template');
@@ -66,6 +76,22 @@ YUI().add('ashlesha-timeline',function(Y) {
                     tType: "publishing-page",
                     user: this.get("user")
                 }).render().get("container"));
+                c.one(".timeline-container").setHTML(new Y.PostListView({
+                    tType: "publishing-page",
+                    user: this.get("user"),
+                    query: this.get("query")
+                }).render().get("container"));
+                break;
+             case "publishing-page":
+             	c.setHTML(Y.Lang.sub(t.one("#TimeLineView-default").getHTML(), {
+                    HELPTEXT: "Your timeline shows what your friends are publishing."
+                }));
+
+                c.one(".create-post").setHTML(new Y.CreatePostView({
+                    tType: "publishing-page",
+                    user: this.get("user")
+                }).render().get("container"));
+                
                 c.one(".timeline-container").setHTML(new Y.PostListView({
                     tType: "publishing-page",
                     user: this.get("user"),

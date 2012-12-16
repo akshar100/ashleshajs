@@ -310,14 +310,27 @@ YUI().add('ashlesha-postview',function(Y) {
     });
 
     Y.PostListView = Y.Base.create("PostListView", Y.AshleshaBaseView, [], {
+    	events:{
+    		'.moreBtn':{
+    			'click':function(e){
+    				//Loading more things
+    				this.get('list').loadNext(); //Load next results
+    			}
+    		}
+    	},
         altInitializer: function(auth) {
             var c = this.get('container'),
                 t = this.get("template"),
                 list = new Y.PostList(),
                 self = this,
-                query = this.get("query") || {};
+                query = this.get("query") || { tType: this.get("tType") || "" },
+                moreBtn = c.one('.loadMore');
             c.setHTML(t.one("#" + this.name + "-main").getHTML());
             this.startWait(c);
+            
+            query.owner_id = this.get("user").get("_id");
+            this.set("list",list);
+            
             list.on('load', function() {
                 list.each(function(model) {
                     var post = new Y.PostView({
@@ -327,13 +340,26 @@ YUI().add('ashlesha-postview',function(Y) {
                     });
                     c.one(".list-container").append(post.render().get("container"));
                 });
+                
+                
+                
                 this.endWait();
             }, this);
+            
+            
+            list.on('load',function(){
+            	if(list.size()==0){
+            		moreBtn.hide();
+            	}else{
+            		moreBtn.show();
+            	}
+            });
+            
+            
             list.load(query);
 
         }
     });
-    
 
     
     

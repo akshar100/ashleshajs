@@ -171,9 +171,29 @@ YUI().add('ashlesha-base-models', function(Y) {
 
     });
 
+	/**
+     * The AshleshaBaseList class is an extension to Y.ModelList with few additional support such as loadNext support and ability to
+     * plug it with a couchdb view.
+     * @class  AshleshaBaseList
+     * @extends ModelList
+     * @uses
+     * @constructor
+     * @cfg {object} configuration attributes
+     */
     Y.AshleshaBaseList = Y.Base.create('AshleshaBaseList', Y.ModelList, [], {
         model: Y.AshleshaBaseModel,
+        /**
+         * @method loadNext 
+         * @param none
+         * Loads next page automatically 
+         */
+        loadNext:function(){
+        	this.set("page", this.get("page")+1);
+        	this.load();
+        },
         sync: function(action, options, callback) {
+        	this.set("currentQuery",options);
+        	
             if (action === "read") {
                 Y.io(Y.config.AppConfig.baseURL + Y.config.AppConfig.listURL, {
                     method: 'POST',
@@ -182,7 +202,7 @@ YUI().add('ashlesha-base-models', function(Y) {
                         name: this.name,
                         size: this.get("size") || 10,
                         page: this.get("page") || 1,
-                        query: Y.JSON.stringify(options)
+                        query: Y.JSON.stringify(this.get("currentQuery"))
                     },
                     on: {
                         complete: function(i, o, a) {

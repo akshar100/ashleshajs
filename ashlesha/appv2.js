@@ -478,7 +478,8 @@ YUI({
                             ".mainarea": {
                                 view: "CreatePostView",
                                 config: {
-                                    "postTitle": "Publish a Post"
+                                    "postTitle": "Publish a Post",
+                                    "tType":'publishing-page'
                                 }
                             }
                         }
