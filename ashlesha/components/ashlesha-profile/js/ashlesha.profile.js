@@ -103,10 +103,19 @@ YUI().add('ashlesha-profile',function(Y) {
     	events:{
     		"button[type=submit]":{
     			click:function(e){
-    				var m = this.get("m");
-    				this.plugModel(m);
-    				m.save();
+    				var m = new Y.CommonModel(), self = this;
     				e.halt();
+    				m.set("_id",this.get("user").get("_id"));
+    				m.set("id",this.get("user").get("_id"));
+    				m.on('load',function(){ //make sure you are not saving a stale version of the model
+    					self.plugModel(m);
+    					
+    					m.save(function(){
+    						Y.log("saved");
+    					});
+    				},this);
+    				m.load();
+    				
     			}
     		}
     	},
@@ -120,9 +129,6 @@ YUI().add('ashlesha-profile',function(Y) {
             }));
             this.loadModules();
 			m.set("_id", this.get("user").get("_id"));
-			m.on("load",function(){
-				this.plugValues(m); //Checks the model and picks up values from form and puts them into the model. The model attribtue name = form name
-			},this);
 			m.load();
 			this.set("m",m);
         }

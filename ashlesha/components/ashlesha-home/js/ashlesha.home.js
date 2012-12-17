@@ -16,17 +16,23 @@ YUI().add('ashlesha-home',function(Y) {
     });
     Y.SideBarView = Y.Base.create("SideBarView", Y.AshleshaBaseView, [], {
         altInitializer: function(auth) {
-            var c = this.get("container");
-            if (auth.user) {
+            
+           	Y.on("UpdateUser",this.setupSidebar,this);
+           	this.setupSidebar();
+            this.loadModules();
+        },
+        setupSidebar:function(){
+        	var c = this.get("container"),user= this.get("user");
+            if (user) {
                 c.setHTML(Y.Lang.sub(this.get("template").one("#" + this.name + "-main-signed").getHTML(), {
-                    FIRSTNAME: auth.user.get("firstname"),
-                    LASTNAME: auth.user.get("lastname")
+                    FIRSTNAME: user.get("firstname"),
+                    LASTNAME: user.get("lastname"),
+                    PROFILE_PIC: user.get("profile_pic") || "http://placehold.it/40x40x"
                 }));
             }
             else {
                 c.setHTML("This resource is not available!");
             }
-            this.loadModules();
         }
 
     });

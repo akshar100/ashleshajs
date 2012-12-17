@@ -2,11 +2,13 @@
 	<div class="row">
 		<div class="span9">
 		<form>
-			<div class="upload-photo"></div>
+			
 			<div class="row">
 				
-				
-				<button type="submit" class="btn btn-promary">Change</button>
+				<div class="span9">
+					<div class="upload-photo"></div>
+					<button type="submit" class="btn btn-promary">Change</button>
+				</div>
 				
 			</div>
 		</form>

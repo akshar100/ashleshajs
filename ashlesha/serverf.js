@@ -12,8 +12,8 @@ var YUI = require('yui').YUI,
     http = require('http'),
     confObj = require('./config.js').config,
     API = require('api');
-    API.init(confObj);
-   
+API.init(confObj);
+
 
 
 YUI().add('ashlesha-api-base', function(Y) {
@@ -48,8 +48,8 @@ YUI().add('ashlesha-api-base', function(Y) {
             if (typeof callback !== "undefined" && config && config.sync) {
                 callback(null, output);
             }
-            
-           // return output; // If the method is a sync method it will automatically return the output else the call
+
+            // return output; // If the method is a sync method it will automatically return the output else the call
         }
     });
 
@@ -75,32 +75,20 @@ YUI().add('ashlesha-base-models', function(Y) {
         idAttribute: "_id",
         sync: function(action, options, callback) {
             var dburl = confObj.TOKENS.couchdbURL + confObj.TOKENS.dbName,
-                data, api = this.get("api");
+                data, api = this.get("api"),
+                processTick;
             data = this.toJSON();
+            processTick = 0;
+            
 
-            if (data.attrs) { //no need to save Attribute Metadata
-                Y.Object.each(data.attrs, function(val, key) {
 
-                    if (val.hash) {
-                        data[key] = api.invoke("/user/hash_password", {
-                            val: data[key]
-                        });
-                        console.log("log:" + data[key]);
-
-                    }
-                    if (typeof val.save !== "undefined" && val.save === false) {
-                        delete data[key];
-                    }
-
-                });
-                this.removeAttr("api");
-                delete data.attrs;
-            }
             try {
                 delete data.api;
             } catch (ex) {
                 Y.log("API NOT PRESENT IN MODEL");
             }
+
+
             switch (action) {
             case "read":
 
@@ -129,49 +117,67 @@ YUI().add('ashlesha-base-models', function(Y) {
                 if (typeof data._id !== "undefined") {
                     delete data._id;
                 }
+                Y.once("processQueue", function(e) {
 
-                Y.io(dburl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    xdr: {
-                        use: "nodejs"
-                    },
-                    data: Y.JSON.stringify(data),
-                    on: {
-                        success: function(i, o, a) {
-                            callback(null, Y.JSON.parse(o.responseText));
-                        },
-                        failure: function(i, response) {
-                            var r = Y.JSON.parse(response.responseText);
-                            callback(r.reason);
+                    	Y.log(data.password);
+                    	Y.log(data);
+                        Y.io(dburl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            xdr: {
+                                use: "nodejs"
+                            },
+                            data: Y.JSON.stringify(data),
+                            on: {
+                                success: function(i, o, a) {
+                                    callback(null, Y.JSON.parse(o.responseText));
+                                },
+                                failure: function(i, response) {
+                                    var r = Y.JSON.parse(response.responseText);
+                                    callback(r.reason);
 
-                        }
-                    }
+                                }
+                            }
+                        });
+                    
+
                 });
+
                 break;
             case "update":
-                Y.io(dburl + "/" + data._id, {
-                    method: 'PUT',
-                    data: Y.JSON.stringify(data),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    xdr: {
-                        use: "nodejs"
-                    },
-                    on: {
-                        success: function(i, o, a) {
-                            callback(null, Y.JSON.parse(o.responseText));
-                        },
-                        failure: function(i, response) {
-                            var r = Y.JSON.parse(response.responseText);
-                            callback(r.reason);
 
+				
+                Y.once("processQueue", function(e) {
+                	
+                    Y.log(data.password);
+                    
+                    Y.io(dburl + "/" + data._id, {
+                        method: 'PUT',
+                        data: Y.JSON.stringify(data),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        xdr: {
+                            use: "nodejs"
+                        },
+                        on: {
+                            success: function(i, o, a) {
+                                callback(null, Y.JSON.parse(o.responseText));
+                            },
+                            failure: function(i, response) {
+                                var r = Y.JSON.parse(response.responseText);
+                                callback(r.reason);
+
+                            }
                         }
-                    }
+                    });
+                    
+
                 });
+
+
                 break;
             case "delete":
                 Y.io(dburl + "/" + data._id, {
@@ -184,6 +190,50 @@ YUI().add('ashlesha-base-models', function(Y) {
                     }
                 });
                 break;
+            }
+            // Now let us process the data
+            if (data.attrs) { //no need to save Attribute Metadata
+            	
+            	Y.Object.each(data.attrs,function(){
+            		processTick +=1;
+            	});
+            	
+                Y.Object.each(data.attrs, function(val, key) {
+
+                    if (val.hash) {
+                        api.invoke("/user/hash_password", {
+                            val: data[key]
+                        }, function(err,hash) {
+                            data[key] = hash;
+                            processTick -= 1;
+                           
+                            if(processTick===0){
+                            	Y.fire("processQueue");
+                            }
+                            
+                        });
+
+
+                    }
+                    else {
+                        processTick -= 1;
+                        if(processTick===0){
+                        	Y.fire("processQueue");
+                        }
+                    }
+
+                    if (typeof val.save !== "undefined" && val.save === false) {
+                        delete data[key];
+                    }
+
+                });
+                this.removeAttr("api");
+                delete data.attrs;
+            }
+            else {
+                if(processTick===0){
+                	Y.fire("processQueue");
+                }
             }
         }
     }, {
@@ -215,16 +265,40 @@ YUI().add('ashlesha-base-models', function(Y) {
     Y.AshleshaCurrentUserModel = Y.Base.create('AshleshaCurrentUserModel', Y.Model, [], {
         idAttribute: "_id",
         sync: function(action, options, callback) {
-            if (action === "read") {
-                if (options.req) {
+            var dburl = confObj.TOKENS.couchdbURL + confObj.TOKENS.dbName;
 
-                    this.setAttrs(options.req.session.user);
-                    callback(null, options.req.session.user);
+            if (action === "read") {
+                if (options.req && options.req.session.user) {
+
+                    Y.io(dburl + "/" + options.req.session.user._id, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        xdr: {
+                            use: "nodejs"
+                        },
+                        on: {
+                            success: function(i, o, a) {
+                                var attrs = Y.JSON.parse(o.responseText);
+                                callback(null, attrs);
+                            },
+                            failure: function(i, response) {
+                                var r = Y.JSON.parse(response.responseText);
+                                callback(r.reason);
+
+                            }
+                        }
+                    });
+
                     return;
                 }
-                callback(null, {
+                else {
+                    callback(null, {
 
-                });
+                    });
+                }
+
             }
         }
     }, {
@@ -517,14 +591,14 @@ YUI().add('ashlesha-base-app', function(Y) {
                             model.set("created_at", Date.now());
                         }
                         if (action === "update") {
-                            model.set("_id", data._id);
+                            model.set("_id", (data && data._id) || "");
                         }
                         model.set("updated_at", Date.now());
                         model.save();
                     }
                     else if (action === "read") {
 
-                        model.set("_id", data._id);
+                        model.set("_id", (data && data._id) || "");
                         model.load({
                             req: req
 
@@ -551,27 +625,27 @@ YUI().add('ashlesha-base-app', function(Y) {
                     data = Y.JSON.parse(req.body.data),
                     user = req.session.user,
                     output;
-              
+
 
                 try {
                     Y.JSON.stringify(req.api.invoke(path, data, function(err, data) {
-                    	
-                    	
+
+
                         if (typeof err === "undefined" || err === null) {
                             res.send(Y.JSON.stringify(data));
                         }
                         else {
                             res.send(Y.JSON.stringify(err));
                         }
-                        
-                        
+
+
                     }));
                 }
                 catch (ex) {
-                	
-                	console.log(ex);
-                	
-                    
+
+                    console.log(ex);
+
+
                 }
 
 
@@ -590,7 +664,7 @@ YUI().add('ashlesha-base-app', function(Y) {
 
             });
 
-            ex.post("/"+confObj.TOKENS.uploadURL, function(req, res) {
+            ex.post("/" + confObj.TOKENS.uploadURL, function(req, res) {
                 var file = req.files.fileupload.path,
                     filename = file.split("/").pop();
                 res.send({
@@ -618,13 +692,13 @@ YUI().add('ashlesha-base-app', function(Y) {
 
 
             ex.get("/test-suite", function(req, res) {
-                
-                req.api.invoke("/login",{
-                	
-                },function(){
-                	res.send("test");
+
+                req.api.invoke("/user/hash_password", {
+                    val: "123456"
+                }, function() {
+                    res.send("test");
                 });
-                
+
             });
 
             ex.get("/db-update", function(req, res) {
@@ -660,8 +734,8 @@ YUI().add('ashlesha-base-app', function(Y) {
         navigate: function(path, res) {
             res.redirect(path);
         },
-        routeMap:function(path,map){
-            
+        routeMap: function(path, map) {
+
         }
     });
 

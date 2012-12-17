@@ -24,7 +24,7 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" ></script>
 <script src="{baseURL}static/js/externalcomponents.js" ></script>
-<script src="http://yui.yahooapis.com/3.7.3/build/yui/yui-min.js"></script>
+<script src="http://yui.yahooapis.com/3.8.0/build/yui/yui-min.js"></script>
 <script src="{baseURL}static/js/build.min.js"></script>
 <script src="http://maps.googleapis.com/maps/api/js?sensor=false&key=AIzaSyCEkDBamEtBMCYIRSKldgYiN6iPYLDP0Ng"></script>
 
