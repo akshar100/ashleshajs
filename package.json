@@ -4,7 +4,7 @@
   "description": "AshleshaJS is a framework to build high performance and maintainable single page web applications. It uses ExpressJS and YUI3 as foundation. It is tightly coupled with Twitter Bootstrap for the CSS framework but you can use any other framework as well. ",
   "main": "ashlesha/index.js",
   "scripts": {
-    "test": "ashleshajs test"
+    "test": "node test.js"
   },
   "dependencies":{
   	"express":">=3.0.0",
@@ -20,7 +20,8 @@
   	"prettyjson": "*",
   	"nodemailer":"*",
   	"connect-redis":"*",
-  	"crypto": "*"
+  	"crypto": "*",
+  	"yuitest":"*"
   },
   "repository": {
     "type": "git",

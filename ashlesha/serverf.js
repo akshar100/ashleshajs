@@ -119,8 +119,7 @@ YUI().add('ashlesha-base-models', function(Y) {
                 }
                 Y.once("processQueue", function(e) {
 
-                    	Y.log(data.password);
-                    	Y.log(data);
+                    	
                         Y.io(dburl, {
                             method: 'POST',
                             headers: {
