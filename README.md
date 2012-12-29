@@ -1,4 +1,4 @@
-AshleshaJS
+AshleshaJS [![Build Status](https://travis-ci.org/akshar100/ashleshajs.png)](https://travis-ci.org/akshar100/ashleshajs)
 ==============================
 
 AshleshaJS is a framework based on Express and YUI3. It helps build high performance, maintainable single page 
