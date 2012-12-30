@@ -161,7 +161,10 @@ process.argv.forEach(function(val, index, array) {
                     
                     process.chdir("./build");
                 
-                    require("./build/server.js");
+                	if(process.argv.indexOf("run")>=0){
+                		require("./build/server.js");
+                	}
+                    
                     
                 });
             
