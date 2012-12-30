@@ -56,7 +56,7 @@ YUI({
 				            "property":"value"
 				        });
 				        model.on("save",function(err,val){
-				            Y.Assert.isNotNull(model.get("_id","Model failed to get saved"));
+				            Y.Assert.isNotNull(model.get("_id"),"Model failed to get saved");
 				        });
 				        model.save();
 				        

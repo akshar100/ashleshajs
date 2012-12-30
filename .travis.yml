@@ -5,7 +5,7 @@ install:
     - sh init.sh
 script:
     - npm test
-    - node gear build
+    - node gear build migrate
     - cd build
     - node server-test.js
 services:
