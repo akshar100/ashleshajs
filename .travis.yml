@@ -5,8 +5,8 @@ install:
     - sh init.sh
 script:
     - npm test
-    - cd build
     - node gear build &
+    - cd build
     - node test-server.js
 notifications:
     email:
