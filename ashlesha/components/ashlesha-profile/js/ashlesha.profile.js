@@ -103,16 +103,15 @@ YUI().add('ashlesha-profile',function(Y) {
     	events:{
     		"button[type=submit]":{
     			click:function(e){
-    				var m = new Y.CommonModel(), self = this;
+    				var m = new Y.ProfileModel(), self = this;
     				e.halt();
     				m.set("_id",this.get("user").get("_id"));
     				m.set("id",this.get("user").get("_id"));
     				m.on('load',function(){ //make sure you are not saving a stale version of the model
     					self.plugModel(m);
-    					
-    					m.save(function(){
-    						Y.log("saved");
-    					});
+    					m.save();
+    					Y.log(m.toJSON());
+    					Y.fire("updateUser");
     				},this);
     				m.load();
     				
@@ -130,7 +129,7 @@ YUI().add('ashlesha-profile',function(Y) {
             this.loadModules();
 			m.set("_id", this.get("user").get("_id"));
 			m.load();
-			this.set("m",m);
+			
         }
     });
 

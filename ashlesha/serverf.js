@@ -280,6 +280,7 @@ YUI().add('ashlesha-base-models', function(Y) {
                         on: {
                             success: function(i, o, a) {
                                 var attrs = Y.JSON.parse(o.responseText);
+                                delete attrs.attrs;
                                 callback(null, attrs);
                             },
                             failure: function(i, response) {
