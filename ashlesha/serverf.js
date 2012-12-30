@@ -555,10 +555,6 @@ YUI().add('ashlesha-base-app', function(Y) {
 
             var self = this;
 
-/* io.sockets.on('connection', function(socket) {
-                
-            });
-            */
 
             ex.post("/" + confObj.TOKENS.modelMapURL, function(req, res) { //model mappers
                 var data = Y.JSON.parse(req.body.data),

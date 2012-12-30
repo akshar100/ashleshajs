@@ -32,6 +32,12 @@ wrench.copyDirSyncRecursive('./ashlesha', buildDir, { preserve:false });
     
     file = file.replace("@CLIENT_CONFIG@",JSON.stringify(clientConfig));
     fs.writeFileSync("./build/appv2.js",file);
+    
+    file = fs.readFileSync("./build/test.js","UTF-8");
+    file = file.replace("@CLIENT_CONFIG@",JSON.stringify(clientConfig));
+    fs.writeFileSync("./build/test.js",file);
+    
+    
 }());
 
 /**
@@ -81,9 +87,20 @@ process.argv.forEach(function(val, index, array) {
             jslint().
             run();
             
+            new gear.Queue({
+                registry: new gear.Registry({
+                    module: 'gear-lib'
+                })
+            }).
+            read(['build/serverf.js',buildfile,"build/test.js"]).
+            concat().
+            write(buildDir+'/server-test.js').
+            jslint().
+            run();
             
             
-             new gear.Queue({
+            
+            new gear.Queue({
                 registry: new gear.Registry({
                     module: 'gear-lib'
                 })
@@ -172,6 +189,7 @@ process.argv.forEach(function(val, index, array) {
         });
 
     }
+
     
 
 });
