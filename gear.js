@@ -156,14 +156,28 @@ process.argv.forEach(function(val, index, array) {
                 concat().
                 write(buildDir+'/public/static/js/externalcomponents.js').
                 run(function(err){
-                    console.log(err);
-                    
+                    var confObj = require('./build/config.js').config,
+                        API = require('api');
+                        API.init(confObj);
                     
                     process.chdir("./build");
                 
                 	if(process.argv.indexOf("run")>=0){
                 		require("./build/server.js");
                 	}
+                	
+                	if(process.argv.indexOf("test")>=0){
+                        require("./build/server-test.js");
+                    }
+                    
+                    if(process.argv.indexOf("migrate")>=0){
+                        
+                        API.api("/db/create",{},function(){
+                            
+                        });
+                        
+                        
+                    }
                     
                     
                 });
@@ -192,6 +206,8 @@ process.argv.forEach(function(val, index, array) {
         });
 
     }
+    
+    
 
     
 

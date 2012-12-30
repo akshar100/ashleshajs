@@ -26,21 +26,48 @@ YUI({
         'test',
         function(Y) {
         	
-        	var suite = new Y.Test.Suite("Infra Test Suite"),
+        	var infraSuite = new Y.Test.Suite("Infra Test Suite"),dbSuite = new Y.Test.Suite("DB Test Suite") ,
 				testCase = new Y.Test.Case({
 					testSimpleCase: function () {
 						
 						
 				        Y.Assert.areEqual(true, true, "Test Infra not working fine");
 				        
-				    }
+				   },
+				   testBasicInfrastructure:function(){
+				   		
+				   		Y.Assert.isObject(Y.api,"API Not Found");
+				   		Y.Assert.isObject(Y.AshleshaBaseView,"BaseView Not found");
+				   		Y.Assert.isObject(Y.AshleshaCurrentUserModel,"CurrentUserModel");
+				   	
+				   }
+				   
 					
+				}),
+				dbTests = new Y.Test.Case({
+				    testDBSetup:function(){
+				        Y.api.invoke("/db/update",{},function(err){
+				            Y.Assert.isNull(err,"DB Update Failed");
+				        });
+				        Y.Assert.isNull(null);
+				    },
+				    testCommonModel:function(){
+				        var model = new Y.CommonModel({
+				            "property":"value"
+				        });
+				        model.on("save",function(err,val){
+				            Y.Assert.isNotNull(model.get("_id","Model failed to get saved"));
+				        });
+				        model.save();
+				        
+				    }
 				});
 			
-			suite.add(testCase);
+			infraSuite.add(testCase);
+			dbSuite.add(dbTests);
 			
-			
-			Y.Test.Runner.add(suite);
+			Y.Test.Runner.add(infraSuite);
+			Y.Test.Runner.add(dbSuite);
 			
 			Y.Test.Runner.run();
         	

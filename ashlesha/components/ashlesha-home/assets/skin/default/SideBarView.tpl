@@ -1,7 +1,7 @@
 <script type="text/x-template" id="SideBarView-main-signed">
 	<div class="row">
 		<div class="span2">
-			<img src="{PROFILE_PIC}"/>
+			<img src="{PROFILE_PIC}" width="150"/>
 			<div class="tiny-label">{FIRSTNAME} {LASTNAME}</div>
 			<hr/>
 			<div class="row">

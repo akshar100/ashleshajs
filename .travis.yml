@@ -8,6 +8,8 @@ script:
     - node gear build
     - cd build
     - node server-test.js
+services:
+  - couchdb
 notifications:
     email:
         - akshar@akshar.co.in
