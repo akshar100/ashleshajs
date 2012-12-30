@@ -2,9 +2,7 @@ language: node_js
 node_js:
     - 0.8
 install:
-    - npm install
     - sh init.sh
-    - node gear build
 script:
     - npm test
 notifications:
