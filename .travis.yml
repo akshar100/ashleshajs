@@ -7,7 +7,7 @@ script:
     - npm test
     - node gear build
     - cd build
-    - node test-server.js
+    - node server-test.js
 notifications:
     email:
         - akshar@akshar.co.in
