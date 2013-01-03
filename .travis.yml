@@ -6,7 +6,6 @@ install:
 script:
     - npm install
     - node gear build migrate
-    - cd build
     - node gear build test
 services:
   - couchdb
