@@ -11,9 +11,54 @@ var YUI = require('yui').YUI,
     fs = require('fs'),
     http = require('http'),
     confObj = require('./config.js').config,
-    API = require('api');
-API.init(confObj);
+    API = require('api'),
+    OAuth = require('oauth').OAuth,
+    querystring = require('querystring');
 
+    API.init(confObj);
+
+
+
+YUI().add("ashlesha-server-component-builder",function(Y){
+    
+    Y.AshleshaServerComponentBuilder = Y.Base.create("AshelshaServerComponentBuilder",Y.Base,[],{
+        initializer:function(){
+            var self = this;
+            this.set("URLMaps",{});
+            Y.Array.each(confObj.ServerComponents,function(val,index){
+                var componentFile = val.replace(/-/g,"."),urls = require("./server-components/"+val+"/js/"+componentFile+".js").ROUTES;
+                Y.Object.each(urls,function(val,key){
+                    self.addRoute(key,val);
+                   
+                });
+                
+            });
+        },
+        addRoute:function(route,handler){
+            var urlmaps = this.get("URLMaps");
+            try{
+                urlmaps[route] = handler;
+                this.set("URLMaps",urlmaps);
+               
+            }catch(ex){
+                Y.log("Failed to add server side component "+this.name+"\n"+ex);
+            }
+            
+        },
+        getRoutes:function(){
+            var routes = [],urlmap = this.get("URLMaps");
+            Y.Object.each(urlmap,function(handler,url){
+               routes.push([url,handler]);
+                
+            });
+            
+            return routes;
+        }
+    });
+    
+}, '0.9.9', {
+    requires: ['base']
+});
 
 
 YUI().add('ashlesha-api-base', function(Y) {
@@ -79,7 +124,7 @@ YUI().add('ashlesha-base-models', function(Y) {
                 processTick;
             data = this.toJSON();
             processTick = 0;
-            
+
 
 
             try {
@@ -119,39 +164,39 @@ YUI().add('ashlesha-base-models', function(Y) {
                 }
                 Y.once("processQueue", function(e) {
 
-                    	
-                        Y.io(dburl, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            xdr: {
-                                use: "nodejs"
-                            },
-                            data: Y.JSON.stringify(data),
-                            on: {
-                                success: function(i, o, a) {
-                                    callback(null, Y.JSON.parse(o.responseText));
-                                },
-                                failure: function(i, response) {
-                                    var r = Y.JSON.parse(response.responseText);
-                                    callback(r.reason);
 
-                                }
+                    Y.io(dburl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        xdr: {
+                            use: "nodejs"
+                        },
+                        data: Y.JSON.stringify(data),
+                        on: {
+                            success: function(i, o, a) {
+                                callback(null, Y.JSON.parse(o.responseText));
+                            },
+                            failure: function(i, response) {
+                                var r = Y.JSON.parse(response.responseText);
+                                callback(r.reason);
+
                             }
-                        });
-                    
+                        }
+                    });
+
 
                 });
 
                 break;
             case "update":
 
-				
+
                 Y.once("processQueue", function(e) {
-                	
+
                     Y.log(data.password);
-                    
+
                     Y.io(dburl + "/" + data._id, {
                         method: 'PUT',
                         data: Y.JSON.stringify(data),
@@ -172,7 +217,7 @@ YUI().add('ashlesha-base-models', function(Y) {
                             }
                         }
                     });
-                    
+
 
                 });
 
@@ -192,32 +237,31 @@ YUI().add('ashlesha-base-models', function(Y) {
             }
             // Now let us process the data
             if (data.attrs) { //no need to save Attribute Metadata
-            	
-            	Y.Object.each(data.attrs,function(){
-            		processTick +=1;
-            	});
-            	
+                Y.Object.each(data.attrs, function() {
+                    processTick += 1;
+                });
+
                 Y.Object.each(data.attrs, function(val, key) {
 
                     if (val.hash) {
                         api.invoke("/user/hash_password", {
                             val: data[key]
-                        }, function(err,hash) {
+                        }, function(err, hash) {
                             data[key] = hash;
                             processTick -= 1;
-                           
-                            if(processTick===0){
-                            	Y.fire("processQueue");
+
+                            if (processTick === 0) {
+                                Y.fire("processQueue");
                             }
-                            
+
                         });
 
 
                     }
                     else {
                         processTick -= 1;
-                        if(processTick===0){
-                        	Y.fire("processQueue");
+                        if (processTick === 0) {
+                            Y.fire("processQueue");
                         }
                     }
 
@@ -230,8 +274,8 @@ YUI().add('ashlesha-base-models', function(Y) {
                 delete data.attrs;
             }
             else {
-                if(processTick===0){
-                	Y.fire("processQueue");
+                if (processTick === 0) {
+                    Y.fire("processQueue");
                 }
             }
         }
@@ -450,8 +494,10 @@ YUI().add('ashlesha-base-app', function(Y) {
     var express = require('express'),
         fs = require("fs"),
         Lang = Y.Lang,
-        oneYear = 31557600000;
-
+        oneYear = 31557600000,
+        builder = new Y.AshleshaServerComponentBuilder(),
+        serverComponents = builder.getRoutes();
+        
     Y.Express = express;
     //  var RedisStore = require('connect-redis')(express), Redis = require("redis");
     //var redis = Redis.createClient(), fileClient = Redis.createClient();
@@ -503,6 +549,12 @@ YUI().add('ashlesha-base-app', function(Y) {
                     req.api.set("user", user);
                     next();
                 });
+                /** API is decoupled from the NODEJS LAYER this middleware makes available an interface for that API through req object**/
+                app.use(function(req, res, next) {
+                    req.confObj = confObj;
+                    req.Y = Y; //Let the server components get access to our Y object
+                    next();
+                });
 
                 app.use(express.compress());
                 app.use(app.router);
@@ -549,12 +601,12 @@ YUI().add('ashlesha-base-app', function(Y) {
         },
         dispatch: function() {
 
-            var ex = this.get('express');
+            var ex = this.get('express'),self=this;
             ex.listen(confObj.TOKENS.port, function() {
                 Y.log("server started on:" + confObj.TOKENS.port);
             });
 
-            var self = this;
+           
 
 
             ex.post("/" + confObj.TOKENS.modelMapURL, function(req, res) { //model mappers
@@ -569,6 +621,12 @@ YUI().add('ashlesha-base-app', function(Y) {
                     model.setAttrs(data);
                     model.on(['save', 'load'], function() {
                         model.removeAttr("api");
+                        if(model.name === "SignUpModel"){ //Special Case
+                            Y.fire("UpdateUser",{
+                                user:model.toJSON(),
+                                success:true
+                            });
+                        }
                         res.send(Y.JSON.stringify({
                             success: true,
                             data: model.toJSON()
@@ -597,7 +655,6 @@ YUI().add('ashlesha-base-app', function(Y) {
                         model.set("_id", (data && data._id) || "");
                         model.load({
                             req: req
-
                         });
                     }
                     else if (action === "delete") {
@@ -712,6 +769,21 @@ YUI().add('ashlesha-base-app', function(Y) {
                 });
 
             });
+          
+
+            
+
+            
+
+            
+            Y.Array.each(serverComponents,function(val){
+                if(typeof val[1] === "function"){
+                    ex.get(val[0],val[1]);
+                }else{
+                    ex.get.apply(ex,[val[0]].concat(val[1]));
+                }
+                Y.log("\nLoading:"+val[0]);
+            });
 
 
 
@@ -742,6 +814,6 @@ YUI().add('ashlesha-base-app', function(Y) {
     Y.extend(Y.AshleshaBaseList, Y.ModelList, {});
 
 }, '0.99', {
-    requires: ['base', 'model-list', 'ashlesha-api-base', 'test'],
+    requires: ['base', 'model-list', 'ashlesha-api-base', 'test','ashlesha-server-component-builder'],
     skinnable: false
 });

@@ -9,7 +9,7 @@ var components = fs.readdirSync("ashlesha/components");
 var skin = "default";
 var skinfile = buildDir+'/views/' + skin + '/';
 
-components = ['ashlesha-api', 'ashlesha-common-model', 'ashlesha-form', 'ashlesha-formview', 'ashlesha-gmap', 'ashlesha-postview', 'ashlesha-page', 'ashlesha-places', 'ashlesha-relation', 'ashlesha-profile', 'ashlesha-home', 'ashlesha-mapview', 'ashlesha-login', 'ashlesha-signup', 'ashlesha-timeline', 'ashlesha-topbar', 'ashlesha-userpageview', 'ashlesha-wardrobe','ashlesha-fanpage','ashlesha-search','ashlesha-brandpage'];
+components = ['ashlesha-api', 'ashlesha-common-model', 'ashlesha-form', 'ashlesha-formview', 'ashlesha-gmap', 'ashlesha-postview', 'ashlesha-page', 'ashlesha-places', 'ashlesha-relation', 'ashlesha-profile', 'ashlesha-home', 'ashlesha-mapview', 'ashlesha-login', 'ashlesha-signup', 'ashlesha-timeline', 'ashlesha-topbar', 'ashlesha-userpageview', 'ashlesha-wardrobe','ashlesha-fanpage','ashlesha-search','ashlesha-brandpage','ashlesha-import-contacts'];
 
 wrench.rmdirSyncRecursive(buildDir,true);
 wrench.mkdirSyncRecursive(buildDir);
@@ -205,6 +205,19 @@ process.argv.forEach(function(val, index, array) {
             fs.writeFile(dirName + "/js/" + fileName + ".js", "YUI().add('" + moduleName + "',function(Y) {},'0.0.1',{ requires:['base','ashlesha-form','ashlesha-common-model']  });");
         });
 
+    }
+    if(val === "create-server-module"){
+        var moduleName = array[index + 1]; //Create a module with provided name
+        var dirName = 'ashlesha/server-components/' + moduleName;
+        fs.mkdir(dirName, 0777, function(err) {
+            var fileName = moduleName.replace(/-/g, ".");
+            fs.mkdir(dirName + "/js", 0777);
+            fs.mkdir(dirName + "/assets", 0777);
+            fs.mkdir(dirName + "/assets/skin", 0777);
+            fs.mkdir(dirName + "/assets/skin/default", 0777);
+            fs.mkdir(dirName + "/tests", 0777);
+            fs.writeFile(dirName + "/js/" + fileName + ".js", "exports.ROUTES = { '/urlpattern':function(req,res){} }; ");
+        });
     }
     
     

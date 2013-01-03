@@ -21,7 +21,10 @@
   	"nodemailer":"*",
   	"connect-redis":"*",
   	"crypto": "*",
-  	"yuitest":"*"
+  	"yuitest":"*",
+  	"oauth":"*",
+  	"querystring":"*",
+  	"ejs":"*"
   },
   "repository": {
     "type": "git",

@@ -14,10 +14,26 @@ config.TOKENS = {
     'listURL':'list',
     'apiURL':'api',
     'loaderImage':'/static/loader.gif',
-    'uploadURL':'upload'
+    'uploadURL':'upload',
+    'oAuth':{
+        "google":{
+            consumerKey:"anonymous",
+            consumerSecret:"anonymous"
+        },
+        "facebook":{
+            consumerKey:"",
+            consumerSecret:""
+        },
+        "yahoo":{
+            consumerKey:"dj0yJmk9dGNGTFlmTWI4UjRmJmQ9WVdrOVNFWlpaemRGTkdFbWNHbzlNVGs0TXpJMk16azJNZy0tJnM9Y29uc3VtZXJzZWNyZXQmeD00Yw--",
+            consumerSecret:"65277a7159ae118b512af9c22ce816a33229685a"
+        }
+    }
 };
 
 //Which Configuration attributes are visible to the client side ? 
 config.CLIENT = ['baseURL','modelMapURL','listURL','apiURL','loaderImage','uploadURL'];
+
+config.ServerComponents = ['google-login','yahoo-login'];
 
 exports.config = config;

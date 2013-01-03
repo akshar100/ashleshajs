@@ -1,7 +1,7 @@
 YUI().add('ashlesha-signup', function(Y) {
     
    
-       Y.SignUpModel = Y.Base.create("SignUpModel", Y.CommonModel, [], {
+    Y.SignUpModel = Y.Base.create("SignUpModel", Y.CommonModel, [], {
         initializer: function() {
             Y.SignUpModel.superclass.initializer.apply(this, [{
                 attrs: {
@@ -64,7 +64,7 @@ YUI().add('ashlesha-signup', function(Y) {
                 model.set("type", "user");
                 model = this.plugModel(model); //Method used to map the Form to the Model
                 model.on("save", function() { // User Registers successfully.
-                    this.signUpSuccess();
+                    this.signUpSuccess(model);
                 }, this);
                 model.save();
             }
@@ -72,8 +72,14 @@ YUI().add('ashlesha-signup', function(Y) {
                 Y.log(ex);
             }
         },
-        signUpSuccess: function() {
-            Y.api.invoke("/user/send_welcome_mail");
+        signUpSuccess: function(model) {
+           
+                Y.fire("updateUser",{
+                    navigate:"/invite_friends"
+                });
+                
+            
+           
             this.get('container').setHTML(this.get("template").one('#SignUpView-success').getHTML());
         }
     });

@@ -23,6 +23,7 @@ YUI({
         'ashlesha-search',
         'ashlesha-brandpage',
         'ashlesha-profile',
+        'ashlesha-import-contacts',
         function(Y) {
     
     var vcache = new Y.CacheOffline({
@@ -37,8 +38,13 @@ YUI({
     
     var currentUser = new Y.AshleshaCurrentUserModel();
     Y.currentUser = currentUser;
-    Y.on("updateUser", function() {
+    Y.on("updateUser", function(e) {
         currentUser.load();
+        if(e.navigate){
+            Y.fire("navigate",{
+                action:e.navigate
+            });
+        }
     });
     Y.HomeView = Y.Base.create("HomeView", Y.AshleshaBaseView, [], {
         altInitializer: function(auth) {
@@ -80,6 +86,21 @@ YUI({
 		app.navigate("/wardrobes",res);
 	});
 	
+	app.route("/invite_friends",function(req,res){
+	    this.showView('home',{
+	        req: req,
+	        res: res,
+	        user: currentUser,
+	        modules:{
+	            ".topbar": {
+	                view: "TopBarView"
+	            },
+	            ".homepage":{
+	                view: "AshleshaImportContactsView"
+	            }
+	        }
+	    });
+	});
 	
     app.route("/timeline", function(req, res) {
         this.showView('home', {
