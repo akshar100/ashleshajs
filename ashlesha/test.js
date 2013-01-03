@@ -76,8 +76,6 @@ YUI({
 				            model.load();
 				        });
 				        model.save();
-				        
-				        
 				    }
 				});
 			Y.api = new Y.BaseAPI();

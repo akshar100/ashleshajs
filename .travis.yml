@@ -4,7 +4,7 @@ node_js:
 install:
     - sh init.sh
 script:
-    - npm test
+    - npm install
     - node gear build migrate
     - cd build
     - node gear build test
