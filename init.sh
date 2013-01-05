@@ -2,7 +2,7 @@
 
 PROJECT_HOME=$(pwd);
 npm -v;
-npm install recess connect uglify-js jshint express crypto -g;
+npm install recess connect uglify-js jshint express crypto istanbul -g;
 
 cd ashlesha/public/static/bootstrap
 make clean

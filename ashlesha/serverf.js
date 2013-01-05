@@ -65,7 +65,9 @@ YUI().add('ashlesha-api-base', function(Y) {
     Y.APIEndpoint = {
         invoke: function(path, config, callback) {
             var response;
+            
             API.setYInstance(Y);
+            
             response = API.api(path, config, callback); //The Real API will never have callbacks into it
             return response;
         }
@@ -89,7 +91,12 @@ YUI().add('ashlesha-api-base', function(Y) {
                 cfg = config || {},
                 output;
             cfg.user = this.get("user"); // We need to send the current user with the API call as well.
-            output = ep.invoke(path, cfg, callback);
+            try { 
+                output = ep.invoke(path, cfg, callback); 
+            }catch(ex){
+                Y.log("Failed to access API");
+                
+            }
             if (typeof callback !== "undefined" && config && config.sync) {
                 callback(null, output);
             }
