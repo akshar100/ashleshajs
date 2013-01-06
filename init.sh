@@ -16,4 +16,10 @@ cd "$PROJECT_HOME";
 
 echo "Installing node modules "
 npm install
-node gear build run
+
+if [ "$1" = "run" ]
+then
+    node gear build run
+else
+    echo "Compiled Successfully"
+fi

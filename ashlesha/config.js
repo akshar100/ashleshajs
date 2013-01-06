@@ -7,7 +7,7 @@ config.TOKENS = {};
  */
 var host = process.env.URL , url ;
 if(host){
-    url = "http://"+host;
+    url = "http://"+host+"/";
 }
 
 config.TOKENS = {

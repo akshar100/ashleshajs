@@ -610,7 +610,7 @@ YUI().add('ashlesha-base-app', function(Y) {
             var ex = this.get('express'),self=this;
             ex.listen(confObj.TOKENS.port, function() {
                 Y.log("server started on:" + confObj.TOKENS.port);
-                Y.log(process.env);
+                Y.log("########"+process.env.URL+"###############");
             });
 
            
