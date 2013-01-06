@@ -12,7 +12,7 @@ echo "Checking for couchdb"
 
 couchdb
 
-cd $PROJECT_HOME;
+cd "$PROJECT_HOME";
 
 echo "Installing node modules "
 npm install
