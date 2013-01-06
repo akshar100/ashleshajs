@@ -1,1 +1,1 @@
-web: node gear build
+web: ./init.sh
