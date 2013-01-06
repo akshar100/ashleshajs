@@ -12,7 +12,7 @@ if(host){
 
 config.TOKENS = {
     'port':process.env.PORT || 8000,
-    'host':'localhost',
+    'host':host || 'localhost',
     'couchHost':'localhost',
     'couchPort':'5984',
     'couchdbURL':'http://localhost:5984/',
