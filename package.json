@@ -21,7 +21,13 @@
   	"yuitest":"*",
   	"oauth":"*",
   	"querystring":"*",
-  	"ejs":"*"
+  	"ejs":"*",
+  	"recess":"*",
+  	"connect":"*",
+  	"uglify-js":"*",
+  	"jshint":"*",
+  	"express":"*",
+  	"crypto":"*"
   },
   "repository": {
     "type": "git",
