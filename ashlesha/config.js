@@ -1,16 +1,23 @@
 var config = {};
 
-config.TOKENS = {}; 
+config.TOKENS = {};
 
+/**
+ * For Heroku
+ */
+var host = process.env.URL , url ;
+if(host){
+    url = "http://"+host;
+}
 config.TOKENS = {
-    'port':8000,
+    'port':process.env.PORT || 8000,
     'host':'localhost',
     'couchHost':'localhost',
     'couchPort':'5984',
     'couchdbURL':'http://localhost:5984/',
     'dbName':'devportal',
     'modelMapURL':'models/',
-    'baseURL':'http://localhost:8000/',
+    'baseURL':url || 'http://localhost:8000/',
     'listURL':'list',
     'apiURL':'api',
     'loaderImage':'/static/loader.gif',

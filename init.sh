@@ -16,3 +16,4 @@ cd $PROJECT_HOME;
 
 echo "Installing node modules "
 npm install
+node gear build run
