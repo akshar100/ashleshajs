@@ -5,7 +5,6 @@
 "use strict";
 
 var YUI = require('yui').YUI,
-    redis = require('redis'),
     io = require("socket.io"),
     crypto = require('crypto'),
     fs = require('fs'),
