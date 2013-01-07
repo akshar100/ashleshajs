@@ -36,6 +36,13 @@ config.TOKENS = {
             consumerKey:"dj0yJmk9dGNGTFlmTWI4UjRmJmQ9WVdrOVNFWlpaemRGTkdFbWNHbzlNVGs0TXpJMk16azJNZy0tJnM9Y29uc3VtZXJzZWNyZXQmeD00Yw--",
             consumerSecret:"65277a7159ae118b512af9c22ce816a33229685a"
         }
+    },
+    "amazon":{
+        "s3":{
+            "key": process.env.s3key, 
+            "secret":  process.env.s3secret, 
+            "bucket": process.env.s3Bucket || "brandabrand"
+        }
     }
 };
 

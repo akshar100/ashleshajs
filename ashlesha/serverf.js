@@ -12,8 +12,9 @@ var YUI = require('yui').YUI,
     confObj = require('./config.js').config,
     API = require('api'),
     OAuth = require('oauth').OAuth,
-    querystring = require('querystring');
-
+    querystring = require('querystring'),
+    knox = require("knox"),
+    client = knox.createClient(confObj.TOKENS.amazon.s3);
     API.init(confObj);
 
 
@@ -521,7 +522,7 @@ YUI().add('ashlesha-base-app', function(Y) {
                 app.set('views', __dirname + '/views');
                 app.set('view engine', 'haml');
                 app.use(express.bodyParser({
-                    uploadDir: __dirname + '/public/static/uploads',
+                //    uploadDir: __dirname + '/public/static/uploads',
                     keepExtensions: true
                 }));
                 app.use(express.limit('5mb'));
@@ -726,11 +727,28 @@ YUI().add('ashlesha-base-app', function(Y) {
 
             ex.post("/" + confObj.TOKENS.uploadURL, function(req, res) {
                 var file = req.files.fileupload.path,
-                    filename = file.split("/").pop();
-                res.send({
-                    success: true,
-                    url: "/static/uploads/" + filename
+                    filename = file.split("/").pop(),
+                    headers  = {
+                        'Content-Length':req.files.fileupload.size,
+                        'Content-Type':req.files.fileupload.type
+                    };
+                    
+                client.putFile(file ,"/"+filename , function(err, resp){
+                    if(err){
+                        res.send(Y.JSON.stringify({
+                            success: false
+                        }));
+                    }else{
+                         res.send(Y.JSON.stringify({
+                            success: true,
+                            url: 'http://s3.amazonaws.com/'+confObj.TOKENS.amazon.s3.bucket+"/"+filename
+                        }));
+                    }
                 });
+                    
+                    
+                    
+               
 
             });
 

@@ -27,7 +27,9 @@
   	"uglify-js":"*",
   	"jshint":"*",
   	"express":"*",
-  	"crypto":"*"
+  	"crypto":"*",
+  	"knox":"*",
+  	"knox-copy":"*"
   },
   "repository": {
     "type": "git",
