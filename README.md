@@ -72,7 +72,15 @@ All the primary configuration is available in config.js
 
 **Amazon S3 Support**
 AshleshaJS used Amazon S3 to maintain a common set of components which you may download. The bucket name is `ashlesha` and it is publicly available. 
-Also, AshleshaJS is configured to store the uploaded files to amazon s3 buckets. You may configure amazon s3 with Ashlesha by adding following
+Also, AshleshaJS is configured to store the uploaded files to amazon s3 buckets.
+
+Whenever a user uploads a file through your application it get stored in s3bucket. Hence the key and secret is required. 
+If you do not provide a key the files will be saved in build/public/static/uploaded folder. 
+
+s3repobucket is our public bucket where we have provided a large number of components which provide very basic functionality that 
+almost every app needs. Such as FormFields, Google and Yahoo Contacts importer, Google Maps Loader and so on.
+
+You may configure amazon s3 with Ashlesha by adding following
 three lines to your .bashrc file.
 
 `vi ~/.bashrc`
@@ -85,6 +93,13 @@ export s3bucket="<use a bucket name>"
 export s3repobucket="ashlesha"
 
 It is better to leave the s3repobucket value untouched. 
+
+Save .bashrc and run the following command
+
+source ~/.bashrc 
+
+**Note:** Amazon s3 support is totally optional. Even without amazon s3 key you will be able to download ashlesha modules from our public bucket. 
+
 
 Development
 --------------------------------
