@@ -2,16 +2,37 @@ AshleshaJS [![Build Status](https://travis-ci.org/akshar100/ashleshajs.png)](htt
 ==============================
 
 AshleshaJS is a framework based on Express and YUI3. It helps build high performance, maintainable single page 
-web applications based on best practices. 
+web applications based on best practices _needs citation_ :). 
 
-With AshleshaJS you design your HTTP API first and then build a web application as a set of independent resuable components. 
-Even thought AshleshaJS lets you build single page applications it also provides incremental enhancement support which means
-for the browsers (and crawlers) not supporting Javascript the application still serves pages though with degraded features. 
+With AshleshaJS you design your web application as reusable components of three types. 
+- Server Side components
+- Common Components (which are seemlessly usable at client as well as server)
+- Node Modules (Mostly to build components that are not neccessarily glued to web application)
+
+You stich these components together for build complex web applications. A NPM like package management system ensures that 
+distributing and loading these components is simple and hassel free.
+
+AshleshaJS is not a CMS. It is not intended for non-developers.
+
+Features
+-------------------------------
+- YUI3 App Framework which uses MVC at client side
+- ExpressJS on the server side
+- Model valdiations are written once but run on both server as well as client (like Meteor)
+- One click deployment to heroku 
+- File uploads to Amazon s3
+- Amazon SES for email delivery (optional)
+- Precompiled templates
+- A grade for performance on YSlow
+- A command line package manager to distribute and install components
+- Default templating system used Twitter Bootstrap
+
  
 Installation
 -------------------------------
 
-AshleshaJS requires NodeJS >=0.6.0, REDIS and CouchDB to be present on the machine.
+AshleshaJS requires NodeJS >=0.8.0 and CouchDB to be present on the machine. If you do not plan to use a database 
+you need not install couchdb.
 
 Run the following command to install AshleshaJS
 
@@ -19,17 +40,30 @@ Run the following command to install AshleshaJS
 
 Then run the following commands
 
- - sudo sh init.sh
- - node gear build
+ - sudo sh init.sh 
+ - node gear build test 
+ - node gear build run
 
 
 Visit http://localhost:8000/ to visit the web app. 
 
 Heroku
 --------------------------------
-Ashlesha 2.0 will support Heroku. It is possible to simple deploy the application on the Heroku.
-Currently the Bootstrap framework does not get compiled on Heroku and we are looking out for workarounds.
+AshelshaJS support one click (or command) deployment to heroku. To deploy your application to heroku run the following command
 
+- ./heroku.sh create myappname 
+- ./heroku.sh push 
+
+For Amazon s3 support for file uploads run
+
+- heroku config:add s3key=yourkey
+- heroku config:add s3secret=yoursecretkey
+- heroku config:add s3bucket=bucketname
+- git add .
+- git commit -m "Your change log"
+- ./heorku.sh push
+
+Note: If there is no file to commit then modify some file and commit the changes. 
 
 Development
 --------------------------------
@@ -39,15 +73,22 @@ The main application file is appv2.js. This is where you tie the URLS to compone
 Creating your components
 ========================
 
-Create the command
+Run the command for building a common component.
 
 - node gear create 'module_name'
+
+This will creaet a directory named module_name in ashlesha/components
+
+The directory structure will consist of one Javascript file and one template file. The JS file is nothing but a YUI module. 
+
+You are expected to write Models and Views in such files. (However you can write any other Javascript code.)
 
 
 Roadmap
 --------------------------------
 
-- API does not support Sync methods
+- Tighter integration with Facebook, Google and Yahoo
+- Package Manager
 
 License
 --------------------------------

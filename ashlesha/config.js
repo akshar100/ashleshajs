@@ -41,7 +41,7 @@ config.TOKENS = {
         "s3":{
             "key": process.env.s3key || "samplekey", 
             "secret":  process.env.s3secret || "secretkey", 
-            "bucket": process.env.s3Bucket || "brandabrand"
+            "bucket": process.env.s3bucket || "brandabrand"
         }
     }
 };
