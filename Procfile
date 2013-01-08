@@ -1,1 +1,1 @@
-web: ./init.sh run
+web: scripts/init.sh run

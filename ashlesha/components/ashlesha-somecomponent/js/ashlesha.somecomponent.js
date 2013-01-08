@@ -1,1 +1,0 @@
-YUI().add('ashlesha-somecomponent',function(Y) {},'0.0.1',{ requires:['base','ashlesha-form','ashlesha-common-model']  });

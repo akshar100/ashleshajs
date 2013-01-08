@@ -40,7 +40,7 @@ Run the following command to install AshleshaJS
 
 Then run the following commands
 
- - sudo sh init.sh 
+ - sudo sh scripts/init.sh 
  - node gear build test 
  - node gear build run
 
@@ -51,8 +51,8 @@ Heroku
 --------------------------------
 AshelshaJS support one click (or command) deployment to heroku. To deploy your application to heroku run the following command
 
-- ./heroku.sh create myappname 
-- ./heroku.sh push 
+- scripts/heroku.sh create myappname 
+- scripts/heroku.sh push 
 
 For Amazon s3 support for file uploads run
 
@@ -63,7 +63,28 @@ For Amazon s3 support for file uploads run
 - git commit -m "Your change log"
 - ./heorku.sh push
 
-Note: If there is no file to commit then modify some file and commit the changes. 
+Note: If there is no file to commit then modify some file and commit the changes. If you do not specify s3 configuration Heroku will not save any uploaded files.
+
+Configuration
+--------------------------------
+
+All the primary configuration is available in config.js
+
+**Amazon S3 Support**
+AshleshaJS used Amazon S3 to maintain a common set of components which you may download. The bucket name is `ashlesha` and it is publicly available. 
+Also, AshleshaJS is configured to store the uploaded files to amazon s3 buckets. You may configure amazon s3 with Ashlesha by adding following
+three lines to your .bashrc file.
+
+`vi ~/.bashrc`
+
+Then paste the following 4 lines at the bottom
+
+export s3key="Your s3 key, leave blank if you dont have one"
+export s3secret="Your s3 secret leave blank if you dont have one"
+export s3bucket="<use a bucket name>"
+export s3repobucket="ashlesha"
+
+It is better to leave the s3repobucket value untouched. 
 
 Development
 --------------------------------

@@ -2,7 +2,7 @@ language: node_js
 node_js:
     - 0.8
 install:
-    - sh init.sh
+    - sh scripts/init.sh
 script:
     - npm install
     - node gear build migrate
