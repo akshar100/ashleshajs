@@ -9,7 +9,18 @@ var components = fs.readdirSync("ashlesha/components");
 var skin = "default";
 var skinfile = buildDir+'/views/' + skin + '/';
 
-components = ['ashlesha-api', 'ashlesha-common-model', 'ashlesha-form', 'ashlesha-formview', 'ashlesha-gmap', 'ashlesha-postview', 'ashlesha-page', 'ashlesha-places', 'ashlesha-relation', 'ashlesha-profile', 'ashlesha-home', 'ashlesha-mapview', 'ashlesha-login', 'ashlesha-signup', 'ashlesha-timeline', 'ashlesha-topbar', 'ashlesha-userpageview', 'ashlesha-wardrobe','ashlesha-fanpage','ashlesha-search','ashlesha-brandpage','ashlesha-import-contacts'];
+components = [  
+                'ashlesha-api', 
+                'ashlesha-common-model', 
+                'ashlesha-form', 
+                'ashlesha-formview', 
+                'ashlesha-profile', 
+                'ashlesha-home',  
+                'ashlesha-login', 
+                'ashlesha-signup', 
+                'ashlesha-topbar', 
+                'ashlesha-import-contacts'
+             ];
 
 wrench.rmdirSyncRecursive(buildDir,true);
 wrench.mkdirSyncRecursive(buildDir);

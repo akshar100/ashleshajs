@@ -12,18 +12,9 @@ YUI({
         'ashlesha-base-view',
         'ashlesha-topbar',
         'ashlesha-home',
-        'ashlesha-timeline',
-        'ashlesha-wardrobe',
+        'ashlesha-formview',
         'ashlesha-signup',
         'ashlesha-login',
-        'ashlesha-page',
-        'ashlesha-places',
-        'ashlesha-gmap',
-        'ashlesha-fanpage',
-        'ashlesha-search',
-        'ashlesha-brandpage',
-        'ashlesha-profile',
-        'ashlesha-import-contacts',
         function(Y) {
     
     var vcache = new Y.CacheOffline({
@@ -67,9 +58,6 @@ YUI({
         views: {
             home: {
                 type: "HomeView"
-            },
-            page: {
-                type: "PageView"
             }
         },
         transitions: {
@@ -83,24 +71,22 @@ YUI({
     app.routeMap("/test","test-url");
 
 	app.route("/",function(req,res){
-		app.navigate("/wardrobes",res);
+		this.showView('home', {
+            req: req,
+            res: res,
+            user: currentUser,
+            modules: {
+                ".topbar": {
+                    view: "TopBarView"
+                },
+                ".homepage": {
+                    view: "HomePageView"
+                }
+            }
+        });
 	});
 	
-	app.route("/invite_friends",function(req,res){
-	    this.showView('home',{
-	        req: req,
-	        res: res,
-	        user: currentUser,
-	        modules:{
-	            ".topbar": {
-	                view: "TopBarView"
-	            },
-	            ".homepage":{
-	                view: "AshleshaImportContactsView"
-	            }
-	        }
-	    });
-	});
+	
 	
     app.route("/timeline", function(req, res) {
         this.showView('home', {
