@@ -43,6 +43,14 @@ config.TOKENS = {
             "secret":  process.env.s3secret || "secretkey", 
             "bucket": process.env.s3bucket || "brandabrand"
         }
+    },
+    uploadPath:"/public/static/uploads'"
+};
+
+config.KNOBS = {
+    upload:{
+        type:"fs", //OtherOptions "s3"
+        config: config.TOKENS.uploadPath //Options config.TOKENS.amazon.s3
     }
 };
 

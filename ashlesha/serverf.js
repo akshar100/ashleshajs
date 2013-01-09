@@ -521,10 +521,21 @@ YUI().add('ashlesha-base-app', function(Y) {
                 var oneYear = 0;
                 app.set('views', __dirname + '/views');
                 app.set('view engine', 'haml');
-                app.use(express.bodyParser({
-                //    uploadDir: __dirname + '/public/static/uploads',
-                    keepExtensions: true
-                }));
+                
+                if(confObj && confObj.KNOBS.upload){
+                    if(confObj.KNOBS.upload.type==="fs"){
+                        app.use(express.bodyParser({
+                            uploadDir: __dirname + confObj.KNOBS.upload.config,
+                            keepExtensions: true
+                        }));
+                    }else{
+                        app.use(express.bodyParser({
+                            keepExtensions: true
+                        }));
+                    }
+                }
+                
+                
                 app.use(express.limit('5mb'));
                 app.use(express.methodOverride());
                 app.use(express.cookieParser());
@@ -725,33 +736,47 @@ YUI().add('ashlesha-base-app', function(Y) {
 
             });
 
-            ex.post("/" + confObj.TOKENS.uploadURL, function(req, res) {
-                var file = req.files.fileupload.path,
-                    filename = file.split("/").pop(),
-                    headers  = {
-                        'Content-Length':req.files.fileupload.size,
-                        'Content-Type':req.files.fileupload.type
-                    };
-                    
-                client.putFile(file ,"/"+filename , function(err, resp){
-                    if(err){
-                        res.send(Y.JSON.stringify({
-                            success: false
-                        }));
-                    }else{
-                         res.send(Y.JSON.stringify({
-                            success: true,
-                            url: 'http://s3.amazonaws.com/'+confObj.TOKENS.amazon.s3.bucket+"/"+filename
-                        }));
-                    }
+
+            if(confObj.KNOBS.upload === "s3"){
+                 ex.post("/" + confObj.TOKENS.uploadURL, function(req, res) {
+                    var file = req.files.fileupload.path,
+                        filename = file.split("/").pop(),
+                        headers  = {
+                            'Content-Length':req.files.fileupload.size,
+                            'Content-Type':req.files.fileupload.type
+                        };
+                        
+                    client.putFile(file ,"/"+filename , function(err, resp){
+                        if(err){
+                            res.send(Y.JSON.stringify({
+                                success: false
+                            }));
+                        }else{
+                             res.send(Y.JSON.stringify({
+                                success: true,
+                                url: 'http://s3.amazonaws.com/'+confObj.TOKENS.amazon.s3.bucket+"/"+filename
+                            }));
+                        }
+                    });
+
                 });
-                    
-                    
-                    
-               
 
-            });
+                
+            }else if(confObj.KNOBS.upload === "fs"){
+                
+                ex.post("/" + confObj.TOKENS.uploadURL, function(req, res) {
+                    var file = req.files.fileupload.path,
+                        filename = file.split("/").pop();
+                        
+                        res.send(Y.JSON.stringify({
+                            success:true,
+                            url:confObj.KNOBS.upload.config+"/"+filename
+                        }));   
 
+                });
+                
+            }
+           
             ex.post("/list", function(req, res) {
                 var data = {
                     name: req.body.name,

@@ -73,3 +73,8 @@ footer
 	padding-left:5px;
 	border-bottom:1px solid #ddd;
 }
+.topbar{
+	position:static;
+	top:0px;
+	left:0px;
+}
