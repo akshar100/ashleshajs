@@ -10,10 +10,12 @@ YUI({
         'cache-offline',
         'ashlesha-base-models', 
         'ashlesha-base-view',
+        'ashlesha-formview',
         'ashlesha-topbar',
         'ashlesha-home',
         'ashlesha-signup',
         'ashlesha-login',
+        
         'test',
         'ashlesha-api-base',
         function(Y) {
