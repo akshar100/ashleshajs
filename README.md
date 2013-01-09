@@ -123,8 +123,10 @@ You are expected to write Models and Views in such files. (However you can write
 Roadmap
 --------------------------------
 
-- Tighter integration with Facebook, Google and Yahoo
-- Package Manager
+- [] Tighter integration with Facebook, Google and Yahoo
+- [] Package Manager to download relevant components 
+- [] Separation of URL to View mapping 
+- [] Canned Queries
 
 License
 --------------------------------
