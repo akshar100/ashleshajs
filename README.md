@@ -87,10 +87,10 @@ three lines to your .bashrc file.
 
 Then paste the following 4 lines at the bottom
 
-export s3key="Your s3 key, leave blank if you dont have one"
-export s3secret="Your s3 secret leave blank if you dont have one"
-export s3bucket="<use a bucket name>"
-export s3repobucket="ashlesha"
+`export s3key="Your s3 key, leave blank if you dont have one"`
+`export s3secret="Your s3 secret leave blank if you dont have one"`
+`export s3bucket="<use a bucket name>"`
+`export s3repobucket="ashlesha"`
 
 It is better to leave the s3repobucket value untouched. 
 
