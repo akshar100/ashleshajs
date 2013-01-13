@@ -5,8 +5,8 @@ var knox = require("knox"),
         bucket:process.env.s3repobucket || "ashlesha"
     },
     client = knox.createClient(conf),
-    module = process.argv[3],
-    location = process.argv[2],
+    module = process.argv[2],
+    location = process.argv[3],
     fs = require("fs"),
     http = require("http");
     
